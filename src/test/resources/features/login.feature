@@ -4,14 +4,16 @@ Feature: Login page
 
   Scenario Outline: user sign in as a tenant
     Given the user is on login page
-    When he fill username as "username" and password as "password"
+    And he choose sign in as tenant
+    When he fill username as "<username>" and password as "<password>"
     And press submit button
-    Then search for user in the database
-    And give the correct status as "status" and message as "message"
+    Then give the correct status as "<status>" and message as "<message>"
+    And navigate to the tenant page if "<status>" is success
 
       Examples:
-        | username | password | status  | message                          |
-        | Amro     | '123'    | success | no message                       |
-        | Amro     | '1234'   | fail    | invalid username and/or password |
-        | Amr      | '123'    | fail    | invalid username and/or password |
-        | Amro     | '12'     | fail    | invalid username and/or password |
+        | username | password    | status  | message                           |
+        | Amro     | 123         | success | no message                        |
+        | Amro     |  1234       | fail    | Invalid username and/or password. |
+        | Amr      |  123        | fail    | Invalid username and/or password. |
+        | Amro     |             | fail    | Invalid username and/or password. |
+        | Ahmad    |  12345      | success | no message                        |

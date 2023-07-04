@@ -4,14 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6c859f4f-11f7-4675-9263-e7024c99aaff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+    <list default="true" id="6c859f4f-11f7-4675-9263-e7024c99aaff" name="Changes" comment="project created, first commit">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/Database.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/TenantPage.form" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/TenantPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/Application.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/Application.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/LoginPage.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/LoginPage.form" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/LoginPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/sakancom/test/LoginStepDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sakancom/test/LoginStepDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/resources/features/login.feature" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/resources/features/login.feature" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +30,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -56,6 +65,9 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="sakancom" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Workspaces\java\software_engineering\sakancom\src\main\resources\images" />
     </key>
@@ -63,6 +75,19 @@
   <component name="RunManager" selected="JUnit.LoginTest">
     <configuration name="Application" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="sakancom.Application" />
+      <module name="sakancom" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="sakancom.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="sakancom.Main" />
       <module name="sakancom" />
       <extension name="coverage">
         <pattern>
@@ -110,6 +135,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.LoginTest" />
+        <item itemvalue="Application.Main" />
         <item itemvalue="Cucumber Java.Feature: login" />
         <item itemvalue="Application.Main" />
       </list>
@@ -124,6 +150,14 @@
       <option name="presentableId" value="Default" />
       <updated>1688461280261</updated>
     </task>
+    <task id="LOCAL-00001" summary="project created, first commit">
+      <created>1688483058938</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1688483058938</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -136,5 +170,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="project created, first commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="project created, first commit" />
   </component>
 </project>
