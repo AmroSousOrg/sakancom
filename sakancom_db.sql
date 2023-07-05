@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 04, 2023 at 04:54 PM
+-- Generation Time: Jul 05, 2023 at 04:45 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `admin` (
   `admin_id` int(11) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
+  `password` varchar(260) NOT NULL,
   `phone` int(11) NOT NULL,
   `email` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -75,7 +75,7 @@ CREATE TABLE `housing` (
 CREATE TABLE `owners` (
   `owner_id` int(11) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
+  `password` varchar(260) NOT NULL,
   `phone` int(11) NOT NULL,
   `email` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -104,7 +104,7 @@ CREATE TABLE `reservations` (
 CREATE TABLE `tenants` (
   `tenant_id` int(10) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
+  `password` varchar(260) NOT NULL,
   `age` int(4) DEFAULT NULL,
   `phone` varchar(11) NOT NULL,
   `email` varchar(50) NOT NULL,
@@ -116,7 +116,8 @@ CREATE TABLE `tenants` (
 --
 
 INSERT INTO `tenants` (`tenant_id`, `name`, `password`, `age`, `phone`, `email`, `university_major`) VALUES
-(1, 'Ahmad', '12345', 25, '0599565621', 'exmaple333@gmail.com', 'computer engineer');
+(3, 'Amro', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 21, '0592793930', 'amroosous@gmail.com', 'computer engineer'),
+(4, 'Ahmad', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 25, '0599565621', 'exmaple333@gmail.com', 'computer engineer');
 
 --
 -- Indexes for dumped tables
@@ -160,7 +161,8 @@ ALTER TABLE `reservations`
 -- Indexes for table `tenants`
 --
 ALTER TABLE `tenants`
-  ADD PRIMARY KEY (`tenant_id`);
+  ADD PRIMARY KEY (`tenant_id`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -200,7 +202,7 @@ ALTER TABLE `reservations`
 -- AUTO_INCREMENT for table `tenants`
 --
 ALTER TABLE `tenants`
-  MODIFY `tenant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `tenant_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
