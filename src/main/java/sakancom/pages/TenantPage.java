@@ -1,12 +1,13 @@
-package sakancom;
+package sakancom.pages;
 
 import javax.swing.*;
 
 public class TenantPage extends JFrame {
 
-    private JPanel mainPanel;
-
-    public TenantPage () {
+    public JPanel mainPanel;
+    public final String username;
+    public TenantPage (String name) {
+        this.username = name;
         setContentPane(mainPanel);
         setTitle("Tenant Page");
         setDefaultCloseOperation(EXIT_ON_CLOSE);

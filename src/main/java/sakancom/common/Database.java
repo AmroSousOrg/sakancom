@@ -1,5 +1,6 @@
-package sakancom;
+package sakancom.common;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 /*
@@ -24,14 +25,19 @@ public final class Database {
         Method to query a specified user based on name and password
         and role (tenant / owner / admin).
     * */
-    public static ResultSet getUser(String name, String password, String role, Connection conn) throws SQLException {
+    public static ResultSet getUser(String name, String password, String role, Connection conn)
+            throws SQLException {
 
         String query = "SELECT * FROM `%s` WHERE `name` = ? and `password` = ?";
         query = String.format(query, role);
         PreparedStatement stmt = conn.prepareStatement(query);
 
         stmt.setString(1, name);
-        stmt.setString(2, password);
+        try {
+            stmt.setString(2, Functions.sha256(password));
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
         return stmt.executeQuery();
     }
 

@@ -12,7 +12,7 @@ Feature: Login page
 
       Examples:
         | username | password    | status  | message                           |
-        | Amro     | 123         | success | no message                        |
+        | Amro     |  123        | success | no message                        |
         | Amro     |  1234       | fail    | Invalid username and/or password. |
         | Amr      |  123        | fail    | Invalid username and/or password. |
         | Amro     |             | fail    | Invalid username and/or password. |
