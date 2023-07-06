@@ -2,7 +2,7 @@ package sakancom;
 
 /*
 
-    Driver class
+    Main Driver class
 
 */
 public class Main {

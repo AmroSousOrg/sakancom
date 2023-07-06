@@ -16,6 +16,8 @@
 
     <dependencies>
 
+        <!-- Cucumber dependency -->
+
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -43,10 +45,21 @@
             <version>7.12.1</version>
         </dependency>
 
+        <!-- Database connector -->
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
+        </dependency>
+
+        <!-- DBUnit dependency -->
+
+        <dependency>
+            <groupId>org.dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>2.7.3</version>
+            <scope>test</scope>
         </dependency>
 
 

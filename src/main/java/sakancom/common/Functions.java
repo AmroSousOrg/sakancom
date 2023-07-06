@@ -3,6 +3,10 @@ package sakancom.common;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.HashMap;
 
 /*
 
@@ -47,5 +51,23 @@ public class Functions {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    /*
+        method to convert ResultSet of one row  to HashMap<String, String>
+        mapping column name with column value as string
+    */
+    public static HashMap<String, Object> rsToHashMap(ResultSet rs)
+            throws SQLException {
+
+        ResultSetMetaData md = rs.getMetaData();
+        int columns = md.getColumnCount();
+        HashMap<String, Object> ret = new HashMap<>();
+        if (!rs.isAfterLast()) {
+            for (int i = 1; i <= columns; i++) {
+                ret.put(md.getColumnName(i), rs.getObject(i));
+            }
+        }
+        return ret;
     }
 }

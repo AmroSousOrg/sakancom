@@ -1,6 +1,7 @@
 package sakancom;
 
 import sakancom.common.Database;
+import sakancom.common.Functions;
 import sakancom.pages.AdminPage;
 import sakancom.pages.LoginPage;
 import sakancom.pages.OwnerPage;
@@ -37,8 +38,7 @@ public class Application {
         method to open login page in application
     */
     public static void openLoginPage() {
-        openedPage = new LoginPage();
-        openedPage.setVisible(true);
+        openPage(new LoginPage());
         status = PAGE.LOGIN;
     }
 
@@ -49,9 +49,7 @@ public class Application {
         Connection conn = Database.makeConnection();
         ResultSet rs = Database.getTenant(name, password, conn);
         if (rs.next()) {
-            openedPage.setVisible(false);
-            openedPage = new TenantPage(name);
-            openedPage.setVisible(true);
+            openPage(new TenantPage(Functions.rsToHashMap(rs)));
             status = PAGE.TENANT;
             conn.close();
             return true;
@@ -67,9 +65,7 @@ public class Application {
         Connection conn = Database.makeConnection();
         ResultSet rs = Database.getOwner(name, password, conn);
         if (rs.next()) {
-            openedPage.setVisible(false);
-            openedPage = new OwnerPage(name);
-            openedPage.setVisible(true);
+            openPage(new OwnerPage(Functions.rsToHashMap(rs)));
             status = PAGE.OWNER;
             conn.close();
             return true;
@@ -85,14 +81,23 @@ public class Application {
         Connection conn = Database.makeConnection();
         ResultSet rs = Database.getAdmin(name, password, conn);
         if (rs.next()) {
-            openedPage.setVisible(false);
-            openedPage = new AdminPage(name);
-            openedPage.setVisible(true);
+            openPage(new AdminPage(Functions.rsToHashMap(rs)));
             status = PAGE.ADMIN;
             conn.close();
             return true;
         }
         conn.close();
         return false;
+    }
+
+    /*
+        private method open page that assert given class instance
+        to the openedPage variable, and control visibility.
+    */
+    private static void openPage(JFrame page) {
+        if (page == null) return;
+        if (openedPage != null) openedPage.setVisible(false);
+        openedPage = page;
+        openedPage.setVisible(true);
     }
 }
