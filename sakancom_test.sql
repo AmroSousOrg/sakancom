@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `sakancom_db`
+-- Database: `sakancom_test`
 --
 
 -- --------------------------------------------------------
@@ -40,7 +40,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`admin_id`, `name`, `password`, `phone`, `email`) VALUES
-(1, 'Admin', 'c1c224b03cd9bc7b6a86d77f5dace40191766c485cd55dc48caf9ac873335d6f', '0599956234', 'amroosous@gmail.com');
+(1, 'Admin', 'c1c224b03cd9bc7b6a86d77f5dace40191766c485cd55dc48caf9ac873335d6f', '0592793930', 'amroosous@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -86,6 +86,13 @@ CREATE TABLE `owners` (
   `phone` varchar(11) NOT NULL,
   `email` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `owners`
+--
+
+INSERT INTO `owners` (`owner_id`, `name`, `password`, `phone`, `email`) VALUES
+(1, 'owner1', '1557f949eb074ee1de813d3598b394ea654e9066ba7dd5ffe290848c31a8c9c8', '0599565621', 'amroosous@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -197,7 +204,7 @@ ALTER TABLE `housing`
 -- AUTO_INCREMENT for table `owners`
 --
 ALTER TABLE `owners`
-  MODIFY `owner_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `owner_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `reservations`

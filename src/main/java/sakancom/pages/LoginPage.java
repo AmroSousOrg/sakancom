@@ -3,7 +3,8 @@ package sakancom.pages;
 import sakancom.Application;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
 public class LoginPage extends JFrame {
@@ -25,8 +26,6 @@ public class LoginPage extends JFrame {
     public JButton registerClear;
     public JPanel tenantPanel;
     public JTextField tenantName;
-    public JTextField tenantPassword;
-    public JTextField tenantConfirmPass;
     public JTextField tenantAge;
     public JTextField tenantMajor;
     public JTextField tenantPhone;
@@ -34,11 +33,14 @@ public class LoginPage extends JFrame {
     public JPanel ownerPanel;
     public JLabel ownerErrorLabel;
     public JTextField ownerName;
-    public JTextField ownerPassword;
-    public JTextField ownerConfirmPass;
     public JTextField ownerPhone;
     public JTextField ownerEmail;
     public JLabel tenantErrorLabel;
+    private JLabel backArrow;
+    private JPasswordField tenantPassword;
+    private JPasswordField tenantConfirmPass;
+    private JPasswordField passwordField1;
+    private JPasswordField passwordField2;
 
     public static final int TENANT = 1, OWNER = 2, ADMIN = 3;
     public int registerChoice;
@@ -58,8 +60,8 @@ public class LoginPage extends JFrame {
         /*
 
 
-            ActionListener for the clear button to clear
-            all the fields in the page.
+            ActionListener for the sign in clear button
+            to clear all the fields in the page.
 
         * */
         clearButton.addActionListener(e -> {
@@ -118,11 +120,12 @@ public class LoginPage extends JFrame {
 
             AddItemListener to choose registration panel for
             tenants or owners based on comboBox choice.
+
          */
         registerCombo.addItemListener(e -> {
             int selected = registerCombo.getSelectedIndex();
             fieldsPanel.removeAll();
-            if (selected == 1) {
+            if (selected == 0) {
                 // tenant panel
                 fieldsPanel.add(tenantPanel);
             }
@@ -146,6 +149,20 @@ public class LoginPage extends JFrame {
             mainPanel.add(registerPanel);
             mainPanel.repaint();
             mainPanel.revalidate();
+        });
+
+        /*
+            create mouse click listener for the back arrow
+            label to return to sign in panel
+        */
+        backArrow.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                mainPanel.removeAll();
+                mainPanel.add(loginPanel);
+                mainPanel.repaint();
+                mainPanel.revalidate();
+            }
         });
     }
 }

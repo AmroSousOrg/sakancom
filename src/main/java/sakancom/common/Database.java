@@ -4,14 +4,18 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 /*
+
     This class is made to manage all database functionality such as implementations
     of all queries required by the system.
     And it contains the information about the database
-* */
+
+*/
 public final class Database {
 
     // Database info
-    public static final String DATABASE_NAME = "sakancom_db";
+    public static final String DATABASE_DATA_NAME = "sakancom_db";
+    public static final String DATABASE_TEST_NAME = "sakancom_test";
+    public static String DATABASE_NAME = DATABASE_DATA_NAME;
     public static final String DATABASE_PASSWORD = "12345";
     public static final String DATABASE_USERNAME = "sw_team";
 
@@ -24,7 +28,7 @@ public final class Database {
     /*
         Method to query a specified user based on name and password
         and role (tenant / owner / admin).
-    * */
+    */
     public static ResultSet getUser(String name, String password, String role, Connection conn)
             throws SQLException {
 
@@ -54,5 +58,15 @@ public final class Database {
     // query the admin based on name and password
     public static ResultSet getAdmin(String name, String password, Connection conn) throws SQLException {
         return getUser(name, password, "admin", conn);
+    }
+
+    // method to switch database name to test database for testing purpose
+    public static void switchToTestDatabase() {
+        DATABASE_NAME = DATABASE_TEST_NAME;
+    }
+
+    // method to switch database name to data database after testing
+    public static void switchToDataDatabase() {
+        DATABASE_NAME = DATABASE_DATA_NAME;
     }
 }
