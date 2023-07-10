@@ -104,7 +104,7 @@ CREATE TABLE `reservations` (
   `reservation_id` int(10) UNSIGNED NOT NULL,
   `tenant_id` int(10) UNSIGNED NOT NULL,
   `housing_id` int(10) UNSIGNED NOT NULL,
-  `reservation_date` date NOT NULL DEFAULT current_timestamp(),
+  `reservation_date` date NOT NULL,
   `floor_num` int(11) NOT NULL,
   `apart_num` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

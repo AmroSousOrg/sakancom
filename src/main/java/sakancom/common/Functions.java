@@ -1,5 +1,9 @@
 package sakancom.common;
 
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 /*
 
@@ -33,7 +38,7 @@ public class Functions {
         method to validate String password with the encrypted one
         if they are equal it returns true otherwise return false
     */
-    public static boolean validatePassword(String password, String encrypted)
+    public static boolean validateEncryptionMatch(String password, String encrypted)
             throws NoSuchAlgorithmException {
         return encrypted.equals(sha256(password));
     }
@@ -69,5 +74,26 @@ public class Functions {
             }
         }
         return ret;
+    }
+
+    /*
+        method to clear all fields in a given parent component
+    */
+    public static void clearAllChildren(JComponent parent) {
+        Stream.of(parent.getComponents()).filter(c -> c instanceof JTextComponent)
+                .forEach(c -> ((JTextComponent) c).setText(""));
+    }
+
+    /*
+        write to log file named logger.text
+    */
+    public static void writeLogFile(String message) {
+        try {
+            FileWriter writer = new FileWriter("target/logger.txt");
+            writer.write(message);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

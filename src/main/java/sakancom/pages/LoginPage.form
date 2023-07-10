@@ -56,10 +56,10 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="Submit"/>
+                  <text value="Sign in"/>
                 </properties>
               </component>
-              <component id="5bd2c" class="javax.swing.JButton" binding="createAccountButton" default-binding="true">
+              <component id="5bd2c" class="javax.swing.JButton" binding="createAccountButton">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                     <minimum-size width="130" height="50"/>
@@ -96,7 +96,7 @@
               </component>
             </children>
           </grid>
-          <grid id="dc8ee" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="dc8ee" binding="loginFields" layout-manager="GridLayoutManager" row-count="3" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -462,7 +462,7 @@
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="9e608" class="javax.swing.JPasswordField" binding="passwordField1" default-binding="true">
+                  <component id="9e608" class="javax.swing.JPasswordField" binding="ownerPassword">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -472,7 +472,7 @@
                       <font size="16"/>
                     </properties>
                   </component>
-                  <component id="13278" class="javax.swing.JPasswordField" binding="passwordField2" default-binding="true">
+                  <component id="13278" class="javax.swing.JPasswordField" binding="ownerConfirmPass">
                     <constraints>
                       <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -526,7 +526,7 @@
                 <children>
                   <component id="3a316" class="javax.swing.JComboBox" binding="registerCombo">
                     <constraints>
-                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
                         <minimum-size width="200" height="30"/>
                         <preferred-size width="200" height="30"/>
                         <maximum-size width="200" height="30"/>
@@ -548,7 +548,7 @@
                       </grid>
                     </constraints>
                     <properties>
-                      <text value="Submit"/>
+                      <text value="Create Account"/>
                     </properties>
                   </component>
                   <component id="8e508" class="javax.swing.JButton" binding="registerClear">
