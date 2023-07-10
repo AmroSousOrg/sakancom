@@ -1,11 +1,17 @@
 package sakancom.pages;
 
 import sakancom.Application;
+import sakancom.common.Database;
+import sakancom.common.Functions;
+import sakancom.common.Validation;
+import sakancom.exceptions.InputValidationException;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 public class LoginPage extends JFrame {
 
@@ -36,14 +42,14 @@ public class LoginPage extends JFrame {
     public JTextField ownerPhone;
     public JTextField ownerEmail;
     public JLabel tenantErrorLabel;
-    private JLabel backArrow;
-    private JPasswordField tenantPassword;
-    private JPasswordField tenantConfirmPass;
-    private JPasswordField passwordField1;
-    private JPasswordField passwordField2;
+    public JLabel backArrow;
+    public JPasswordField tenantPassword;
+    public JPasswordField tenantConfirmPass;
+    public JPasswordField ownerPassword;
+    public JPasswordField ownerConfirmPass;
+    public JPanel loginFields;
 
     public static final int TENANT = 1, OWNER = 2, ADMIN = 3;
-    public int registerChoice;
     public boolean isLoginPanelOpen;
 
     private void createUIComponents() {
@@ -51,6 +57,7 @@ public class LoginPage extends JFrame {
 
     public LoginPage() {       // Page Constructor
 
+        isLoginPanelOpen = true;
         setContentPane(mainPanel);
         setTitle("Login Page");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -59,20 +66,13 @@ public class LoginPage extends JFrame {
 
         /*
 
-
             ActionListener for the sign in clear button
             to clear all the fields in the page.
 
         * */
-        clearButton.addActionListener(e -> {
-            usernameField.setText("");
-            passwordField.setText("");
-            errorLabel.setText("");
-        });
+        clearButton.addActionListener(e -> defaultLoginPanel());
 
         /*
-
-
 
             ActionListener for the submit button that handle
             the login operation and give the correct message
@@ -147,8 +147,10 @@ public class LoginPage extends JFrame {
 
             mainPanel.removeAll();
             mainPanel.add(registerPanel);
+            isLoginPanelOpen = false;
             mainPanel.repaint();
             mainPanel.revalidate();
+            defaultRegisterPanel();
         });
 
         /*
@@ -160,9 +162,141 @@ public class LoginPage extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 mainPanel.removeAll();
                 mainPanel.add(loginPanel);
+                isLoginPanelOpen = true;
                 mainPanel.repaint();
                 mainPanel.revalidate();
+                defaultLoginPanel();
             }
         });
+
+        /*
+            action listener for create account button
+        */
+        registerSubmit.addActionListener(e -> {
+            defaultOwnerErrorLabel();
+            defaultTenantErrorLabel();
+            int roleSelected = registerCombo.getSelectedIndex();
+
+            if (roleSelected == 0) {
+                createTenantAccount();
+            } else {
+                createOwnerAccount();
+            }
+        });
+
+        // action listener for clear button for registration panel
+        registerClear.addActionListener(
+                e -> defaultRegisterPanel());
+    }
+
+    private void createTenantAccount() {
+        String name, password, rePassword, email, phone, age, universityMajor;
+        name = tenantName.getText().trim();
+        password = String.valueOf(tenantPassword.getPassword()).trim();
+        rePassword = String.valueOf(tenantConfirmPass.getPassword()).trim();
+        email = tenantEmail.getText().trim();
+        phone = tenantPhone.getText().trim();
+        age = tenantAge.getText().trim();
+        universityMajor = tenantMajor.getText().trim();
+
+        try {
+            Validation.validateName(name);
+            Validation.validatePassword(password);
+            Validation.validateEmail(email);
+            Validation.validatePhone(phone);
+            Validation.validateAge(age);
+            Validation.validateUniversityMajor(universityMajor);
+            if (!password.equals(rePassword))
+                throw new InputValidationException("Mismatch password.");
+            if (Database.isUserExist("tenant", name))
+                throw new InputValidationException("Username is already exist.");
+
+            // validation pass
+            // create tenant
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("name", name);
+            data.put("password", password);
+            data.put("email", email);
+            data.put("phone", phone);
+            data.put("age", age);
+            data.put("university_major", universityMajor);
+            Database.addTenant(data);
+            // success message
+            defaultRegisterPanel();
+            tenantErrorLabel.setForeground(Color.green);
+            tenantErrorLabel.setText("Account created successfully.");
+
+        } catch (InputValidationException e) {
+            // display error message.
+            tenantErrorLabel.setText(e.getMessage());
+        } catch (SQLException e) {
+            tenantErrorLabel.setText(e.getMessage());
+        }
+    }
+
+    private void createOwnerAccount() {
+
+        String name, password, rePassword, email, phone;
+        name = ownerName.getText().trim();
+        password = String.valueOf(ownerPassword.getPassword()).trim();
+        rePassword = String.valueOf(ownerConfirmPass.getPassword()).trim();
+        email = ownerEmail.getText().trim();
+        phone = ownerPhone.getText().trim();
+
+        try {
+            Validation.validateName(name);
+            Validation.validatePassword(password);
+            Validation.validateEmail(email);
+            Validation.validatePhone(phone);
+            if (!password.equals(rePassword))
+                throw new InputValidationException("Mismatch password.");
+            if (Database.isUserExist("owner", name))
+                throw new InputValidationException("Username is already exist.");
+
+            // validation pass
+            // create tenant
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("name", name);
+            data.put("password", password);
+            data.put("email", email);
+            data.put("phone", phone);
+            Database.addOwner(data);
+            // success message
+            defaultRegisterPanel();
+            ownerErrorLabel.setForeground(Color.green);
+            ownerErrorLabel.setText("Account created successfully.");
+
+        } catch (InputValidationException e) {
+            // display error message.
+            ownerErrorLabel.setText(e.getMessage());
+        } catch (SQLException e) {
+            ownerErrorLabel.setText(e.getMessage());
+        }
+    }
+
+    /*
+        this method set up the default state of the panels and clear all
+        the fields and labels
+    */
+    public void defaultLoginPanel() {
+        Functions.clearAllChildren(loginFields);
+        errorLabel.setText("");
+    }
+
+    public void defaultRegisterPanel() {
+        Functions.clearAllChildren(tenantPanel);
+        Functions.clearAllChildren(ownerPanel);
+        defaultTenantErrorLabel();
+        defaultOwnerErrorLabel();
+    }
+
+    private void defaultOwnerErrorLabel() {
+        ownerErrorLabel.setText("");
+        ownerErrorLabel.setForeground(Color.red);
+    }
+
+    private void defaultTenantErrorLabel() {
+        tenantErrorLabel.setText("");
+        tenantErrorLabel.setForeground(Color.red);
     }
 }

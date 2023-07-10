@@ -7,9 +7,9 @@ Feature: Login page
     Given the user is on login page
     And he choose sign in as "<role>"
     When he fill username as "<username>" and password as "<password>"
-    And press submit button
+    And press sign in button
     Then give the correct status as "<status>" and message as "<message>"
-    And navigate to the correct page depending on "<status>" and "<role>"
+    And navigate to the correct user page depending on "<status>" and "<role>"
 
       Examples:
         | role     | username     | password      | status  | message                           |
