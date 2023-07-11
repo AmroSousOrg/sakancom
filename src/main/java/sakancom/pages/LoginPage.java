@@ -82,8 +82,8 @@ public class LoginPage extends JFrame {
             // get inputs
             errorLabel.setText("");
             int selectedRole = roleCombo.getSelectedIndex();
-            String username = usernameField.getText();
-            String password = String.valueOf(passwordField.getPassword());
+            String username = usernameField.getText().trim();
+            String password = String.valueOf(passwordField.getPassword()).trim();
 
             try {
 

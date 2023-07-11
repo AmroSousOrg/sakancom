@@ -20,7 +20,9 @@ public final class Database {
     public static final String DATABASE_PASSWORD = "12345";
     public static final String DATABASE_USERNAME = "sw_team";
 
-    // method to make a connection to the database
+    /*
+     method to make a connection to the database
+     */
     public static Connection makeConnection() throws SQLException {
         return DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/" + DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD);
@@ -59,22 +61,30 @@ public final class Database {
         return stmt.executeQuery();
     }
 
-    // query a specified tenant based on username and password
+    /*
+     query a specified tenant based on username and password
+    */
     public static ResultSet getTenant(String name, String password, Connection conn) throws SQLException {
         return getUser(name, password, "tenants", conn);
     }
 
-    // query a specified owner based on username and password
+    /***
+     query a specified owner based on username and password
+     ***/
     public static ResultSet getOwner(String name, String password, Connection conn) throws SQLException {
         return getUser(name, password, "owners", conn);
     }
 
-    // query the admin based on name and password
+    /*
+     query the admin based on name and password
+    */
     public static ResultSet getAdmin(String name, String password, Connection conn) throws SQLException {
         return getUser(name, password, "admin", conn);
     }
 
-    // method to switch database name to test database for testing purpose
+    /*
+     method to switch database name to test database for testing purpose
+    */
     public static void switchToTestDatabase() {
         DATABASE_NAME = DATABASE_TEST_NAME;
     }

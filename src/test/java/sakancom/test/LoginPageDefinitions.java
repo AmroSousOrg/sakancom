@@ -9,7 +9,6 @@ import io.cucumber.java.en.When;
 import org.junit.Assert;
 import sakancom.Application;
 import sakancom.common.Database;
-import sakancom.common.Functions;
 import sakancom.pages.AdminPage;
 import sakancom.pages.LoginPage;
 import sakancom.pages.OwnerPage;
@@ -17,7 +16,6 @@ import sakancom.pages.TenantPage;
 
 import javax.swing.*;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
