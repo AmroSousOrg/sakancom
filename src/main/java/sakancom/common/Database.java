@@ -173,4 +173,12 @@ public final class Database {
         conn.close();
         stmt.close();
     }
+
+    /**
+     *  method to execute passed query as string and return the resultSet.
+     */
+    public static ResultSet getQuery(String query, Connection conn) throws SQLException {
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(query);
+    }
 }

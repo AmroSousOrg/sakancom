@@ -1,6 +1,7 @@
 package sakancom.common;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 /*
@@ -94,6 +96,32 @@ public class Functions {
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     *  function to fill JTable with passed ResultSet
+     */
+    public static void buildTableModel(ResultSet rs, JTable table)
+            throws SQLException {
+
+        DefaultTableModel dtm = (DefaultTableModel)table.getModel();
+        if(rs == null){dtm.setRowCount(0); return;}
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+
+        int num = 1;
+        dtm.setRowCount(0);
+
+        while (rs.next()) {
+            Vector<Object> vector = new Vector<>();
+
+            vector.add(num);
+            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                vector.add(rs.getObject(columnIndex));
+            }
+            num++;
+            dtm.addRow(vector);
         }
     }
 }
