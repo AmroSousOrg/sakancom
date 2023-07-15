@@ -7,6 +7,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.Assert;
+import org.xml.sax.SAXException;
 import sakancom.Application;
 import sakancom.common.Database;
 import sakancom.pages.AdminPage;
@@ -15,30 +16,28 @@ import sakancom.pages.OwnerPage;
 import sakancom.pages.TenantPage;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
 public class LoginPageDefinitions {
 
-    private String createdAccountName = "";
-    private boolean isTenant;
-
     @Before
     public void setupTestDB() {
-        Database.switchToTestDatabase();
+        Database.setDatabaseName("sakancom_test");
     }
 
-    @After("@validAccountCreation")
-    public void deleteNewRows() {
-        try {
-            if (isTenant) Database.deleteUser("tenants", createdAccountName);
-            else Database.deleteUser("owners", createdAccountName);
-        }
-        catch(SQLException ex) {
-            JOptionPane.showMessageDialog(Application.openedPage, "Error in database.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+    @After
+    public void databaseTearDown() {
+//        try {
+//            TestDatabaseSeeder.deleteAllData();
+//        } catch (SQLException e) {
+//            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//        }
     }
 
     @Given("the user is on login page")
@@ -123,8 +122,6 @@ public class LoginPageDefinitions {
 
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         LoginPage page = (LoginPage)Application.openedPage;
-        createdAccountName = rows.get(0).get("Value");
-        isTenant = rolePanel.equals("tenant");
 
         if (rolePanel.equals("tenant")) {
             page.tenantName.setText(rows.get(0).get("Value"));
@@ -179,5 +176,18 @@ public class LoginPageDefinitions {
                     "Error in database connection.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         Assert.assertTrue(actual);
+    }
+
+    @Given("the database consist of data in the file {string}")
+    public void theDatabaseConsistOfDataInTheFile(String file) {
+        try {
+            TestDatabaseSeeder.deleteAllData();
+            TestDatabaseSeeder.fillDatabase(file);
+
+        } catch (SQLException | ParserConfigurationException | IOException | NoSuchAlgorithmException
+                 | ParseException | SAXException e) {
+
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
