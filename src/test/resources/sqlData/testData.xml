@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<dataset>
+    <tenants>
+        <tenant_id>1</tenant_id>
+        <name>Amro</name>
+        <password>123</password>
+        <phone>0592793930</phone>
+        <email>amroosous@gmail.com</email>
+        <age>21</age>
+        <university_major>Computer Engineer</university_major>
+    </tenants>
+    <tenants>
+        <tenant_id>2</tenant_id>
+        <name>Ahmad</name>
+        <password>123</password>
+        <phone>0598447485</phone>
+        <email>ahmad987@gmail.com</email>
+        <age>21</age>
+        <university_major>Computer Engineer</university_major>
+    </tenants>
+    <owners>
+        <owner_id>1</owner_id>
+        <name>owner1</name>
+        <password>123</password>
+        <phone>0592793930</phone>
+        <email>amroosous@gmail.com</email>
+    </owners>
+    <owners>
+        <owner_id>2</owner_id>
+        <name>owner2</name>
+        <password>123</password>
+        <phone>0592793930</phone>
+        <email>amroosous@gmail.com</email>
+    </owners>
+    <admin>
+        <admin_id>1</admin_id>
+        <name>Admin</name>
+        <password>Admin</password>
+        <email>amroosous@gmail.com</email>
+        <phone>05922793930</phone>
+    </admin>
+    <housing>
+        <housing_id>1</housing_id>
+        <owner_id>1</owner_id>
+        <name>City Apartment</name>
+        <location>123 Main Street, City A</location>
+        <rent>1000</rent>
+        <water_inclusive>1</water_inclusive>
+        <electricity_inclusive>0</electricity_inclusive>
+        <services>Gym, Swimming Pool, Parking</services>
+        <floors>5</floors>
+        <apart_per_floor>4</apart_per_floor>
+        <available>1</available>
+        <picture>city_apartment.jpg</picture>
+    </housing>
+    <housing>
+        <housing_id>2</housing_id>
+        <owner_id>2</owner_id>
+        <name>Country farmhouse</name>
+        <location>456 Park Avenue, City B</location>
+        <rent>3000</rent>
+        <water_inclusive>0</water_inclusive>
+        <electricity_inclusive>1</electricity_inclusive>
+        <services>Garden, Terrace, Security</services>
+        <floors>2</floors>
+        <apart_per_floor>1</apart_per_floor>
+        <available>1</available>
+        <picture>country_farmhouse.jpg</picture>
+    </housing>
+    <housing>
+        <housing_id>3</housing_id>
+        <owner_id>1</owner_id>
+        <name>Cozy Cottage</name>
+        <location>789 Elm Road, City C</location>
+        <rent>1500</rent>
+        <water_inclusive>1</water_inclusive>
+        <electricity_inclusive>0</electricity_inclusive>
+        <services>Roof Deck, Concierge Service</services>
+        <floors>10</floors>
+        <apart_per_floor>2</apart_per_floor>
+        <available>0</available>
+        <picture>cozy_cottage.jpeg</picture>
+    </housing>
+    <furniture>
+        <furniture_id>1</furniture_id>
+        <tenant_id>1</tenant_id>
+        <name>Sofa</name>
+        <description>Comfortable sofa with leather upholstery</description>
+        <price>500</price>
+    </furniture>
+    <furniture>
+        <furniture_id>2</furniture_id>
+        <tenant_id>2</tenant_id>
+        <name>Dining Table</name>
+        <description>Solid wood dining table with six chairs</description>
+        <price>800</price>
+    </furniture>
+    <reservations>
+        <reservation_id>1</reservation_id>
+        <tenant_id>1</tenant_id>
+        <housing_id>1</housing_id>
+        <reservation_date>2023-07-15 15:12:58</reservation_date>
+        <floor_num>3</floor_num>
+        <apart_num>2</apart_num>
+        <accepted>1</accepted>
+    </reservations>
+    <reservations>
+        <reservation_id>2</reservation_id>
+        <tenant_id>2</tenant_id>
+        <housing_id>1</housing_id>
+        <reservation_date>2023-07-15 15:12:58</reservation_date>
+        <floor_num>2</floor_num>
+        <apart_num>1</apart_num>
+        <accepted>1</accepted>
+    </reservations>
+</dataset>

@@ -4,7 +4,8 @@ Feature: Login page
 
   @signIn
   Scenario Outline: user sign in
-    Given the user is on login page
+    Given the database consist of data in the file "src/test/resources/sqlData/testData.xml"
+    And the user is on login page
     And he choose sign in as "<role>"
     When he fill username as "<username>" and password as "<password>"
     And press sign in button
@@ -17,9 +18,9 @@ Feature: Login page
         | tenant   | Amro         |  1234         | fail    | Invalid username and/or password. |
         | tenant   | Amr          |  123          | fail    | Invalid username and/or password. |
         | tenant   | Amro         |               | fail    | Invalid username and/or password. |
-        | tenant   | Ahmad        |  12345        | success | no message                        |
+        | tenant   | Ahmad        |  123          | success | no message                        |
         | admin    | Admin        |  Admin        | success | no message                        |
         | admin    | Admin        |  admin        | fail    | Invalid username and/or password. |
         | owner    | owner        |  owner        | fail    | Invalid username and/or password. |
-        | owner    | owner1       |  owner1       | success | no message                        |
+        | owner    | owner1       |  123          | success | no message                        |
 

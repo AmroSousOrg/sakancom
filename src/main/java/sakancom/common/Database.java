@@ -3,6 +3,7 @@ package sakancom.common;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Map;
 
 /*
 
@@ -15,7 +16,6 @@ public final class Database {
 
     // Database info
     public static final String DATABASE_DATA_NAME = "sakancom_db";
-    public static final String DATABASE_TEST_NAME = "sakancom_test";
     public static String DATABASE_NAME = DATABASE_DATA_NAME;
     public static final String DATABASE_PASSWORD = "12345";
     public static final String DATABASE_USERNAME = "sw_team";
@@ -83,10 +83,10 @@ public final class Database {
     }
 
     /*
-     method to switch database name to test database for testing purpose
+        method to set database name, used in testing
     */
-    public static void switchToTestDatabase() {
-        DATABASE_NAME = DATABASE_TEST_NAME;
+    public static void setDatabaseName(String name) {
+        DATABASE_NAME = name;
     }
 
     /*
@@ -180,5 +180,50 @@ public final class Database {
     public static ResultSet getQuery(String query, Connection conn) throws SQLException {
         Statement stmt = conn.createStatement();
         return stmt.executeQuery(query);
+    }
+
+    /**
+     *  method to add new house in database
+     *  pass inputs as Map<Key, Value>
+     */
+    public static void addHouse(Map<String, String> data) throws SQLException {
+        Connection conn = makeConnection();
+        String query = "insert into `housing` (`name`, `location`, `owner_id`, `rent`, `water_inclusive`, `electricity_inclusive`," +
+                " `services`, `floors`, `apart_per_floor`, `available`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, data.get("name"));
+        stmt.setString(2, data.get("location"));
+        stmt.setLong(3, Long.parseLong(data.get("owner_id")));
+        stmt.setInt(4, Integer.parseInt(data.get("rent")));
+        stmt.setBoolean(5, Boolean.parseBoolean(data.get("water_inclusive")));
+        stmt.setBoolean(6, Boolean.parseBoolean(data.get("electricity_inclusive")));
+        stmt.setString(7, data.get("services"));
+        stmt.setInt(8, Integer.parseInt(data.get("floors")));
+        stmt.setInt(9, Integer.parseInt(data.get("apart_per_floor")));
+        stmt.setBoolean(10, Boolean.parseBoolean(data.get("available")));
+        stmt.executeUpdate();
+        stmt.close();
+        conn.close();
+    }
+
+    public static long addReservation(HashMap<String, String> data) throws SQLException {
+        Connection conn = makeConnection();
+        String query = "insert into `reservations` (`tenant_id`, `housing_id`, `floor_num`, `apart_num`) values (?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        stmt.setLong(1, Long.parseLong(data.get("tenant_id")));
+        stmt.setLong(2, Long.parseLong(data.get("housing_id")));
+        stmt.setInt(3, Integer.parseInt(data.get("floor_num")));
+        stmt.setInt(4, Integer.parseInt(data.get("apart_num")));
+        int affectedRows = stmt.executeUpdate();
+        long last_id = -1;
+        if (affectedRows > 0) {
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                last_id = rs.getLong(1);
+            }
+        }
+        stmt.close();
+        conn.close();
+        return last_id;
     }
 }

@@ -5,6 +5,7 @@ Feature: Create new account
 
   Background:
     Given the user is on login page
+    And the database consist of data in the file "src/test/resources/sqlData/testData.xml"
     When press I don't have account button
     Then create account panel appears
 
@@ -46,10 +47,10 @@ Feature: Create new account
 
     Examples:
       | accountType | name   | password | invalid_email        | phone      | age | university_major     | error_message              |
-      | tenant      | owner9 | pass123  | something@gmail      | 0561314873 | 30  | electric engineer    | Invalid email.             |
-      | tenant      | owner9 | pass123  | something@gmail.com  | 0561314873 | aaa | electric engineer    | Invalid age.               |
-      | owner       | owner9 | pass123  | something@.com       | 0561314873 |     |                      | Invalid email.             |
-      | owner       | owner9 | pass123  | something@mail.com   | 059hello66 |     |                      | Invalid phone.             |
+      | tenant      | tenant1| pass123  | something@gmail      | 0561314873 | 30  | electric engineer    | Invalid email.             |
+      | tenant      | tenant2| pass123  | something@gmail.com  | 0561314873 | aaa | electric engineer    | Invalid age.               |
+      | owner       | owner3 | pass123  | something@.com       | 0561314873 |     |                      | Invalid email.             |
+      | owner       | owner4 | pass123  | something@mail.com   | 059hello66 |     |                      | Invalid phone.             |
 
   @invalidCreationUsername
   Scenario Outline: Create an account with already used name
