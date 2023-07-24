@@ -33,11 +33,11 @@ public class LoginPageDefinitions {
 
     @After
     public void databaseTearDown() {
-//        try {
-//            TestDatabaseSeeder.deleteAllData();
-//        } catch (SQLException e) {
-//            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-//        }
+        try {
+            TestDatabaseSeeder.deleteAllData();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Given("the user is on login page")
@@ -49,7 +49,7 @@ public class LoginPageDefinitions {
 
     @And("he choose sign in as {string}")
     public void heChooseSignInAs(String role) {
-        ((LoginPage)Application.openedPage).roleCombo.setSelectedIndex(
+        ((LoginPage)Application.openedPage).setRoleCombo(
                 role.equals("tenant") ? LoginPage.TENANT :
                         role.equals("owner") ? LoginPage.OWNER : LoginPage.ADMIN
         );
@@ -58,13 +58,12 @@ public class LoginPageDefinitions {
     @When("he fill username as {string} and password as {string}")
     public void he_fill_username_as_and_password_as(String name, String pass) {
         LoginPage page = (LoginPage)Application.openedPage;
-        page.usernameField.setText(name);
-        page.passwordField.setText(pass);
+        page.setCredentials(name, pass);
     }
 
     @When("press sign in button")
     public void press_sign_in_button() {
-        ((LoginPage)Application.openedPage).submitButton.doClick();
+        ((LoginPage)Application.openedPage).pressSubmitButton();
     }
 
     @Then("give the correct status as {string} and message as {string}")
@@ -74,7 +73,7 @@ public class LoginPageDefinitions {
         }
         else {
             Assert.assertEquals(Application.status, Application.PAGE.LOGIN);
-            Assert.assertEquals(((LoginPage)Application.openedPage).errorLabel.getText(), message);
+            Assert.assertEquals(((LoginPage)Application.openedPage).getErrorLabel(), message);
         }
     }
 
@@ -99,7 +98,7 @@ public class LoginPageDefinitions {
     @When("press I don't have account button")
     public void press_i_don_t_have_account_button() {
         LoginPage page = (LoginPage)Application.openedPage;
-        page.createAccountButton.doClick();
+        page.pressCreateAccountButton();
     }
 
     @Then("create account panel appears")
@@ -112,8 +111,8 @@ public class LoginPageDefinitions {
     public void userChooseCreateRoleAccount(String role) {
         LoginPage page = (LoginPage)Application.openedPage;
         int selectIndex = role.equals("tenant") ? 0 : 1;
-        page.registerCombo.setSelectedIndex(selectIndex);
-        Assert.assertEquals(selectIndex, page.registerCombo.getSelectedIndex());
+        page.setRegisterCombo(selectIndex);
+        Assert.assertEquals(selectIndex, page.getRegisterCombo());
     }
 
     @Given("he fill the following details in create {string} account panel:")
@@ -124,26 +123,16 @@ public class LoginPageDefinitions {
         LoginPage page = (LoginPage)Application.openedPage;
 
         if (rolePanel.equals("tenant")) {
-            page.tenantName.setText(rows.get(0).get("Value"));
-            page.tenantPassword.setText(rows.get(1).get("Value"));
-            page.tenantConfirmPass.setText(rows.get(2).get("Value"));
-            page.tenantEmail.setText(rows.get(3).get("Value"));
-            page.tenantPhone.setText(rows.get(4).get("Value"));
-            page.tenantAge.setText(rows.get(5).get("Value"));
-            page.tenantMajor.setText(rows.get(6).get("Value"));
+            page.fillTenantRegisterInfo(rows);
         }
         else {
-            page.ownerName.setText(rows.get(0).get("Value"));
-            page.ownerPassword.setText(rows.get(1).get("Value"));
-            page.ownerConfirmPass.setText(rows.get(2).get("Value"));
-            page.ownerEmail.setText(rows.get(3).get("Value"));
-            page.ownerPhone.setText(rows.get(4).get("Value"));
+            page.fillOwnerRegisterInfo(rows);
         }
     }
 
     @When("he clicks create account button")
     public void he_clicks_create_account_button() {
-        ((LoginPage)Application.openedPage).registerSubmit.doClick();
+        ((LoginPage)Application.openedPage).pressRegisterSubmit();
     }
 
     @Then("a new {string} account with name {string} will be added to the database")
@@ -162,8 +151,8 @@ public class LoginPageDefinitions {
     @Then("{string} should see an {string} message in create account")
     public void shouldSeeAnMessageInCreateAccount(String role, String message) {
         LoginPage page = (LoginPage)Application.openedPage;
-        JLabel label = (role.equals("tenant") ? page.tenantErrorLabel : page.ownerErrorLabel);
-        Assert.assertEquals(message, label.getText());
+        String error_msg = (role.equals("tenant") ? page.getTenantErrorLabel() : page.getOwnerErrorLabel());
+        Assert.assertEquals(message, error_msg);
     }
 
     @Given("there is an {string} account with name {string} already exist")

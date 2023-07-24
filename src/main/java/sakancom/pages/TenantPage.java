@@ -5,12 +5,16 @@
 package sakancom.pages;
 
 import java.awt.event.*;
+import javax.swing.event.*;
 import javax.swing.table.*;
 import sakancom.common.Database;
 import sakancom.common.Functions;
+import sakancom.common.Validation;
+import sakancom.exceptions.InputValidationException;
 
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -24,7 +28,7 @@ import javax.swing.*;
 public class TenantPage extends JFrame {
 
     private final HashMap<String, Object> tenantData;
-    public final static int HOME = 0, ACCOUNT = 1, HOUSING = 2, FURNITURE= 3;
+    public final static int HOME = 0, ACCOUNT = 1, HOUSING = 2, FURNITURE = 3, BOOKING = 4;
     public TenantPage(HashMap<String, Object> tenantData) {
         this.tenantData = tenantData;
         initComponents();
@@ -32,7 +36,22 @@ public class TenantPage extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         housesTable.getTableHeader().setReorderingAllowed(false);
         fillPersonalInfo();
-        fillHousesTable();
+    }
+
+    private void fillFurnitureTable() {
+        Connection conn;
+        try {
+            conn = Database.makeConnection();
+            ResultSet rs = Database.getQuery(
+                    "SELECT `furniture_id`, `NAME`, `PRICE` FROM `FURNITURE`",
+                    conn
+            );
+            Functions.buildTableModel(rs, furnitureTable);
+            conn.close();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void showHouseInfoPanel(HashMap<String, Object> houseData) {
@@ -128,10 +147,7 @@ public class TenantPage extends JFrame {
     }
 
     private void closeOneHousePanelMouseClicked(MouseEvent e) {
-        housesPanel.removeAll();
-        housesPanel.add(allHousesPanel);
-        housesPanel.repaint();
-        housesPanel.revalidate();
+        Functions.switchChildPanel(housesPanel, allHousesPanel);
     }
 
     private void book(ActionEvent e) {
@@ -150,10 +166,7 @@ public class TenantPage extends JFrame {
 
         if (last_id == -1) return;
 
-        housesPanel.removeAll();
-        housesPanel.add(invoicePanel);
-        housesPanel.repaint();
-        housesPanel.revalidate();
+        Functions.switchChildPanel(housesPanel, invoicePanel);
 
         try {
             Connection conn = Database.makeConnection();
@@ -251,6 +264,79 @@ public class TenantPage extends JFrame {
 
     public Icon getHousePicture() {
         return housePicture.getIcon();
+    }
+
+    private void furnituresTableMouseClicked(MouseEvent e) {
+        Connection conn;
+        try {
+            conn = Database.makeConnection();
+            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+            long id = (long) furnitureTable.getValueAt(furnitureTable.getSelectedRow(), 1);
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+            {
+                furnitureId.setText(rs.getString("furniture_id"));
+                furnitureName.setText(rs.getString("furniture_name"));
+                furnitureDesc.setText(rs.getString("description"));
+                furnitureOwner.setText(rs.getString("owner_name"));
+                furniturePhone.setText(rs.getString("phone"));
+            }
+            conn.close();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void goAddFurniturePanel(ActionEvent e) {
+        Functions.clearAllChildren(addFurniturePanel);
+        addFurnitureMessageLabel.setText("");
+        Functions.switchChildPanel(furniturePanel, addFurniturePanel);
+    }
+
+    private void addFurnitureButton2(ActionEvent e) {
+        Functions.switchChildPanel(furniturePanel, showFurnituresPanel);
+        fillFurnitureTable();
+    }
+
+    private void addFurniture(ActionEvent e) {
+        addFurnitureMessageLabel.setText("");
+        String fName = newFurnitureNameField.getText();
+        String fPrice = newFurniturePriceField.getText();
+        String fDesc = newFurnitureDescField.getText();
+        try {
+            Validation.validateName(fName);
+            Validation.validateNumeric(fPrice);
+            Validation.validateEmpty(fDesc);
+        } catch (InputValidationException ex) {
+            addFurnitureMessageLabel.setText(ex.getMessage());
+        }
+        try {
+            Connection conn = Database.makeConnection();
+            String query = "insert into `furniture` (`tenant_id`, `name`, `description`, `price`) values " +
+                    "(?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setLong(1, (long)tenantData.get("tenant_id"));
+            stmt.setString(2, fName);
+            stmt.setString(3, fDesc);
+            stmt.setInt(4, Integer.parseInt(fPrice));
+            stmt.executeUpdate();
+            stmt.close();
+            conn.close();
+            Functions.switchChildPanel(furniturePanel, showFurnituresPanel);
+            fillFurnitureTable();
+        } catch (SQLException ex) {
+            addFurnitureMessageLabel.setText("Database fault.");
+        }
+    }
+
+    private void mainPanelStateChanged(ChangeEvent e) {
+        int selectedIndex = mainPanel.getSelectedIndex();
+        if (selectedIndex == HOUSING) fillHousesTable();
+        else if (selectedIndex == FURNITURE) fillFurnitureTable();
     }
 
     private void initComponents() {
@@ -385,19 +471,39 @@ public class TenantPage extends JFrame {
         vElectricityNo = new JRadioButton();
         label56 = new JLabel();
         furniturePanel = new JPanel();
+        showFurnituresPanel = new JPanel();
         label28 = new JLabel();
         scrollPane3 = new JScrollPane();
-        table1 = new JTable();
+        furnitureTable = new JTable();
         label29 = new JLabel();
         label30 = new JLabel();
         label31 = new JLabel();
         label32 = new JLabel();
-        textField1 = new JTextField();
-        textField2 = new JTextField();
-        textField3 = new JTextField();
+        furnitureName = new JTextField();
+        furnitureOwner = new JTextField();
+        furniturePhone = new JTextField();
         scrollPane4 = new JScrollPane();
-        textPane1 = new JTextPane();
-        button2 = new JButton();
+        furnitureDesc = new JTextPane();
+        goAddFurniturePanel = new JButton();
+        searchFurnitureField = new JTextField();
+        searchFurnitureButton = new JLabel();
+        label57 = new JLabel();
+        furnitureId = new JTextField();
+        addFurniturePanel = new JPanel();
+        label58 = new JLabel();
+        label59 = new JLabel();
+        newFurnitureNameField = new JTextField();
+        label60 = new JLabel();
+        newFurniturePriceField = new JTextField();
+        label61 = new JLabel();
+        scrollPane5 = new JScrollPane();
+        newFurnitureDescField = new JTextArea();
+        label62 = new JLabel();
+        label63 = new JLabel();
+        label64 = new JLabel();
+        addFurnitureMessageLabel = new JLabel();
+        addFurnitureButton = new JButton();
+        addFurnitureButton2 = new JButton();
         bookingsPanel = new JPanel();
 
         //======== this ========
@@ -406,16 +512,17 @@ public class TenantPage extends JFrame {
 
         //======== mainPanel ========
         {
+            mainPanel.addChangeListener(e -> mainPanelStateChanged(e));
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new
-                javax. swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax
-                . swing. border. TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java
-                .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ), java. awt
-                . Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans.
-                PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .
-                equals (e .getPropertyName () )) throw new RuntimeException( ); }} );
+                homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax .
+                swing. border .EmptyBorder ( 0, 0 ,0 , 0) ,  "JFor\u006dDesi\u0067ner \u0045valu\u0061tion" , javax. swing .border
+                . TitledBorder. CENTER ,javax . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dia\u006cog"
+                , java .awt . Font. BOLD ,12 ) ,java . awt. Color .red ) ,homePanel. getBorder
+                () ) ); homePanel. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java
+                . beans. PropertyChangeEvent e) { if( "bord\u0065r" .equals ( e. getPropertyName () ) )throw new RuntimeException
+                ( ) ;} } );
                 homePanel.setLayout(null);
 
                 {
@@ -658,7 +765,7 @@ public class TenantPage extends JFrame {
                         scrollPane1.setViewportView(housesTable);
                     }
                     allHousesPanel.add(scrollPane1);
-                    scrollPane1.setBounds(50, 70, 820, 380);
+                    scrollPane1.setBounds(50, 70, 765, 380);
 
                     //---- textField7 ----
                     textField7.setToolTipText("search by name");
@@ -673,9 +780,10 @@ public class TenantPage extends JFrame {
 
                     //---- showHouse ----
                     showHouse.setText("VIEW");
+                    showHouse.setToolTipText("view selected house");
                     showHouse.addActionListener(e -> showHouse(e));
                     allHousesPanel.add(showHouse);
-                    showHouse.setBounds(new Rectangle(new Point(880, 110), showHouse.getPreferredSize()));
+                    showHouse.setBounds(840, 155, 125, showHouse.getPreferredSize().height);
 
                     {
                         // compute preferred size
@@ -1360,123 +1468,285 @@ public class TenantPage extends JFrame {
 
             //======== furniturePanel ========
             {
-                furniturePanel.setLayout(null);
+                furniturePanel.setLayout(new CardLayout());
 
-                //---- label28 ----
-                label28.setText("Furnitures Shop");
-                label28.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 26));
-                label28.setForeground(Color.blue);
-                furniturePanel.add(label28);
-                label28.setBounds(30, 15, 200, 50);
-
-                //======== scrollPane3 ========
+                //======== showFurnituresPanel ========
                 {
+                    showFurnituresPanel.setLayout(null);
 
-                    //---- table1 ----
-                    table1.setFillsViewportHeight(true);
-                    table1.setModel(new DefaultTableModel(
-                        new Object[][] {
-                            {null, "", null},
-                            {null, null, null},
-                        },
-                        new String[] {
-                            "#", "Name", "Price"
-                        }
-                    ));
+                    //---- label28 ----
+                    label28.setText("Furnitures Shop");
+                    label28.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 26));
+                    label28.setForeground(Color.blue);
+                    showFurnituresPanel.add(label28);
+                    label28.setBounds(30, 15, 200, 50);
+
+                    //======== scrollPane3 ========
                     {
-                        TableColumnModel cm = table1.getColumnModel();
-                        cm.getColumn(0).setMinWidth(50);
-                        cm.getColumn(0).setMaxWidth(50);
-                        cm.getColumn(2).setMinWidth(80);
-                        cm.getColumn(2).setMaxWidth(80);
+
+                        //---- furnitureTable ----
+                        furnitureTable.setFillsViewportHeight(true);
+                        furnitureTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, null, null},
+                            },
+                            new String[] {
+                                "#", "ID", "Name", "Price"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Integer.class, String.class, Integer.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = furnitureTable.getColumnModel();
+                            cm.getColumn(0).setMinWidth(45);
+                            cm.getColumn(0).setMaxWidth(45);
+                            cm.getColumn(1).setMinWidth(70);
+                            cm.getColumn(1).setMaxWidth(70);
+                            cm.getColumn(3).setMinWidth(70);
+                            cm.getColumn(3).setMaxWidth(70);
+                        }
+                        furnitureTable.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                furnituresTableMouseClicked(e);
+                            }
+                        });
+                        scrollPane3.setViewportView(furnitureTable);
                     }
-                    scrollPane3.setViewportView(table1);
-                }
-                furniturePanel.add(scrollPane3);
-                scrollPane3.setBounds(25, 70, 355, 310);
+                    showFurnituresPanel.add(scrollPane3);
+                    scrollPane3.setBounds(25, 130, 355, 310);
 
-                //---- label29 ----
-                label29.setText("Name:");
-                label29.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-                furniturePanel.add(label29);
-                label29.setBounds(440, 60, 95, 35);
+                    //---- label29 ----
+                    label29.setText("Name:");
+                    label29.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    showFurnituresPanel.add(label29);
+                    label29.setBounds(440, 65, 95, 35);
 
-                //---- label30 ----
-                label30.setText("Owner:");
-                label30.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-                furniturePanel.add(label30);
-                label30.setBounds(440, 115, 95, 35);
+                    //---- label30 ----
+                    label30.setText("Owner:");
+                    label30.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    showFurnituresPanel.add(label30);
+                    label30.setBounds(440, 120, 95, 35);
 
-                //---- label31 ----
-                label31.setText("Phone:");
-                label31.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-                furniturePanel.add(label31);
-                label31.setBounds(440, 170, 95, 35);
+                    //---- label31 ----
+                    label31.setText("Phone:");
+                    label31.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    showFurnituresPanel.add(label31);
+                    label31.setBounds(440, 170, 95, 35);
 
-                //---- label32 ----
-                label32.setText("Description:");
-                label32.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-                furniturePanel.add(label32);
-                label32.setBounds(440, 225, 150, 35);
+                    //---- label32 ----
+                    label32.setText("Description:");
+                    label32.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    showFurnituresPanel.add(label32);
+                    label32.setBounds(440, 225, 150, 35);
 
-                //---- textField1 ----
-                textField1.setText("Television");
-                textField1.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
-                textField1.setEnabled(false);
-                textField1.setDisabledTextColor(new Color(0x333333));
-                furniturePanel.add(textField1);
-                textField1.setBounds(560, 65, 205, textField1.getPreferredSize().height);
+                    //---- furnitureName ----
+                    furnitureName.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    furnitureName.setEnabled(false);
+                    furnitureName.setDisabledTextColor(new Color(0x333333));
+                    showFurnituresPanel.add(furnitureName);
+                    furnitureName.setBounds(560, 70, 205, furnitureName.getPreferredSize().height);
 
-                //---- textField2 ----
-                textField2.setText("Amro Sous");
-                textField2.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
-                textField2.setEnabled(false);
-                textField2.setDisabledTextColor(new Color(0x333333));
-                furniturePanel.add(textField2);
-                textField2.setBounds(560, 120, 205, 33);
+                    //---- furnitureOwner ----
+                    furnitureOwner.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    furnitureOwner.setEnabled(false);
+                    furnitureOwner.setDisabledTextColor(new Color(0x333333));
+                    showFurnituresPanel.add(furnitureOwner);
+                    furnitureOwner.setBounds(560, 125, 205, 33);
 
-                //---- textField3 ----
-                textField3.setText("0592793930");
-                textField3.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
-                textField3.setEnabled(false);
-                textField3.setDisabledTextColor(new Color(0x333333));
-                furniturePanel.add(textField3);
-                textField3.setBounds(560, 170, 205, 33);
+                    //---- furniturePhone ----
+                    furniturePhone.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    furniturePhone.setEnabled(false);
+                    furniturePhone.setDisabledTextColor(new Color(0x333333));
+                    showFurnituresPanel.add(furniturePhone);
+                    furniturePhone.setBounds(560, 170, 205, 33);
 
-                //======== scrollPane4 ========
-                {
+                    //======== scrollPane4 ========
+                    {
 
-                    //---- textPane1 ----
-                    textPane1.setText("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj Hello everyone Iam here ");
-                    textPane1.setEnabled(false);
-                    textPane1.setDisabledTextColor(new Color(0x333333));
-                    textPane1.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
-                    scrollPane4.setViewportView(textPane1);
-                }
-                furniturePanel.add(scrollPane4);
-                scrollPane4.setBounds(585, 235, 310, 145);
-
-                //---- button2 ----
-                button2.setText("ADD Furniture");
-                furniturePanel.add(button2);
-                button2.setBounds(435, 405, 155, 35);
-
-                {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < furniturePanel.getComponentCount(); i++) {
-                        Rectangle bounds = furniturePanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        //---- furnitureDesc ----
+                        furnitureDesc.setEnabled(false);
+                        furnitureDesc.setDisabledTextColor(new Color(0x333333));
+                        furnitureDesc.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
+                        scrollPane4.setViewportView(furnitureDesc);
                     }
-                    Insets insets = furniturePanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    furniturePanel.setMinimumSize(preferredSize);
-                    furniturePanel.setPreferredSize(preferredSize);
+                    showFurnituresPanel.add(scrollPane4);
+                    scrollPane4.setBounds(585, 235, 310, 145);
+
+                    //---- goAddFurniturePanel ----
+                    goAddFurniturePanel.setText("ADD Furniture");
+                    goAddFurniturePanel.addActionListener(e -> goAddFurniturePanel(e));
+                    showFurnituresPanel.add(goAddFurniturePanel);
+                    goAddFurniturePanel.setBounds(435, 405, 155, 35);
+
+                    //---- searchFurnitureField ----
+                    searchFurnitureField.setToolTipText("search by name");
+                    searchFurnitureField.setFont(new Font(Font.SERIF, Font.PLAIN, 18));
+                    showFurnituresPanel.add(searchFurnitureField);
+                    searchFurnitureField.setBounds(30, 80, 205, 33);
+
+                    //---- searchFurnitureButton ----
+                    searchFurnitureButton.setIcon(new ImageIcon(getClass().getResource("/images/searchIcon.png")));
+                    showFurnituresPanel.add(searchFurnitureButton);
+                    searchFurnitureButton.setBounds(250, 80, 30, 30);
+
+                    //---- label57 ----
+                    label57.setText("ID:");
+                    label57.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    showFurnituresPanel.add(label57);
+                    label57.setBounds(440, 15, 95, 35);
+
+                    //---- furnitureId ----
+                    furnitureId.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    furnitureId.setEnabled(false);
+                    furnitureId.setDisabledTextColor(new Color(0x333333));
+                    showFurnituresPanel.add(furnitureId);
+                    furnitureId.setBounds(560, 20, 205, 33);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < showFurnituresPanel.getComponentCount(); i++) {
+                            Rectangle bounds = showFurnituresPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = showFurnituresPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        showFurnituresPanel.setMinimumSize(preferredSize);
+                        showFurnituresPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                furniturePanel.add(showFurnituresPanel, "card1");
+
+                //======== addFurniturePanel ========
+                {
+                    addFurniturePanel.setLayout(null);
+
+                    //---- label58 ----
+                    label58.setText("Add your furniture for sale");
+                    label58.setFont(new Font("Segoe UI Light", Font.PLAIN, 24));
+                    label58.setForeground(Color.magenta);
+                    addFurniturePanel.add(label58);
+                    label58.setBounds(55, 35, 305, 35);
+
+                    //---- label59 ----
+                    label59.setText("Name: ");
+                    label59.setFont(new Font("SimSun", Font.BOLD, 22));
+                    addFurniturePanel.add(label59);
+                    label59.setBounds(70, 95, 105, 35);
+
+                    //---- newFurnitureNameField ----
+                    newFurnitureNameField.setText("Sofa");
+                    newFurnitureNameField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+                    addFurniturePanel.add(newFurnitureNameField);
+                    newFurnitureNameField.setBounds(175, 95, 235, 35);
+
+                    //---- label60 ----
+                    label60.setText("Price:");
+                    label60.setFont(new Font("SimSun", Font.BOLD, 22));
+                    addFurniturePanel.add(label60);
+                    label60.setBounds(70, 140, 105, 35);
+
+                    //---- newFurniturePriceField ----
+                    newFurniturePriceField.setText("155");
+                    newFurniturePriceField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+                    addFurniturePanel.add(newFurniturePriceField);
+                    newFurniturePriceField.setBounds(175, 140, 235, 35);
+
+                    //---- label61 ----
+                    label61.setText("Description:");
+                    label61.setFont(new Font("SimSun", Font.BOLD, 22));
+                    addFurniturePanel.add(label61);
+                    label61.setBounds(70, 190, 165, 35);
+
+                    //======== scrollPane5 ========
+                    {
+
+                        //---- newFurnitureDescField ----
+                        newFurnitureDescField.setText("Hell climbing , simulated annealing");
+                        newFurnitureDescField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+                        newFurnitureDescField.setWrapStyleWord(true);
+                        newFurnitureDescField.setLineWrap(true);
+                        scrollPane5.setViewportView(newFurnitureDescField);
+                    }
+                    addFurniturePanel.add(scrollPane5);
+                    scrollPane5.setBounds(80, 235, 530, 160);
+
+                    //---- label62 ----
+                    label62.setText("( type of the furniture like Sofa, TV,  etc .. )");
+                    label62.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 16));
+                    label62.setForeground(new Color(0x5e5454));
+                    addFurniturePanel.add(label62);
+                    label62.setBounds(440, 100, 465, 25);
+
+                    //---- label63 ----
+                    label63.setText("( put your price for this furniture )");
+                    label63.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 16));
+                    label63.setForeground(new Color(0x5e5454));
+                    addFurniturePanel.add(label63);
+                    label63.setBounds(440, 145, 465, 25);
+
+                    //---- label64 ----
+                    label64.setText("( description like quality, benefits, properities for this furniture )");
+                    label64.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 16));
+                    label64.setForeground(new Color(0x5e5454));
+                    addFurniturePanel.add(label64);
+                    label64.setBounds(280, 190, 490, 40);
+
+                    //---- addFurnitureMessageLabel ----
+                    addFurnitureMessageLabel.setFont(new Font("SimSun", Font.PLAIN, 16));
+                    addFurnitureMessageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                    addFurnitureMessageLabel.setForeground(Color.red);
+                    addFurniturePanel.add(addFurnitureMessageLabel);
+                    addFurnitureMessageLabel.setBounds(150, 410, 640, 40);
+
+                    //---- addFurnitureButton ----
+                    addFurnitureButton.setText("ADD");
+                    addFurnitureButton.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+                    addFurnitureButton.addActionListener(e -> addFurniture(e));
+                    addFurniturePanel.add(addFurnitureButton);
+                    addFurnitureButton.setBounds(665, 340, 130, 40);
+
+                    //---- addFurnitureButton2 ----
+                    addFurnitureButton2.setText("CANCEL");
+                    addFurnitureButton2.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+                    addFurnitureButton2.addActionListener(e -> addFurnitureButton2(e));
+                    addFurniturePanel.add(addFurnitureButton2);
+                    addFurnitureButton2.setBounds(820, 340, 130, 40);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < addFurniturePanel.getComponentCount(); i++) {
+                            Rectangle bounds = addFurniturePanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = addFurniturePanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        addFurniturePanel.setMinimumSize(preferredSize);
+                        addFurniturePanel.setPreferredSize(preferredSize);
+                    }
+                }
+                furniturePanel.add(addFurniturePanel, "card2");
             }
-            mainPanel.addTab("FURNITURE", furniturePanel);
+            mainPanel.addTab("FURNITURES", furniturePanel);
 
             //======== bookingsPanel ========
             {
@@ -1706,20 +1976,39 @@ public class TenantPage extends JFrame {
     private JRadioButton vElectricityNo;
     private JLabel label56;
     private JPanel furniturePanel;
+    private JPanel showFurnituresPanel;
     private JLabel label28;
     private JScrollPane scrollPane3;
-    private JTable table1;
+    private JTable furnitureTable;
     private JLabel label29;
     private JLabel label30;
     private JLabel label31;
     private JLabel label32;
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
+    private JTextField furnitureName;
+    private JTextField furnitureOwner;
+    private JTextField furniturePhone;
     private JScrollPane scrollPane4;
-    private JTextPane textPane1;
-    private JButton button2;
+    private JTextPane furnitureDesc;
+    private JButton goAddFurniturePanel;
+    private JTextField searchFurnitureField;
+    private JLabel searchFurnitureButton;
+    private JLabel label57;
+    private JTextField furnitureId;
+    private JPanel addFurniturePanel;
+    private JLabel label58;
+    private JLabel label59;
+    private JTextField newFurnitureNameField;
+    private JLabel label60;
+    private JTextField newFurniturePriceField;
+    private JLabel label61;
+    private JScrollPane scrollPane5;
+    private JTextArea newFurnitureDescField;
+    private JLabel label62;
+    private JLabel label63;
+    private JLabel label64;
+    private JLabel addFurnitureMessageLabel;
+    private JButton addFurnitureButton;
+    private JButton addFurnitureButton2;
     private JPanel bookingsPanel;
-
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
