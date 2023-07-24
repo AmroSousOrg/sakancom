@@ -52,4 +52,19 @@ public class Validation {
         if (universityMajor.isEmpty())
             throw new InputValidationException("Invalid university major.");
     }
+
+    /**
+     * method to validate if string is numeric
+     */
+    public static void validateNumeric(String str) throws InputValidationException {
+        if (!str.matches("^[1-9]+[0-9]*$"))
+            throw new InputValidationException("Not numeric field.");
+    }
+
+    /**
+     * method that check if string is empty or not
+     */
+    public static void validateEmpty(String str) throws InputValidationException {
+        if (str.isEmpty()) throw new InputValidationException("Empty field.");
+    }
 }

@@ -124,4 +124,14 @@ public class Functions {
             dtm.addRow(vector);
         }
     }
+
+    /**
+     * this method is used to switch between child panels in CardLayout parent panel
+     */
+    public static void switchChildPanel(JPanel parentPanel, JPanel childPanel) {
+        parentPanel.removeAll();
+        parentPanel.add(childPanel);
+        parentPanel.repaint();
+        parentPanel.revalidate();
+    }
 }

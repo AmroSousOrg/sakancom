@@ -12,42 +12,44 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoginPage extends JFrame {
 
-    public JPanel mainPanel;
-    public JPanel registerPanel;
-    public JPanel loginPanel;
-    public JTextField usernameField;
-    public JPasswordField passwordField;
-    public JButton submitButton;
-    public JButton createAccountButton;
-    public JButton clearButton;
-    public JComboBox<String> roleCombo;
-    public JLabel errorLabel;
-    public JPanel fieldsPanel;
-    public JPanel buttonsPanel;
-    public JComboBox<String> registerCombo;
-    public JButton registerSubmit;
-    public JButton registerClear;
-    public JPanel tenantPanel;
-    public JTextField tenantName;
-    public JTextField tenantAge;
-    public JTextField tenantMajor;
-    public JTextField tenantPhone;
-    public JTextField tenantEmail;
-    public JPanel ownerPanel;
-    public JLabel ownerErrorLabel;
-    public JTextField ownerName;
-    public JTextField ownerPhone;
-    public JTextField ownerEmail;
-    public JLabel tenantErrorLabel;
-    public JLabel backArrow;
-    public JPasswordField tenantPassword;
-    public JPasswordField tenantConfirmPass;
-    public JPasswordField ownerPassword;
-    public JPasswordField ownerConfirmPass;
-    public JPanel loginFields;
+    private JPanel mainPanel;
+    private JPanel registerPanel;
+    private JPanel loginPanel;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton submitButton;
+    private JButton createAccountButton;
+    private JButton clearButton;
+    private JComboBox<String> roleCombo;
+    private JLabel errorLabel;
+    private JPanel fieldsPanel;
+    private JPanel buttonsPanel;
+    private JComboBox<String> registerCombo;
+    private JButton registerSubmit;
+    private JButton registerClear;
+    private JPanel tenantPanel;
+    private JTextField tenantName;
+    private JTextField tenantAge;
+    private JTextField tenantMajor;
+    private JTextField tenantPhone;
+    private JTextField tenantEmail;
+    private JPanel ownerPanel;
+    private JLabel ownerErrorLabel;
+    private JTextField ownerName;
+    private JTextField ownerPhone;
+    private JTextField ownerEmail;
+    private JLabel tenantErrorLabel;
+    private JLabel backArrow;
+    private JPasswordField tenantPassword;
+    private JPasswordField tenantConfirmPass;
+    private JPasswordField ownerPassword;
+    private JPasswordField ownerConfirmPass;
+    private JPanel loginFields;
 
     public static final int TENANT = 1, OWNER = 2, ADMIN = 3;
     public boolean isLoginPanelOpen;
@@ -189,6 +191,11 @@ public class LoginPage extends JFrame {
                 e -> defaultRegisterPanel());
     }
 
+    public void setCredentials(String username, String password) {
+        usernameField.setText(username);
+        passwordField.setText(password);
+    }
+
     private void createTenantAccount() {
         String name, password, rePassword, email, phone, age, universityMajor;
         name = tenantName.getText().trim();
@@ -298,5 +305,59 @@ public class LoginPage extends JFrame {
     private void defaultTenantErrorLabel() {
         tenantErrorLabel.setText("");
         tenantErrorLabel.setForeground(Color.red);
+    }
+
+    public void setRoleCombo(int i) {
+        roleCombo.setSelectedIndex(i);
+    }
+
+    public void pressSubmitButton() {
+        submitButton.doClick();
+    }
+
+    public String getErrorLabel() {
+        return errorLabel.getText();
+    }
+
+    public void pressCreateAccountButton() {
+        createAccountButton.doClick();
+    }
+
+    public void setRegisterCombo(int selectIndex) {
+        registerCombo.setSelectedIndex(selectIndex);
+    }
+
+    public int getRegisterCombo() {
+        return registerCombo.getSelectedIndex();
+    }
+
+    public void fillTenantRegisterInfo(List<Map<String, String>> info) {
+        tenantName.setText(info.get(0).get("Value"));
+        tenantPassword.setText(info.get(1).get("Value"));
+        tenantConfirmPass.setText(info.get(2).get("Value"));
+        tenantEmail.setText(info.get(3).get("Value"));
+        tenantPhone.setText(info.get(4).get("Value"));
+        tenantAge.setText(info.get(5).get("Value"));
+        tenantMajor.setText(info.get(6).get("Value"));
+    }
+
+    public void fillOwnerRegisterInfo(List<Map<String, String>> rows) {
+        ownerName.setText(rows.get(0).get("Value"));
+        ownerPassword.setText(rows.get(1).get("Value"));
+        ownerConfirmPass.setText(rows.get(2).get("Value"));
+        ownerEmail.setText(rows.get(3).get("Value"));
+        ownerPhone.setText(rows.get(4).get("Value"));
+    }
+
+    public String getTenantErrorLabel() {
+        return tenantErrorLabel.getText();
+    }
+
+    public String getOwnerErrorLabel() {
+        return ownerErrorLabel.getText();
+    }
+
+    public void pressRegisterSubmit() {
+        registerSubmit.doClick();
     }
 }
