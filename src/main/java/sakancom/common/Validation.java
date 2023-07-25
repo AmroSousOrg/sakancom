@@ -58,7 +58,7 @@ public class Validation {
      */
     public static void validateNumeric(String str) throws InputValidationException {
         if (!str.matches("^[1-9]+[0-9]*$"))
-            throw new InputValidationException("Not numeric field.");
+            throw new InputValidationException("Not positive integer.");
     }
 
     /**

@@ -28,7 +28,7 @@ public class LoginPageDefinitions {
 
     @Before
     public void setupTestDB() {
-        Database.setDatabaseName("sakancom_test");
+        Database.switchTestDatabase();
     }
 
     @After
