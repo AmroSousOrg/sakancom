@@ -1,9 +1,13 @@
 package sakancom.common;
 
+import javax.swing.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /*
 
@@ -14,18 +18,29 @@ import java.util.Map;
 */
 public final class Database {
 
-    // Database info
-    public static final String DATABASE_DATA_NAME = "sakancom_db";
-    public static String DATABASE_NAME = DATABASE_DATA_NAME;
-    public static final String DATABASE_PASSWORD = "12345";
-    public static final String DATABASE_USERNAME = "sw_team";
+    /**
+     * fields that define properties of the database and load it
+     * from the config file using static initializer
+     */
+    private static final Properties properties = new Properties();
+    private static final String CONFIG_FILE_NAME = "ourConfig.config";
+
+    static {
+        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_NAME)) {
+            properties.load(fis);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "config file does not found.\nor not written well.",
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     /*
      method to make a connection to the database
      */
     public static Connection makeConnection() throws SQLException {
         return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/" + DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD);
+                "jdbc:mysql://localhost:3306/" + properties.get("DATABASE_NAME"),
+                (String)properties.get("DATABASE_USERNAME"), (String)properties.get("DATABASE_PASSWORD"));
     }
 
     /*
@@ -83,10 +98,10 @@ public final class Database {
     }
 
     /*
-        method to set database name, used in testing
+        method to switch to test database while testing
     */
-    public static void setDatabaseName(String name) {
-        DATABASE_NAME = name;
+    public static void switchTestDatabase() {
+        properties.setProperty("DATABASE_NAME", (String)properties.get("TEST_DATABASE_NAME"));
     }
 
     /*

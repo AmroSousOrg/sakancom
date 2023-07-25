@@ -12,7 +12,7 @@ Feature: Show available housing
     Then homePanel will appear in the tenant page form
 
   Scenario: see all available housing and booking accommodation
-    Given is on the available housing panel
+    Given he is on the available housing panel
     Then he should see these houses available:
     | name              |
     | City Apartment    |

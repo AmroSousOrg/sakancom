@@ -5,6 +5,7 @@
 package sakancom.pages;
 
 import java.awt.event.*;
+import java.beans.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import sakancom.common.Database;
@@ -266,6 +267,14 @@ public class TenantPage extends JFrame {
         return housePicture.getIcon();
     }
 
+    public String getInvoiceReservationIdField() {return vBookingId.getText();}
+
+    public String getInvoiceHouseIdField() {return vHousingId.getText();}
+
+    public String getInvoiceTenantIdField() {return vTenantId.getText();}
+
+    public String getInvoiceOwnerIdField() {return vOwnerId.getText();}
+
     private void furnituresTableMouseClicked(MouseEvent e) {
         Connection conn;
         try {
@@ -313,6 +322,7 @@ public class TenantPage extends JFrame {
             Validation.validateEmpty(fDesc);
         } catch (InputValidationException ex) {
             addFurnitureMessageLabel.setText(ex.getMessage());
+            return;
         }
         try {
             Connection conn = Database.makeConnection();
@@ -484,7 +494,7 @@ public class TenantPage extends JFrame {
         furniturePhone = new JTextField();
         scrollPane4 = new JScrollPane();
         furnitureDesc = new JTextPane();
-        goAddFurniturePanel = new JButton();
+        goAddFurnitureButton = new JButton();
         searchFurnitureField = new JTextField();
         searchFurnitureButton = new JLabel();
         label57 = new JLabel();
@@ -502,9 +512,11 @@ public class TenantPage extends JFrame {
         label63 = new JLabel();
         label64 = new JLabel();
         addFurnitureMessageLabel = new JLabel();
-        addFurnitureButton = new JButton();
+        addFurnitureSubmitButton = new JButton();
         addFurnitureButton2 = new JButton();
         bookingsPanel = new JPanel();
+        label65 = new JLabel();
+        salesPanel = new JPanel();
 
         //======== this ========
         var contentPane = getContentPane();
@@ -516,13 +528,13 @@ public class TenantPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax .
-                swing. border .EmptyBorder ( 0, 0 ,0 , 0) ,  "JFor\u006dDesi\u0067ner \u0045valu\u0061tion" , javax. swing .border
-                . TitledBorder. CENTER ,javax . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dia\u006cog"
-                , java .awt . Font. BOLD ,12 ) ,java . awt. Color .red ) ,homePanel. getBorder
-                () ) ); homePanel. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java
-                . beans. PropertyChangeEvent e) { if( "bord\u0065r" .equals ( e. getPropertyName () ) )throw new RuntimeException
-                ( ) ;} } );
+                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax
+                . swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing
+                . border. TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java .awt .
+                Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ), java. awt. Color. red
+                ) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( ){ @Override
+                public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName (
+                ) )) throw new RuntimeException( ); }} );
                 homePanel.setLayout(null);
 
                 {
@@ -1586,11 +1598,11 @@ public class TenantPage extends JFrame {
                     showFurnituresPanel.add(scrollPane4);
                     scrollPane4.setBounds(585, 235, 310, 145);
 
-                    //---- goAddFurniturePanel ----
-                    goAddFurniturePanel.setText("ADD Furniture");
-                    goAddFurniturePanel.addActionListener(e -> goAddFurniturePanel(e));
-                    showFurnituresPanel.add(goAddFurniturePanel);
-                    goAddFurniturePanel.setBounds(435, 405, 155, 35);
+                    //---- goAddFurnitureButton ----
+                    goAddFurnitureButton.setText("ADD Furniture");
+                    goAddFurnitureButton.addActionListener(e -> goAddFurniturePanel(e));
+                    showFurnituresPanel.add(goAddFurnitureButton);
+                    goAddFurnitureButton.setBounds(435, 405, 155, 35);
 
                     //---- searchFurnitureField ----
                     searchFurnitureField.setToolTipText("search by name");
@@ -1715,12 +1727,12 @@ public class TenantPage extends JFrame {
                     addFurniturePanel.add(addFurnitureMessageLabel);
                     addFurnitureMessageLabel.setBounds(150, 410, 640, 40);
 
-                    //---- addFurnitureButton ----
-                    addFurnitureButton.setText("ADD");
-                    addFurnitureButton.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-                    addFurnitureButton.addActionListener(e -> addFurniture(e));
-                    addFurniturePanel.add(addFurnitureButton);
-                    addFurnitureButton.setBounds(665, 340, 130, 40);
+                    //---- addFurnitureSubmitButton ----
+                    addFurnitureSubmitButton.setText("ADD");
+                    addFurnitureSubmitButton.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+                    addFurnitureSubmitButton.addActionListener(e -> addFurniture(e));
+                    addFurniturePanel.add(addFurnitureSubmitButton);
+                    addFurnitureSubmitButton.setBounds(665, 340, 130, 40);
 
                     //---- addFurnitureButton2 ----
                     addFurnitureButton2.setText("CANCEL");
@@ -1752,6 +1764,13 @@ public class TenantPage extends JFrame {
             {
                 bookingsPanel.setLayout(null);
 
+                //---- label65 ----
+                label65.setText("YOUR BOOKINGS");
+                label65.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20));
+                label65.setForeground(Color.magenta);
+                bookingsPanel.add(label65);
+                label65.setBounds(55, 25, 185, 35);
+
                 {
                     // compute preferred size
                     Dimension preferredSize = new Dimension();
@@ -1767,7 +1786,28 @@ public class TenantPage extends JFrame {
                     bookingsPanel.setPreferredSize(preferredSize);
                 }
             }
-            mainPanel.addTab("BOOKINGS", bookingsPanel);
+            mainPanel.addTab("BOOKING", bookingsPanel);
+
+            //======== salesPanel ========
+            {
+                salesPanel.setLayout(null);
+
+                {
+                    // compute preferred size
+                    Dimension preferredSize = new Dimension();
+                    for(int i = 0; i < salesPanel.getComponentCount(); i++) {
+                        Rectangle bounds = salesPanel.getComponent(i).getBounds();
+                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    }
+                    Insets insets = salesPanel.getInsets();
+                    preferredSize.width += insets.right;
+                    preferredSize.height += insets.bottom;
+                    salesPanel.setMinimumSize(preferredSize);
+                    salesPanel.setPreferredSize(preferredSize);
+                }
+            }
+            mainPanel.addTab("SALES", salesPanel);
         }
         contentPane.add(mainPanel);
         mainPanel.setBounds(0, 0, 984, 505);
@@ -1843,6 +1883,62 @@ public class TenantPage extends JFrame {
     public void selectBookRoom(int floor, int apart) {
         chooseFloor.setSelectedIndex(floor);
         chooseApartment.setSelectedItem("" + apart);
+    }
+
+    public DefaultTableModel getFurnitureTableModel() {
+        return (DefaultTableModel) furnitureTable.getModel();
+    }
+
+    public String getFurnitureIdField() {
+        return furnitureId.getText();
+    }
+
+    public String getFurnitureNameField() {
+        return furnitureName.getText();
+    }
+
+    public String getFurnitureDescField() {
+        return furnitureDesc.getText();
+    }
+
+    public String getFurnitureOwnerName() {
+        return furnitureOwner.getText();
+    }
+
+    public String getFurnitureOwnerPhone() {
+        return furniturePhone.getText();
+    }
+
+    public void pressAddNewFurnitureSubmitButton() {
+        addFurnitureSubmitButton.doClick();
+    }
+
+    public void pressAddFurnitureButton() {
+        goAddFurnitureButton.doClick();
+    }
+
+    public void setNewFurnitureNameField(String str) {
+        newFurnitureNameField.setText(str);
+    }
+
+    public void setNewFurnitureDescField(String str) {
+        newFurnitureDescField.setText(str);
+    }
+
+    public void setNewFurniturePriceField(String str) {
+        newFurniturePriceField.setText(str);
+    }
+
+    public JPanel getAllFurniturePanel() {
+        return showFurnituresPanel;
+    }
+
+    public String getAddNewFurnitureMessageLabel() {
+        return addFurnitureMessageLabel.getText();
+    }
+
+    public void selectFurnitureByIndex(Integer ind) {
+        furnitureTable.setRowSelectionInterval(ind, ind);
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
@@ -1989,7 +2085,7 @@ public class TenantPage extends JFrame {
     private JTextField furniturePhone;
     private JScrollPane scrollPane4;
     private JTextPane furnitureDesc;
-    private JButton goAddFurniturePanel;
+    private JButton goAddFurnitureButton;
     private JTextField searchFurnitureField;
     private JLabel searchFurnitureButton;
     private JLabel label57;
@@ -2007,8 +2103,10 @@ public class TenantPage extends JFrame {
     private JLabel label63;
     private JLabel label64;
     private JLabel addFurnitureMessageLabel;
-    private JButton addFurnitureButton;
+    private JButton addFurnitureSubmitButton;
     private JButton addFurnitureButton2;
     private JPanel bookingsPanel;
+    private JLabel label65;
+    private JPanel salesPanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
