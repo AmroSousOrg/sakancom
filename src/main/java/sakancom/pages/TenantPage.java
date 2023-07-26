@@ -30,6 +30,7 @@ public class TenantPage extends JFrame {
 
     private final HashMap<String, Object> tenantData;
     public final static int HOME = 0, ACCOUNT = 1, HOUSING = 2, FURNITURE = 3, BOOKING = 4;
+
     public TenantPage(HashMap<String, Object> tenantData) {
         this.tenantData = tenantData;
         initComponents();
@@ -40,19 +41,7 @@ public class TenantPage extends JFrame {
     }
 
     private void fillFurnitureTable() {
-        Connection conn;
-        try {
-            conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT `furniture_id`, `NAME`, `PRICE` FROM `FURNITURE`",
-                    conn
-            );
-            Functions.buildTableModel(rs, furnitureTable);
-            conn.close();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        Functions.fillTable("SELECT `furniture_id`, `NAME`, `PRICE` FROM `FURNITURE`", furnitureTable);
     }
 
     private void showHouseInfoPanel(HashMap<String, Object> houseData) {
@@ -217,10 +206,6 @@ public class TenantPage extends JFrame {
         vOwnerName.setText((String)data.get("owner_name"));
         vOwnerEmail.setText((String)data.get("owner_email"));
         vOwnerPhone.setText((String)data.get("owner_phone"));
-    }
-
-    public String getHouseId() {
-        return houseId.getText();
     }
 
     public String getHouseName() {
@@ -1834,19 +1819,8 @@ public class TenantPage extends JFrame {
     }
 
     public void fillHousesTable() {
-        Connection conn;
-        try {
-            conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT `NAME`, `LOCATION`, `RENT`, `WATER_INCLUSIVE`, `ELECTRICITY_INCLUSIVE` FROM `HOUSING` WHERE `AVAILABLE` =  '1'",
-                    conn
-            );
-            Functions.buildTableModel(rs, housesTable);
-            conn.close();
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        Functions.fillTable("SELECT `NAME`, `LOCATION`, `RENT`, `WATER_INCLUSIVE`, `ELECTRICITY_INCLUSIVE` FROM" +
+                " `HOUSING` WHERE `AVAILABLE` =  '1'", housesTable);
     }
 
     public int getSelectedTab() {

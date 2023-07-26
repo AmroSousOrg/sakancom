@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -135,6 +136,25 @@ public class Functions {
         parentPanel.add(childPanel);
         parentPanel.repaint();
         parentPanel.revalidate();
+    }
+
+    /**
+     * fill table using result set from query
+     */
+    public static void fillTable(String query, JTable table) {
+        Connection conn;
+        try {
+            conn = Database.makeConnection();
+            ResultSet rs = Database.getQuery(
+                    query,
+                    conn
+            );
+            Functions.buildTableModel(rs, table);
+            conn.close();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
