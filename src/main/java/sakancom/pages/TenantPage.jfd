@@ -7,7 +7,7 @@ new FormModel {
 			name: "this"
 			add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 				name: "mainPanel"
-				addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "mainPanelStateChanged", true ) )
+				addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "mainPanelStateChanged", false ) )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
 					name: "homePanel"
 				}, new FormLayoutConstraints( null ) {
@@ -96,7 +96,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "idField"
-						"text": "150251"
 						"font": &Font0 new java.awt.Font( "SimSun", 0, 20 )
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -107,7 +106,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "nameField"
-						"text": "Amro Sous"
 						"font": #Font0
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -119,7 +117,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "emailField"
-						"text": "amroosous@gmail.com"
 						"font": #Font0
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -131,7 +128,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "phoneField"
-						"text": "0592793930"
 						"font": #Font0
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -143,7 +139,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "ageField"
-						"text": "21"
 						"font": #Font0
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -155,7 +150,6 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JTextField" ) {
 						name: "majorField"
-						"text": "Computer Engineer"
 						"font": #Font0
 						"enabled": false
 						"disabledTextColor": new java.awt.Color( 102, 102, 102, 255 )
@@ -184,8 +178,7 @@ new FormModel {
 						"y": 400
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "label8"
-						"text": "Invalid Phone number and password."
+						name: "accountPanelMessageLabel"
 						"foreground": sfield java.awt.Color red
 						"font": new java.awt.Font( "Segoe UI Light", 0, 16 )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -352,7 +345,7 @@ new FormModel {
 							name: "showHouse"
 							"text": "VIEW"
 							"toolTipText": "view selected house"
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "showHouse", true ) )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "showHouse", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 840
 							"y": 155
@@ -662,7 +655,7 @@ new FormModel {
 							auxiliary() {
 								"JavaCodeGenerator.typeParameters": "String"
 							}
-							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "chooseFloorItemStateChanged", true ) )
+							addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "chooseFloorItemStateChanged", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 505
 							"y": 340
@@ -712,7 +705,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "bookButton"
 							"text": "Book"
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "book", true ) )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "book", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 425
 							"y": 405
@@ -735,7 +728,7 @@ new FormModel {
 							"text": "X"
 							"horizontalAlignment": 0
 							"font": &Font5 new java.awt.Font( "Snap ITC", 0, 28 )
-							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeOneHousePanelMouseClicked", true ) )
+							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeOneHousePanelMouseClicked", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 910
 							"y": 10
@@ -1183,7 +1176,7 @@ new FormModel {
 							"text": "X"
 							"horizontalAlignment": 0
 							"font": #Font5
-							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeOneHousePanelMouseClicked", true ) )
+							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeOneHousePanelMouseClicked", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 40
 							"height": 35
@@ -1394,7 +1387,7 @@ new FormModel {
 									add( null )
 									add( new com.jformdesigner.model.SwingTableColumn( null, 0, 70, 70, true ) )
 								} )
-								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "furnituresTableMouseClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "furnituresTableMouseClicked", false ) )
 							} )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 25
@@ -1491,7 +1484,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "goAddFurnitureButton"
 							"text": "ADD Furniture"
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "goAddFurniturePanel", true ) )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "goAddFurniturePanel", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 435
 							"y": 405
@@ -1667,7 +1660,7 @@ new FormModel {
 							name: "addFurnitureSubmitButton"
 							"text": "ADD"
 							"font": &Font12 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addFurniture", true ) )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addFurniture", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 665
 							"y": 340
@@ -1678,7 +1671,7 @@ new FormModel {
 							name: "addFurnitureButton2"
 							"text": "CANCEL"
 							"font": #Font12
-							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addFurnitureButton2", true ) )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addFurnitureButton2", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 130
 							"height": 40

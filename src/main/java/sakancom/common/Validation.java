@@ -44,7 +44,7 @@ public class Validation {
             throw new InputValidationException("Invalid age.");
     }
 
-    /*
+    /**
         method to validate university major input for user.
     */
     public static void validateUniversityMajor(String universityMajor)
