@@ -5,8 +5,6 @@
 package sakancom.pages;
 
 import java.awt.event.*;
-import java.beans.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
 import sakancom.common.Database;
 import sakancom.common.Functions;
@@ -26,6 +24,8 @@ import javax.swing.*;
 /**
  *
  */
+
+@SuppressWarnings("FieldCanBeLocal")
 public class TenantPage extends JFrame {
 
     private final HashMap<String, Object> tenantData;
@@ -93,7 +93,7 @@ public class TenantPage extends JFrame {
         housesPanel.revalidate();
     }
 
-    private void showHouse(ActionEvent e) {
+    private void showHouse() {
         int selected = housesTable.getSelectedRow();
         String name = (String)housesTable.getValueAt(selected, 1);
         try {
@@ -118,7 +118,7 @@ public class TenantPage extends JFrame {
         }
     }
 
-    private void chooseFloorItemStateChanged(ItemEvent e) {
+    private void chooseFloorItemStateChanged() {
         messageLabel.setText("");
         int selectedIndex = chooseFloor.getSelectedIndex();
         int apart_per_floor = Integer.parseInt(apartPerFloor.getText());
@@ -147,11 +147,11 @@ public class TenantPage extends JFrame {
         }
     }
 
-    private void closeOneHousePanelMouseClicked(MouseEvent e) {
+    private void closeOneHousePanelMouseClicked() {
         Functions.switchChildPanel(housesPanel, allHousesPanel);
     }
 
-    private void book(ActionEvent e) {
+    private void book() {
         if (chooseApartment.getSelectedIndex() == 0) return;
         HashMap<String, String> reservation_data = new HashMap<>();
         reservation_data.put("tenant_id", String.valueOf((long)tenantData.get("tenant_id")));
@@ -275,7 +275,7 @@ public class TenantPage extends JFrame {
 
     public String getInvoiceOwnerIdField() {return vOwnerId.getText();}
 
-    private void furnituresTableMouseClicked(MouseEvent e) {
+    private void furnituresTableMouseClicked() {
         Connection conn;
         try {
             conn = Database.makeConnection();
@@ -300,18 +300,18 @@ public class TenantPage extends JFrame {
         }
     }
 
-    private void goAddFurniturePanel(ActionEvent e) {
+    private void goAddFurniturePanel() {
         Functions.clearAllChildren(addFurniturePanel);
         addFurnitureMessageLabel.setText("");
         Functions.switchChildPanel(furniturePanel, addFurniturePanel);
     }
 
-    private void addFurnitureButton2(ActionEvent e) {
+    private void addFurnitureButton2() {
         Functions.switchChildPanel(furniturePanel, showFurnituresPanel);
         fillFurnitureTable();
     }
 
-    private void addFurniture(ActionEvent e) {
+    private void addFurniture() {
         addFurnitureMessageLabel.setText("");
         String fName = newFurnitureNameField.getText();
         String fPrice = newFurniturePriceField.getText();
@@ -343,7 +343,7 @@ public class TenantPage extends JFrame {
         }
     }
 
-    private void mainPanelStateChanged(ChangeEvent e) {
+    private void mainPanelStateChanged() {
         int selectedIndex = mainPanel.getSelectedIndex();
         if (selectedIndex == HOUSING) fillHousesTable();
         else if (selectedIndex == FURNITURE) fillFurnitureTable();
@@ -371,7 +371,7 @@ public class TenantPage extends JFrame {
         majorField = new JTextField();
         editProfileButton = new JButton();
         saveProfileButton = new JButton();
-        label8 = new JLabel();
+        accountPanelMessageLabel = new JLabel();
         changePassowrdButton = new JButton();
         separator2 = new JSeparator();
         label10 = new JLabel();
@@ -524,17 +524,17 @@ public class TenantPage extends JFrame {
 
         //======== mainPanel ========
         {
-            mainPanel.addChangeListener(e -> mainPanelStateChanged(e));
+            mainPanel.addChangeListener(e -> mainPanelStateChanged());
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax
-                . swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing
-                . border. TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java .awt .
-                Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ), java. awt. Color. red
-                ) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( ){ @Override
-                public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName (
-                ) )) throw new RuntimeException( ); }} );
+                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax.
+                swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn", javax. swing. border
+                . TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog"
+                ,java .awt .Font .BOLD ,12 ), java. awt. Color. red) ,homePanel. getBorder
+                ( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( ){ @Override public void propertyChange (java
+                .beans .PropertyChangeEvent e) {if ("\u0062ord\u0065r" .equals (e .getPropertyName () )) throw new RuntimeException
+                ( ); }} );
                 homePanel.setLayout(null);
 
                 {
@@ -604,7 +604,6 @@ public class TenantPage extends JFrame {
                 label7.setBounds(55, 330, 190, 30);
 
                 //---- idField ----
-                idField.setText("150251");
                 idField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 idField.setEnabled(false);
                 idField.setDisabledTextColor(new Color(0x666666));
@@ -612,7 +611,6 @@ public class TenantPage extends JFrame {
                 idField.setBounds(145, 105, 220, idField.getPreferredSize().height);
 
                 //---- nameField ----
-                nameField.setText("Amro Sous");
                 nameField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 nameField.setEnabled(false);
                 nameField.setDisabledTextColor(new Color(0x666666));
@@ -620,7 +618,6 @@ public class TenantPage extends JFrame {
                 nameField.setBounds(145, 150, 220, 30);
 
                 //---- emailField ----
-                emailField.setText("amroosous@gmail.com");
                 emailField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 emailField.setEnabled(false);
                 emailField.setDisabledTextColor(new Color(0x666666));
@@ -628,7 +625,6 @@ public class TenantPage extends JFrame {
                 emailField.setBounds(145, 195, 220, 30);
 
                 //---- phoneField ----
-                phoneField.setText("0592793930");
                 phoneField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 phoneField.setEnabled(false);
                 phoneField.setDisabledTextColor(new Color(0x666666));
@@ -636,7 +632,6 @@ public class TenantPage extends JFrame {
                 phoneField.setBounds(145, 240, 220, 30);
 
                 //---- ageField ----
-                ageField.setText("21");
                 ageField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 ageField.setEnabled(false);
                 ageField.setDisabledTextColor(new Color(0x666666));
@@ -644,7 +639,6 @@ public class TenantPage extends JFrame {
                 ageField.setBounds(145, 285, 220, 30);
 
                 //---- majorField ----
-                majorField.setText("Computer Engineer");
                 majorField.setFont(new Font("SimSun", Font.PLAIN, 20));
                 majorField.setEnabled(false);
                 majorField.setDisabledTextColor(new Color(0x666666));
@@ -663,12 +657,11 @@ public class TenantPage extends JFrame {
                 accountPanel.add(saveProfileButton);
                 saveProfileButton.setBounds(255, 400, 92, 30);
 
-                //---- label8 ----
-                label8.setText("Invalid Phone number and password.");
-                label8.setForeground(Color.red);
-                label8.setFont(new Font("Segoe UI Light", Font.PLAIN, 16));
-                accountPanel.add(label8);
-                label8.setBounds(415, 400, 540, 30);
+                //---- accountPanelMessageLabel ----
+                accountPanelMessageLabel.setForeground(Color.red);
+                accountPanelMessageLabel.setFont(new Font("Segoe UI Light", Font.PLAIN, 16));
+                accountPanel.add(accountPanelMessageLabel);
+                accountPanelMessageLabel.setBounds(415, 400, 540, 30);
 
                 //---- changePassowrdButton ----
                 changePassowrdButton.setText("Change your password");
@@ -793,7 +786,7 @@ public class TenantPage extends JFrame {
                     //---- showHouse ----
                     showHouse.setText("VIEW");
                     showHouse.setToolTipText("view selected house");
-                    showHouse.addActionListener(e -> showHouse(e));
+                    showHouse.addActionListener(e -> showHouse());
                     allHousesPanel.add(showHouse);
                     showHouse.setBounds(840, 155, 125, showHouse.getPreferredSize().height);
 
@@ -1007,7 +1000,7 @@ public class TenantPage extends JFrame {
                     separator4.setBounds(405, 280, 565, 10);
 
                     //---- chooseFloor ----
-                    chooseFloor.addItemListener(e -> chooseFloorItemStateChanged(e));
+                    chooseFloor.addItemListener(e -> chooseFloorItemStateChanged());
                     oneHousePanel.add(chooseFloor);
                     chooseFloor.setBounds(new Rectangle(new Point(505, 340), chooseFloor.getPreferredSize()));
 
@@ -1036,7 +1029,7 @@ public class TenantPage extends JFrame {
 
                     //---- bookButton ----
                     bookButton.setText("Book");
-                    bookButton.addActionListener(e -> book(e));
+                    bookButton.addActionListener(e -> book());
                     oneHousePanel.add(bookButton);
                     bookButton.setBounds(425, 405, 117, 35);
 
@@ -1054,7 +1047,7 @@ public class TenantPage extends JFrame {
                     closeOneHouse.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            closeOneHousePanelMouseClicked(e);
+                            closeOneHousePanelMouseClicked();
                         }
                     });
                     oneHousePanel.add(closeOneHouse);
@@ -1359,7 +1352,7 @@ public class TenantPage extends JFrame {
                     closeInvoicePanel.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            closeOneHousePanelMouseClicked(e);
+                            closeOneHousePanelMouseClicked();
                         }
                     });
                     invoicePanel.add(closeInvoicePanel);
@@ -1533,7 +1526,7 @@ public class TenantPage extends JFrame {
                         furnitureTable.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
-                                furnituresTableMouseClicked(e);
+                                furnituresTableMouseClicked();
                             }
                         });
                         scrollPane3.setViewportView(furnitureTable);
@@ -1600,7 +1593,7 @@ public class TenantPage extends JFrame {
 
                     //---- goAddFurnitureButton ----
                     goAddFurnitureButton.setText("ADD Furniture");
-                    goAddFurnitureButton.addActionListener(e -> goAddFurniturePanel(e));
+                    goAddFurnitureButton.addActionListener(e -> goAddFurniturePanel());
                     showFurnituresPanel.add(goAddFurnitureButton);
                     goAddFurnitureButton.setBounds(435, 405, 155, 35);
 
@@ -1730,14 +1723,14 @@ public class TenantPage extends JFrame {
                     //---- addFurnitureSubmitButton ----
                     addFurnitureSubmitButton.setText("ADD");
                     addFurnitureSubmitButton.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-                    addFurnitureSubmitButton.addActionListener(e -> addFurniture(e));
+                    addFurnitureSubmitButton.addActionListener(e -> addFurniture());
                     addFurniturePanel.add(addFurnitureSubmitButton);
                     addFurnitureSubmitButton.setBounds(665, 340, 130, 40);
 
                     //---- addFurnitureButton2 ----
                     addFurnitureButton2.setText("CANCEL");
                     addFurnitureButton2.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-                    addFurnitureButton2.addActionListener(e -> addFurnitureButton2(e));
+                    addFurnitureButton2.addActionListener(e -> addFurnitureButton2());
                     addFurniturePanel.add(addFurnitureButton2);
                     addFurnitureButton2.setBounds(820, 340, 130, 40);
 
@@ -1962,7 +1955,7 @@ public class TenantPage extends JFrame {
     private JTextField majorField;
     private JButton editProfileButton;
     private JButton saveProfileButton;
-    private JLabel label8;
+    private JLabel accountPanelMessageLabel;
     private JButton changePassowrdButton;
     private JSeparator separator2;
     private JLabel label10;
