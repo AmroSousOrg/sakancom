@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src\\test\\resources\\features\\furnitureSell.feature",
+        features = "src\\test\\resources\\features\\adminCanSeeReservations.feature",
         plugin = {"html:target\\HtmlReports\\testReport.html"},
         glue = {"sakancom.test"},
         snippets = CucumberOptions.SnippetType.CAMELCASE,
