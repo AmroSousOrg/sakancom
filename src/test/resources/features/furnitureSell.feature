@@ -17,7 +17,7 @@ Feature: show and sell Furniture
       | furniture_id | name         | price |
       | 1            | Sofa         | 500   |
       | 2            | Dining Table | 800   |
-    When he click on 0 row index in the table
+    When he click on 0 row index in the furniture table
     Then he should see this furniture info:
       | furniture_id | tenant_name | name         | description                              | tenant_phone |
       | 1            | Amro        | Sofa         | Comfortable sofa with leather upholstery | 0592793930   |

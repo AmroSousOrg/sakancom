@@ -17,12 +17,14 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 /**
- * @author amroo
+ * 
  */
 @SuppressWarnings("FieldCanBeLocal")
 public class AdminPage extends JFrame {
 
     private final HashMap<String, Object> adminData;
+    public static final int HOME = 0, ACCOUNT = 1, HOUSING = 2, RESERVATIONS = 3, FURNITURE = 4, REQUESTS = 5, TENANTS = 6, OWNERS = 7;
+    
     public AdminPage(HashMap<String, Object> adminData) {
         this.adminData = adminData;
         initComponents();
@@ -449,6 +451,51 @@ public class AdminPage extends JFrame {
         }
     }
 
+    private void mainPanelStateChanged() {
+        int tabSelected = mainPanel.getSelectedIndex();
+        if (tabSelected == ACCOUNT) fillPersonalInfo();
+        else if (tabSelected == HOUSING) fillHousesTable();
+        else if (tabSelected == RESERVATIONS) fillReservationsTable();
+        else if (tabSelected == FURNITURE) fillFurnitureTable();
+        else if (tabSelected == REQUESTS) fillRequestsTable();
+    }
+
+    public int getSelectedTab() {
+        return mainPanel.getSelectedIndex();
+    }
+
+    public void setSelectedTab(int ind) {
+        mainPanel.setSelectedIndex(ind);
+    }
+
+    public DefaultTableModel getReservationsTableModel() {
+        return (DefaultTableModel) reservationsTable.getModel();
+    }
+
+    public void setSelectedReservationRow(Integer ind) {
+        reservationsTable.setRowSelectionInterval(ind, ind);
+    }
+
+    public void pressReservationDetailsButton() {
+        reservationDetailsButton.doClick();
+    }
+
+    public String getVBookingId() {
+        return vBookingId.getText();
+    }
+
+    public String getVHousingId() {
+        return vHousingId.getText();
+    }
+
+    public String getVTenantId() {
+        return vTenantId.getText();
+    }
+
+    public String getVOwnerId() {
+        return vOwnerId.getText();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro
@@ -648,15 +695,17 @@ public class AdminPage extends JFrame {
 
         //======== mainPanel ========
         {
+            mainPanel.addChangeListener(e -> mainPanelStateChanged());
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border.
-                EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing. border. TitledBorder. CENTER, javax. swing
-                . border. TitledBorder. BOTTOM, new java .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ),
-                java. awt. Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( )
-                { @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName () ))
-                throw new RuntimeException( ); }} );
+                homePanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax
+                .swing.border.EmptyBorder(0,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax.swing
+                .border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM,new java.awt.
+                Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.red
+                ),homePanel. getBorder()));homePanel. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override
+                public void propertyChange(java.beans.PropertyChangeEvent e){if("\u0062ord\u0065r".equals(e.getPropertyName(
+                )))throw new RuntimeException();}});
                 homePanel.setLayout(null);
 
                 {

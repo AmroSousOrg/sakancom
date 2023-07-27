@@ -139,8 +139,8 @@ public class TenantPageDefinitions {
         }
     }
 
-    @When("he click on {int} row index in the table")
-    public void he_click_on_row_index_in_the_table(Integer ind) {
+    @When("he click on {int} row index in the furniture table")
+    public void he_click_on_row_index_in_the_furniture_table(Integer ind) {
         TenantPage page = (TenantPage) Application.openedPage;
         page.selectFurnitureByIndex(ind);
     }
