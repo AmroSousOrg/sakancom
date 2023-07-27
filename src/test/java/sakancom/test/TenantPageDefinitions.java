@@ -152,11 +152,11 @@ public class TenantPageDefinitions {
 
         // data not show in fields because select row not simulate the real mouse click on row
 
-//        Assert.assertEquals(desiredData.get("furniture_id"), page.getFurnitureIdField());
-//        Assert.assertEquals(desiredData.get("tenant_name"), page.getFurnitureOwnerName());
-//        Assert.assertEquals(desiredData.get("name"), page.getFurnitureNameField());
-//        Assert.assertEquals(desiredData.get("description"), page.getFurnitureDescField());
-//        Assert.assertEquals(desiredData.get("tenant_phone"), page.getFurnitureOwnerPhone());
+        Assert.assertEquals(desiredData.get("furniture_id"), page.getFurnitureIdField());
+        Assert.assertEquals(desiredData.get("tenant_name"), page.getFurnitureOwnerName());
+        Assert.assertEquals(desiredData.get("name"), page.getFurnitureNameField());
+        Assert.assertEquals(desiredData.get("description"), page.getFurnitureDescField());
+        Assert.assertEquals(desiredData.get("tenant_phone"), page.getFurnitureOwnerPhone());
     }
 
     @Given("he click on add new furniture button")
