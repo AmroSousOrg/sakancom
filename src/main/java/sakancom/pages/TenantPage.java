@@ -12,10 +12,8 @@ import sakancom.common.Validation;
 import sakancom.exceptions.InputValidationException;
 
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
@@ -36,8 +34,15 @@ public class TenantPage extends JFrame {
         initComponents();
         setTitle("Tenant Page");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        customInitComponent();
+    }
+
+    private void customInitComponent() {
         housesTable.getTableHeader().setReorderingAllowed(false);
-        fillPersonalInfo();
+        furnitureTable.getTableHeader().setReorderingAllowed(false);
+
+        furnitureTable.getSelectionModel().addListSelectionListener(e -> furnitureTableSelectionChanged());
     }
 
     private void fillFurnitureTable() {
@@ -260,31 +265,6 @@ public class TenantPage extends JFrame {
 
     public String getInvoiceOwnerIdField() {return vOwnerId.getText();}
 
-    private void furnituresTableMouseClicked() {
-        Connection conn;
-        try {
-            conn = Database.makeConnection();
-            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
-                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
-            long id = (long) furnitureTable.getValueAt(furnitureTable.getSelectedRow(), 1);
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
-            {
-                furnitureId.setText(rs.getString("furniture_id"));
-                furnitureName.setText(rs.getString("furniture_name"));
-                furnitureDesc.setText(rs.getString("description"));
-                furnitureOwner.setText(rs.getString("owner_name"));
-                furniturePhone.setText(rs.getString("phone"));
-            }
-            conn.close();
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void goAddFurniturePanel() {
         Functions.clearAllChildren(addFurniturePanel);
         addFurnitureMessageLabel.setText("");
@@ -332,6 +312,75 @@ public class TenantPage extends JFrame {
         int selectedIndex = mainPanel.getSelectedIndex();
         if (selectedIndex == HOUSING) fillHousesTable();
         else if (selectedIndex == FURNITURE) fillFurnitureTable();
+        else if (selectedIndex == ACCOUNT) fillPersonalInfo();
+    }
+
+    public void furnitureTableSelectionChanged() {
+        Connection conn;
+        int selectedRow = furnitureTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        try {
+            conn = Database.makeConnection();
+            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+            long id = (long) furnitureTable.getValueAt(selectedRow, 1);
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+            {
+                furnitureId.setText(rs.getString("furniture_id"));
+                furnitureName.setText(rs.getString("furniture_name"));
+                furnitureDesc.setText(rs.getString("description"));
+                furnitureOwner.setText(rs.getString("owner_name"));
+                furniturePhone.setText(rs.getString("phone"));
+            }
+            conn.close();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void changePassowrd() {
+        accountPanelMessageLabel.setText("");
+        accountPanelMessageLabel.setForeground(Color.red);
+        String oldPass = String.valueOf(oldPasswordField.getPassword());
+        String retype = String.valueOf(retypeField.getPassword());
+        String newPass = String.valueOf(newPasswordField.getPassword());
+        String error = "";
+
+        if (oldPass.isEmpty()) error = "Old password field is empty.";
+        else if (retype.isEmpty()) error = "Retype pass field is empty.";
+        else if (newPass.isEmpty()) error = "New password field is empty.";
+        else if (!newPass.equals(retype)) error = "Mismatch passwords.";
+        else {
+            try {
+                Connection conn = Database.makeConnection();
+                ResultSet rs = Database.getQuery("select `name` from `tenants` where `tenant_id` = " +
+                        tenantData.get("tenant_id") + " and `password` = '" + Functions.sha256(oldPass) + "'", conn);
+                if (rs.next()) {
+                    Statement stmt = conn.createStatement();
+                    stmt.executeUpdate("update `tenants` set `password` = '" + Functions.sha256(newPass) +
+                            "' where `tenant_id` = " + tenantData.get("tenant_id"));
+                    stmt.close();
+                    accountPanelMessageLabel.setForeground(Color.green);
+                    accountPanelMessageLabel.setText("password updated.");
+                    newPasswordField.setText("");
+                    oldPasswordField.setText("");
+                    retypeField.setText("");
+                }
+                else {
+                    error = "Incorrect password.";
+                }
+                conn.close();
+            } catch (SQLException | NoSuchAlgorithmException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        if (!error.isEmpty()) {
+            accountPanelMessageLabel.setText(error);
+        }
     }
 
     private void initComponents() {
@@ -513,13 +562,12 @@ public class TenantPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax.
-                swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn", javax. swing. border
-                . TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java .awt .Font ("Dia\u006cog"
-                ,java .awt .Font .BOLD ,12 ), java. awt. Color. red) ,homePanel. getBorder
-                ( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( ){ @Override public void propertyChange (java
-                .beans .PropertyChangeEvent e) {if ("\u0062ord\u0065r" .equals (e .getPropertyName () )) throw new RuntimeException
-                ( ); }} );
+                homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing. border .EmptyBorder
+                ( 0, 0 ,0 , 0) ,  "JFor\u006dDesi\u0067ner \u0045valu\u0061tion" , javax. swing .border . TitledBorder. CENTER ,javax . swing. border
+                .TitledBorder . BOTTOM, new java. awt .Font ( "Dia\u006cog", java .awt . Font. BOLD ,12 ) ,java . awt
+                . Color .red ) ,homePanel. getBorder () ) ); homePanel. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void
+                propertyChange (java . beans. PropertyChangeEvent e) { if( "bord\u0065r" .equals ( e. getPropertyName () ) )throw new RuntimeException( )
+                ;} } );
                 homePanel.setLayout(null);
 
                 {
@@ -651,6 +699,7 @@ public class TenantPage extends JFrame {
                 //---- changePassowrdButton ----
                 changePassowrdButton.setText("Change your password");
                 changePassowrdButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
+                changePassowrdButton.addActionListener(e -> changePassowrd());
                 accountPanel.add(changePassowrdButton);
                 changePassowrdButton.setBounds(660, 320, 205, 30);
 
@@ -1508,12 +1557,6 @@ public class TenantPage extends JFrame {
                             cm.getColumn(3).setMinWidth(70);
                             cm.getColumn(3).setMaxWidth(70);
                         }
-                        furnitureTable.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mouseClicked(MouseEvent e) {
-                                furnituresTableMouseClicked();
-                            }
-                        });
                         scrollPane3.setViewportView(furnitureTable);
                     }
                     showFurnituresPanel.add(scrollPane3);
@@ -1810,6 +1853,11 @@ public class TenantPage extends JFrame {
     }
 
     private void fillPersonalInfo() {
+        accountPanelMessageLabel.setForeground(Color.red);
+        accountPanelMessageLabel.setText("");
+        newPasswordField.setText("");
+        oldPasswordField.setText("");
+        retypeField.setText("");
         idField.setText(String.valueOf((long)tenantData.get("tenant_id")));
         nameField.setText((String)tenantData.get("name"));
         emailField.setText((String)tenantData.get("email"));

@@ -9,9 +9,8 @@ import sakancom.common.Database;
 import sakancom.common.Functions;
 
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Objects;
 import javax.swing.*;
@@ -30,11 +29,22 @@ public class AdminPage extends JFrame {
         setTitle("Admin Page");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+        customInitComponent();
+    }
+
+    private void customInitComponent() {
         fillHousesTable();
         fillPersonalInfo();
         fillReservationsTable();
         fillFurnitureTable();
         fillRequestsTable();
+
+        housesTable.getTableHeader().setReorderingAllowed(false);
+        furnitureTable.getTableHeader().setReorderingAllowed(false);
+        reservationsTable.getTableHeader().setReorderingAllowed(false);
+        requestsTable.getTableHeader().setReorderingAllowed(false);
+
+        furnitureTable.getSelectionModel().addListSelectionListener(e -> furnitureTableSelectionChanged());
     }
 
     public void fillHousesTable() {
@@ -48,7 +58,8 @@ public class AdminPage extends JFrame {
     }
 
     public void fillReservationsTable() {
-        Functions.fillTable("SELECT `reservation_id`, `housing_id`, `tenant_id`, `reservation_date`, `floor_num`, `apart_num`, `accepted` from `invoice`", reservationsTable);
+        Functions.fillTable("SELECT `reservation_id`, `housing_id`, `tenant_id`, `reservation_date`, " +
+                "`floor_num`, `apart_num`, `accepted` from `invoice` order by `reservation_id`", reservationsTable);
     }
 
     public void fillFurnitureTable() {
@@ -56,6 +67,11 @@ public class AdminPage extends JFrame {
     }
 
     private void fillPersonalInfo() {
+        newPasswordField.setText("");
+        oldPasswordField.setText("");
+        retypeField.setText("");
+        accountPanelMessageLabel.setText("");
+        accountPanelMessageLabel.setForeground(Color.red);
         idField.setText(String.valueOf((long)adminData.get("admin_id")));
         nameField.setText((String)adminData.get("name"));
         emailField.setText((String)adminData.get("email"));
@@ -64,6 +80,7 @@ public class AdminPage extends JFrame {
 
     private void showHouse() {
         int selected = housesTable.getSelectedRow();
+        if (selected == -1) return;
         String name = (String)housesTable.getValueAt(selected, 1);
         try {
             Connection conn = Database.makeConnection();
@@ -184,6 +201,254 @@ public class AdminPage extends JFrame {
         Functions.switchChildPanel(reservationsPanel, houseReservationPanel);
     }
 
+    private void acceptReservation() {
+        int selectedRow = reservationsTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        if ((int)reservationsTable.getValueAt(selectedRow, 7) == 1) {
+            JOptionPane.showMessageDialog(this, "This reservation is already accepted.",
+                    "WARNING", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            Connection conn = Database.makeConnection();
+            String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
+            pstmt.setLong(1, rid);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.close();
+            reservationsTable.setValueAt(1, selectedRow, 7);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void rejectReservation() {
+        int selectedRow = reservationsTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        if ((int)reservationsTable.getValueAt(selectedRow, 7) == 1) {
+            JOptionPane.showMessageDialog(this, "You cannot reject accepted request.",
+                    "WARNING", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            Connection conn = Database.makeConnection();
+            String query = "delete from `reservations` where reservation_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
+            pstmt.setLong(1, rid);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.close();
+            fillReservationsTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void furnitureTableSelectionChanged() {
+        Connection conn;
+        int selectedRow = furnitureTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        try {
+            conn = Database.makeConnection();
+            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+            long id = (long) furnitureTable.getValueAt(selectedRow, 1);
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+            {
+                furnitureId.setText(rs.getString("furniture_id"));
+                furnitureName.setText(rs.getString("furniture_name"));
+                furnitureDesc.setText(rs.getString("description"));
+                furnitureOwner.setText(rs.getString("owner_name"));
+                furniturePhone.setText(rs.getString("phone"));
+            }
+            conn.close();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void requestHouseDetails() {
+        int selected = requestsTable.getSelectedRow();
+        if (selected == -1) return;
+        String name = (String)requestsTable.getValueAt(selected, 1);
+        try {
+            Connection conn = Database.makeConnection();
+            ResultSet rs = Database.getQuery(
+                    "SELECT * from `housing` where `name` = '"+name+"'",
+                    conn
+            );
+            rs.next();
+            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
+            long id = (long)houseData.get("owner_id");
+            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
+            if (rs.next())
+            {
+                houseData.put("owner_name", rs.getString("name"));
+                houseData.put("owner_phone", rs.getString("phone"));
+            }
+            showRequestHouseInfoPanel(houseData);
+            conn.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void showRequestHouseInfoPanel(HashMap<String, Object> houseData) {
+        requestsPanel.removeAll();
+        requestsPanel.add(requestHouseInfoPanel);
+        requestHouseId.setText(String.valueOf((long)houseData.get("housing_id")));
+        requestHouseName.setText((String)houseData.get("name"));
+        requestHouseLocation.setText((String)houseData.get("location"));
+        requestHouseRent.setText(String.valueOf((int)houseData.get("rent")));
+        if ((Integer)houseData.get("water_inclusive") == 1) {
+            requestWaterYes.setSelected(true);
+            requestWaterNo.setSelected(false);
+        }
+        else {
+            requestWaterYes.setSelected(false);
+            requestWaterNo.setSelected(true);
+        }
+        if ((Integer)houseData.get("electricity_inclusive") == 1) {
+            requestElecYes.setSelected(true);
+            requestElecNo.setSelected(false);
+        }
+        else {
+            requestElecYes.setSelected(false);
+            requestElecNo.setSelected(true);
+        }
+        requestHouseServices.setText((String)houseData.get("services"));
+        int floors = (int)houseData.get("floors");
+        requestHouseFloor.setText(String.valueOf(floors));
+        requestHouseApart.setText(String.valueOf(((int)houseData.get("apart_per_floor"))));
+        requestOwnerName.setText((String)houseData.get("owner_name"));
+        requestOwnerPhone.setText((String)houseData.get("owner_phone"));
+        requestHousePicture.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/housingPhoto/" + houseData.get("picture")))));
+        requestsPanel.repaint();
+        requestsPanel.revalidate();
+    }
+
+    private void closeOneHouse2MouseClicked() {
+        Functions.switchChildPanel(requestsPanel, requestsTablePanel);
+    }
+
+    private void acceptRequest() {
+        long id = Long.parseLong(requestHouseId.getText());
+        String query = "update `housing` set `available` = '1' where `housing_id` = ?";
+        try {
+            Connection conn = Database.makeConnection();
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.close();
+            Functions.switchChildPanel(requestsPanel, requestsTablePanel);
+            fillRequestsTable();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void rejectRequest() {
+        long id = Long.parseLong(requestHouseId.getText());
+        String query = "delete from `housing` where `housing_id` = ?";
+        try {
+            Connection conn = Database.makeConnection();
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.close();
+            Functions.switchChildPanel(requestsPanel, requestsTablePanel);
+            fillRequestsTable();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void deleteHouse() {
+        long id = Long.parseLong(houseId.getText());
+        Connection conn;
+        PreparedStatement pstmt;
+        ResultSet rs;
+        String query, error = "";
+        
+        try {
+            query = "select `reservation_id` from `invoice` where `housing_id` = ?";
+            conn = Database.makeConnection();
+            pstmt = conn.prepareStatement(query);
+            pstmt.setLong(1, id);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                error = "You can't delete this house, because there are reservations on it.";
+            }
+            else {
+                query = "delete from `housing` where `housing_id` = ?";
+                pstmt = conn.prepareStatement(query);
+                pstmt.setLong(1, id);
+                pstmt.executeUpdate();
+                Functions.switchChildPanel(housingPanel, allHousesPanel);
+                fillHousesTable();
+            }
+            pstmt.close();
+            conn.close();
+            if (!error.equals("")) {
+                oneHouseMessageLabel.setText(error);
+            }
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void changePassowrd() {
+        accountPanelMessageLabel.setText("");
+        accountPanelMessageLabel.setForeground(Color.red);
+        String oldPass = String.valueOf(oldPasswordField.getPassword());
+        String retype = String.valueOf(retypeField.getPassword());
+        String newPass = String.valueOf(newPasswordField.getPassword());
+        String error = "";
+
+        if (oldPass.isEmpty()) error = "Old password field is empty.";
+        else if (retype.isEmpty()) error = "Retype pass field is empty.";
+        else if (newPass.isEmpty()) error = "New password field is empty.";
+        else if (!newPass.equals(retype)) error = "Mismatch passwords.";
+        else {
+            try {
+                Connection conn = Database.makeConnection();
+                ResultSet rs = Database.getQuery("select `name` from `admin` where `admin_id` = " +
+                        adminData.get("admin_id") + " and `password` = '" + Functions.sha256(oldPass) + "'", conn);
+                if (rs.next()) {
+                    Statement stmt = conn.createStatement();
+                    stmt.executeUpdate("update `admin` set `password` = '" + Functions.sha256(newPass) +
+                            "' where `admin_id` = " + adminData.get("admin_id"));
+                    stmt.close();
+                    accountPanelMessageLabel.setForeground(Color.green);
+                    accountPanelMessageLabel.setText("password updated.");
+                    newPasswordField.setText("");
+                    oldPasswordField.setText("");
+                    retypeField.setText("");
+                }
+                else {
+                    error = "Incorrect password.";
+                }
+                conn.close();
+            } catch (SQLException | NoSuchAlgorithmException e) {
+                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        if (!error.isEmpty()) {
+            accountPanelMessageLabel.setText(error);
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro
@@ -248,16 +513,17 @@ public class AdminPage extends JFrame {
         ownerName = new JTextField();
         ownerPhone = new JTextField();
         separator4 = new JSeparator();
-        bookButton = new JButton();
+        editHouseInfo = new JButton();
         oneHouseMessageLabel = new JLabel();
         closeOneHouse = new JLabel();
-        bookButton2 = new JButton();
+        saveHouseInfo = new JButton();
+        deleteHouseButton = new JButton();
         reservationsPanel = new JPanel();
         houseReservationPanel = new JPanel();
         scrollPane3 = new JScrollPane();
         reservationsTable = new JTable();
-        button1 = new JButton();
-        button2 = new JButton();
+        acceptReservationButton = new JButton();
+        rejectReservationButton = new JButton();
         reservationDetailsButton = new JButton();
         textField8 = new JTextField();
         label10 = new JLabel();
@@ -339,40 +605,40 @@ public class AdminPage extends JFrame {
         label6 = new JLabel();
         scrollPane6 = new JScrollPane();
         requestsTable = new JTable();
-        showHouse2 = new JButton();
-        oneHousePanel2 = new JPanel();
+        requestHouseDetails = new JButton();
+        requestHouseInfoPanel = new JPanel();
         label25 = new JLabel();
         label26 = new JLabel();
         label27 = new JLabel();
         label58 = new JLabel();
-        houseId2 = new JTextField();
-        houseName2 = new JTextField();
-        houseLocation2 = new JTextField();
-        houseRent2 = new JTextField();
-        housePicture2 = new JLabel();
+        requestHouseId = new JTextField();
+        requestHouseName = new JTextField();
+        requestHouseLocation = new JTextField();
+        requestHouseRent = new JTextField();
+        requestHousePicture = new JLabel();
         label59 = new JLabel();
         label60 = new JLabel();
-        waterYes2 = new JRadioButton();
-        waterNo2 = new JRadioButton();
-        electricityYes2 = new JRadioButton();
-        electricityNo2 = new JRadioButton();
+        requestWaterYes = new JRadioButton();
+        requestWaterNo = new JRadioButton();
+        requestElecYes = new JRadioButton();
+        requestElecNo = new JRadioButton();
         label61 = new JLabel();
         scrollPane7 = new JScrollPane();
-        houseServices2 = new JTextArea();
+        requestHouseServices = new JTextArea();
         separator10 = new JSeparator();
         label62 = new JLabel();
         label63 = new JLabel();
-        floorsNumber2 = new JTextField();
-        apartPerFloor2 = new JTextField();
+        requestHouseFloor = new JTextField();
+        requestHouseApart = new JTextField();
         label64 = new JLabel();
         label65 = new JLabel();
-        ownerName2 = new JTextField();
-        ownerPhone2 = new JTextField();
+        requestOwnerName = new JTextField();
+        requestOwnerPhone = new JTextField();
         separator13 = new JSeparator();
-        bookButton3 = new JButton();
+        acceptRequestButton = new JButton();
         houseRequestMessageLabel = new JLabel();
         closeOneHouse2 = new JLabel();
-        bookButton4 = new JButton();
+        rejectRequestButton = new JButton();
         tenantsPanel = new JPanel();
         ownersPanel = new JPanel();
 
@@ -385,12 +651,12 @@ public class AdminPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing.
-                border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDes\u0069gner \u0045valua\u0074ion", javax. swing. border. TitledBorder. CENTER
-                , javax. swing. border. TitledBorder. BOTTOM, new java .awt .Font ("D\u0069alog" ,java .awt .Font
-                .BOLD ,12 ), java. awt. Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (
-                new java. beans. PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("\u0062order"
-                .equals (e .getPropertyName () )) throw new RuntimeException( ); }} );
+                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border.
+                EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing. border. TitledBorder. CENTER, javax. swing
+                . border. TitledBorder. BOTTOM, new java .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ),
+                java. awt. Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( )
+                { @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName () ))
+                throw new RuntimeException( ); }} );
                 homePanel.setLayout(null);
 
                 {
@@ -500,6 +766,7 @@ public class AdminPage extends JFrame {
                     //---- changePassowrdButton ----
                     changePassowrdButton.setText("Change your password");
                     changePassowrdButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
+                    changePassowrdButton.addActionListener(e -> changePassowrd());
                     adminAccountPanel.add(changePassowrdButton);
                     changePassowrdButton.setBounds(660, 320, 205, 30);
 
@@ -857,10 +1124,10 @@ public class AdminPage extends JFrame {
                     oneHousePanel.add(separator4);
                     separator4.setBounds(405, 315, 565, 10);
 
-                    //---- bookButton ----
-                    bookButton.setText("EDIT");
-                    oneHousePanel.add(bookButton);
-                    bookButton.setBounds(495, 370, 117, 35);
+                    //---- editHouseInfo ----
+                    editHouseInfo.setText("EDIT");
+                    oneHousePanel.add(editHouseInfo);
+                    editHouseInfo.setBounds(495, 370, 117, 35);
 
                     //---- oneHouseMessageLabel ----
                     oneHouseMessageLabel.setForeground(Color.red);
@@ -882,10 +1149,16 @@ public class AdminPage extends JFrame {
                     oneHousePanel.add(closeOneHouse);
                     closeOneHouse.setBounds(910, 10, 40, 35);
 
-                    //---- bookButton2 ----
-                    bookButton2.setText("SAVE");
-                    oneHousePanel.add(bookButton2);
-                    bookButton2.setBounds(700, 370, 117, 35);
+                    //---- saveHouseInfo ----
+                    saveHouseInfo.setText("SAVE");
+                    oneHousePanel.add(saveHouseInfo);
+                    saveHouseInfo.setBounds(665, 370, 117, 35);
+
+                    //---- deleteHouseButton ----
+                    deleteHouseButton.setText("DELETE");
+                    deleteHouseButton.addActionListener(e -> deleteHouse());
+                    oneHousePanel.add(deleteHouseButton);
+                    deleteHouseButton.setBounds(820, 370, 117, 35);
 
                     {
                         // compute preferred size
@@ -958,15 +1231,19 @@ public class AdminPage extends JFrame {
                     houseReservationPanel.add(scrollPane3);
                     scrollPane3.setBounds(20, 115, 840, 310);
 
-                    //---- button1 ----
-                    button1.setText("Accept");
-                    houseReservationPanel.add(button1);
-                    button1.setBounds(880, 200, 92, 30);
+                    //---- acceptReservationButton ----
+                    acceptReservationButton.setText("Accept");
+                    acceptReservationButton.setToolTipText("accept selected request");
+                    acceptReservationButton.addActionListener(e -> acceptReservation());
+                    houseReservationPanel.add(acceptReservationButton);
+                    acceptReservationButton.setBounds(880, 200, 92, 30);
 
-                    //---- button2 ----
-                    button2.setText("Reject");
-                    houseReservationPanel.add(button2);
-                    button2.setBounds(880, 250, 92, 30);
+                    //---- rejectReservationButton ----
+                    rejectReservationButton.setText("Reject");
+                    rejectReservationButton.setToolTipText("reject selected request");
+                    rejectReservationButton.addActionListener(e -> rejectReservation());
+                    houseReservationPanel.add(rejectReservationButton);
+                    rejectReservationButton.setBounds(880, 250, 92, 30);
 
                     //---- reservationDetailsButton ----
                     reservationDetailsButton.setText("Details");
@@ -1634,11 +1911,12 @@ public class AdminPage extends JFrame {
                     requestsTablePanel.add(scrollPane6);
                     scrollPane6.setBounds(45, 105, 730, 325);
 
-                    //---- showHouse2 ----
-                    showHouse2.setText("House Details");
-                    showHouse2.setToolTipText("view selected house");
-                    requestsTablePanel.add(showHouse2);
-                    showHouse2.setBounds(820, 170, 125, 40);
+                    //---- requestHouseDetails ----
+                    requestHouseDetails.setText("House Details");
+                    requestHouseDetails.setToolTipText("view selected house");
+                    requestHouseDetails.addActionListener(e -> requestHouseDetails());
+                    requestsTablePanel.add(requestHouseDetails);
+                    requestHouseDetails.setBounds(820, 170, 125, 40);
 
                     {
                         // compute preferred size
@@ -1657,207 +1935,208 @@ public class AdminPage extends JFrame {
                 }
                 requestsPanel.add(requestsTablePanel, "card1");
 
-                //======== oneHousePanel2 ========
+                //======== requestHouseInfoPanel ========
                 {
-                    oneHousePanel2.setLayout(null);
+                    requestHouseInfoPanel.setLayout(null);
 
                     //---- label25 ----
                     label25.setText("ID:");
                     label25.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label25);
+                    requestHouseInfoPanel.add(label25);
                     label25.setBounds(25, 25, 115, 30);
 
                     //---- label26 ----
                     label26.setText("Name:");
                     label26.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label26);
+                    requestHouseInfoPanel.add(label26);
                     label26.setBounds(25, 70, 115, 30);
 
                     //---- label27 ----
                     label27.setText("Location:");
                     label27.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label27);
+                    requestHouseInfoPanel.add(label27);
                     label27.setBounds(25, 115, 115, 30);
 
                     //---- label58 ----
                     label58.setText("Rent:");
                     label58.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label58);
+                    requestHouseInfoPanel.add(label58);
                     label58.setBounds(25, 160, 115, 30);
 
-                    //---- houseId2 ----
-                    houseId2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseId2.setBackground(new Color(0xededed));
-                    houseId2.setDisabledTextColor(new Color(0x333333));
-                    houseId2.setEnabled(false);
-                    oneHousePanel2.add(houseId2);
-                    houseId2.setBounds(145, 25, 200, 30);
+                    //---- requestHouseId ----
+                    requestHouseId.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseId.setBackground(new Color(0xededed));
+                    requestHouseId.setDisabledTextColor(new Color(0x333333));
+                    requestHouseId.setEnabled(false);
+                    requestHouseInfoPanel.add(requestHouseId);
+                    requestHouseId.setBounds(145, 25, 200, 30);
 
-                    //---- houseName2 ----
-                    houseName2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseName2.setEnabled(false);
-                    houseName2.setDisabledTextColor(new Color(0x333333));
-                    oneHousePanel2.add(houseName2);
-                    houseName2.setBounds(145, 70, 200, 30);
+                    //---- requestHouseName ----
+                    requestHouseName.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseName.setEnabled(false);
+                    requestHouseName.setDisabledTextColor(new Color(0x333333));
+                    requestHouseInfoPanel.add(requestHouseName);
+                    requestHouseName.setBounds(145, 70, 200, 30);
 
-                    //---- houseLocation2 ----
-                    houseLocation2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseLocation2.setEnabled(false);
-                    houseLocation2.setBackground(new Color(0xededed));
-                    houseLocation2.setDisabledTextColor(new Color(0x333333));
-                    oneHousePanel2.add(houseLocation2);
-                    houseLocation2.setBounds(145, 115, 200, houseLocation2.getPreferredSize().height);
+                    //---- requestHouseLocation ----
+                    requestHouseLocation.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseLocation.setEnabled(false);
+                    requestHouseLocation.setBackground(new Color(0xededed));
+                    requestHouseLocation.setDisabledTextColor(new Color(0x333333));
+                    requestHouseInfoPanel.add(requestHouseLocation);
+                    requestHouseLocation.setBounds(145, 115, 200, requestHouseLocation.getPreferredSize().height);
 
-                    //---- houseRent2 ----
-                    houseRent2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseRent2.setEnabled(false);
-                    houseRent2.setBackground(new Color(0xededed));
-                    houseRent2.setDisabledTextColor(new Color(0x333333));
-                    oneHousePanel2.add(houseRent2);
-                    houseRent2.setBounds(145, 160, 200, houseRent2.getPreferredSize().height);
+                    //---- requestHouseRent ----
+                    requestHouseRent.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseRent.setEnabled(false);
+                    requestHouseRent.setBackground(new Color(0xededed));
+                    requestHouseRent.setDisabledTextColor(new Color(0x333333));
+                    requestHouseInfoPanel.add(requestHouseRent);
+                    requestHouseRent.setBounds(145, 160, 200, requestHouseRent.getPreferredSize().height);
 
-                    //---- housePicture2 ----
-                    housePicture2.setBackground(new Color(0xcccccc));
-                    housePicture2.setIcon(null);
-                    oneHousePanel2.add(housePicture2);
-                    housePicture2.setBounds(710, 60, 245, 220);
+                    //---- requestHousePicture ----
+                    requestHousePicture.setBackground(new Color(0xcccccc));
+                    requestHousePicture.setIcon(null);
+                    requestHouseInfoPanel.add(requestHousePicture);
+                    requestHousePicture.setBounds(710, 60, 245, 220);
 
                     //---- label59 ----
                     label59.setText("-include water:");
                     label59.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label59);
+                    requestHouseInfoPanel.add(label59);
                     label59.setBounds(20, 200, 220, 30);
 
                     //---- label60 ----
                     label60.setText("-include electricity:");
                     label60.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label60);
+                    requestHouseInfoPanel.add(label60);
                     label60.setBounds(20, 245, 230, 30);
 
-                    //---- waterYes2 ----
-                    waterYes2.setText("YES");
-                    waterYes2.setEnabled(false);
-                    oneHousePanel2.add(waterYes2);
-                    waterYes2.setBounds(250, 210, 50, waterYes2.getPreferredSize().height);
+                    //---- requestWaterYes ----
+                    requestWaterYes.setText("YES");
+                    requestWaterYes.setEnabled(false);
+                    requestHouseInfoPanel.add(requestWaterYes);
+                    requestWaterYes.setBounds(250, 210, 50, requestWaterYes.getPreferredSize().height);
 
-                    //---- waterNo2 ----
-                    waterNo2.setText("NO");
-                    waterNo2.setEnabled(false);
-                    oneHousePanel2.add(waterNo2);
-                    waterNo2.setBounds(320, 210, 50, 22);
+                    //---- requestWaterNo ----
+                    requestWaterNo.setText("NO");
+                    requestWaterNo.setEnabled(false);
+                    requestHouseInfoPanel.add(requestWaterNo);
+                    requestWaterNo.setBounds(320, 210, 50, 22);
 
-                    //---- electricityYes2 ----
-                    electricityYes2.setText("YES");
-                    electricityYes2.setEnabled(false);
-                    oneHousePanel2.add(electricityYes2);
-                    electricityYes2.setBounds(250, 250, 50, 22);
+                    //---- requestElecYes ----
+                    requestElecYes.setText("YES");
+                    requestElecYes.setEnabled(false);
+                    requestHouseInfoPanel.add(requestElecYes);
+                    requestElecYes.setBounds(250, 250, 50, 22);
 
-                    //---- electricityNo2 ----
-                    electricityNo2.setText("NO");
-                    electricityNo2.setEnabled(false);
-                    oneHousePanel2.add(electricityNo2);
-                    electricityNo2.setBounds(320, 250, 50, 22);
+                    //---- requestElecNo ----
+                    requestElecNo.setText("NO");
+                    requestElecNo.setEnabled(false);
+                    requestHouseInfoPanel.add(requestElecNo);
+                    requestElecNo.setBounds(320, 250, 50, 22);
 
                     //---- label61 ----
                     label61.setText("Services:");
                     label61.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label61);
+                    requestHouseInfoPanel.add(label61);
                     label61.setBounds(25, 285, 105, 30);
 
                     //======== scrollPane7 ========
                     {
 
-                        //---- houseServices2 ----
-                        houseServices2.setEnabled(false);
-                        houseServices2.setDisabledTextColor(new Color(0x333333));
-                        houseServices2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-                        houseServices2.setWrapStyleWord(true);
-                        houseServices2.setLineWrap(true);
-                        scrollPane7.setViewportView(houseServices2);
+                        //---- requestHouseServices ----
+                        requestHouseServices.setEnabled(false);
+                        requestHouseServices.setDisabledTextColor(new Color(0x333333));
+                        requestHouseServices.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                        requestHouseServices.setWrapStyleWord(true);
+                        requestHouseServices.setLineWrap(true);
+                        scrollPane7.setViewportView(requestHouseServices);
                     }
-                    oneHousePanel2.add(scrollPane7);
+                    requestHouseInfoPanel.add(scrollPane7);
                     scrollPane7.setBounds(130, 290, 240, 145);
 
                     //---- separator10 ----
                     separator10.setOrientation(SwingConstants.VERTICAL);
                     separator10.setForeground(new Color(0x999999));
-                    oneHousePanel2.add(separator10);
+                    requestHouseInfoPanel.add(separator10);
                     separator10.setBounds(390, 35, 10, 390);
 
                     //---- label62 ----
                     label62.setText("# Floors:");
                     label62.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label62);
+                    requestHouseInfoPanel.add(label62);
                     label62.setBounds(410, 65, 110, 30);
 
                     //---- label63 ----
                     label63.setText("# Apartment/Floor:");
                     label63.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label63);
+                    requestHouseInfoPanel.add(label63);
                     label63.setBounds(410, 110, 200, 35);
 
-                    //---- floorsNumber2 ----
-                    floorsNumber2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    floorsNumber2.setBackground(new Color(0xededed));
-                    floorsNumber2.setDisabledTextColor(new Color(0x333333));
-                    floorsNumber2.setEnabled(false);
-                    floorsNumber2.setForeground(new Color(0x666666));
-                    oneHousePanel2.add(floorsNumber2);
-                    floorsNumber2.setBounds(530, 65, 105, 30);
+                    //---- requestHouseFloor ----
+                    requestHouseFloor.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseFloor.setBackground(new Color(0xededed));
+                    requestHouseFloor.setDisabledTextColor(new Color(0x333333));
+                    requestHouseFloor.setEnabled(false);
+                    requestHouseFloor.setForeground(new Color(0x666666));
+                    requestHouseInfoPanel.add(requestHouseFloor);
+                    requestHouseFloor.setBounds(530, 65, 105, 30);
 
-                    //---- apartPerFloor2 ----
-                    apartPerFloor2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    apartPerFloor2.setBackground(new Color(0xededed));
-                    apartPerFloor2.setDisabledTextColor(new Color(0x333333));
-                    apartPerFloor2.setEnabled(false);
-                    apartPerFloor2.setForeground(new Color(0x666666));
-                    oneHousePanel2.add(apartPerFloor2);
-                    apartPerFloor2.setBounds(620, 115, 55, 30);
+                    //---- requestHouseApart ----
+                    requestHouseApart.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestHouseApart.setBackground(new Color(0xededed));
+                    requestHouseApart.setDisabledTextColor(new Color(0x333333));
+                    requestHouseApart.setEnabled(false);
+                    requestHouseApart.setForeground(new Color(0x666666));
+                    requestHouseInfoPanel.add(requestHouseApart);
+                    requestHouseApart.setBounds(620, 115, 55, 30);
 
                     //---- label64 ----
                     label64.setText("Owner:");
                     label64.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label64);
+                    requestHouseInfoPanel.add(label64);
                     label64.setBounds(410, 170, 85, 30);
 
                     //---- label65 ----
                     label65.setText("Phone:");
                     label65.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    oneHousePanel2.add(label65);
+                    requestHouseInfoPanel.add(label65);
                     label65.setBounds(410, 225, 85, 30);
 
-                    //---- ownerName2 ----
-                    ownerName2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    ownerName2.setBackground(new Color(0xededed));
-                    ownerName2.setDisabledTextColor(new Color(0x333333));
-                    ownerName2.setEnabled(false);
-                    ownerName2.setForeground(new Color(0x666666));
-                    oneHousePanel2.add(ownerName2);
-                    ownerName2.setBounds(505, 170, 165, 30);
+                    //---- requestOwnerName ----
+                    requestOwnerName.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestOwnerName.setBackground(new Color(0xededed));
+                    requestOwnerName.setDisabledTextColor(new Color(0x333333));
+                    requestOwnerName.setEnabled(false);
+                    requestOwnerName.setForeground(new Color(0x666666));
+                    requestHouseInfoPanel.add(requestOwnerName);
+                    requestOwnerName.setBounds(505, 170, 165, 30);
 
-                    //---- ownerPhone2 ----
-                    ownerPhone2.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    ownerPhone2.setBackground(new Color(0xededed));
-                    ownerPhone2.setDisabledTextColor(new Color(0x333333));
-                    ownerPhone2.setEnabled(false);
-                    ownerPhone2.setForeground(new Color(0x666666));
-                    oneHousePanel2.add(ownerPhone2);
-                    ownerPhone2.setBounds(505, 225, 165, 30);
+                    //---- requestOwnerPhone ----
+                    requestOwnerPhone.setFont(new Font("SimSun", Font.PLAIN, 18));
+                    requestOwnerPhone.setBackground(new Color(0xededed));
+                    requestOwnerPhone.setDisabledTextColor(new Color(0x333333));
+                    requestOwnerPhone.setEnabled(false);
+                    requestOwnerPhone.setForeground(new Color(0x666666));
+                    requestHouseInfoPanel.add(requestOwnerPhone);
+                    requestOwnerPhone.setBounds(505, 225, 165, 30);
 
                     //---- separator13 ----
                     separator13.setForeground(new Color(0x999999));
-                    oneHousePanel2.add(separator13);
+                    requestHouseInfoPanel.add(separator13);
                     separator13.setBounds(405, 315, 565, 10);
 
-                    //---- bookButton3 ----
-                    bookButton3.setText("ACCEPT");
-                    oneHousePanel2.add(bookButton3);
-                    bookButton3.setBounds(495, 370, 117, 35);
+                    //---- acceptRequestButton ----
+                    acceptRequestButton.setText("ACCEPT");
+                    acceptRequestButton.addActionListener(e -> acceptRequest());
+                    requestHouseInfoPanel.add(acceptRequestButton);
+                    acceptRequestButton.setBounds(495, 370, 117, 35);
 
                     //---- houseRequestMessageLabel ----
                     houseRequestMessageLabel.setForeground(Color.red);
                     houseRequestMessageLabel.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    oneHousePanel2.add(houseRequestMessageLabel);
+                    requestHouseInfoPanel.add(houseRequestMessageLabel);
                     houseRequestMessageLabel.setBounds(430, 420, 510, 25);
 
                     //---- closeOneHouse2 ----
@@ -1865,30 +2144,37 @@ public class AdminPage extends JFrame {
                     closeOneHouse2.setText("X");
                     closeOneHouse2.setHorizontalAlignment(SwingConstants.CENTER);
                     closeOneHouse2.setFont(new Font("Snap ITC", Font.PLAIN, 28));
-                    oneHousePanel2.add(closeOneHouse2);
+                    closeOneHouse2.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            closeOneHouse2MouseClicked();
+                        }
+                    });
+                    requestHouseInfoPanel.add(closeOneHouse2);
                     closeOneHouse2.setBounds(910, 10, 40, 35);
 
-                    //---- bookButton4 ----
-                    bookButton4.setText("REGECT");
-                    oneHousePanel2.add(bookButton4);
-                    bookButton4.setBounds(700, 370, 117, 35);
+                    //---- rejectRequestButton ----
+                    rejectRequestButton.setText("REGECT");
+                    rejectRequestButton.addActionListener(e -> rejectRequest());
+                    requestHouseInfoPanel.add(rejectRequestButton);
+                    rejectRequestButton.setBounds(700, 370, 117, 35);
 
                     {
                         // compute preferred size
                         Dimension preferredSize = new Dimension();
-                        for(int i = 0; i < oneHousePanel2.getComponentCount(); i++) {
-                            Rectangle bounds = oneHousePanel2.getComponent(i).getBounds();
+                        for(int i = 0; i < requestHouseInfoPanel.getComponentCount(); i++) {
+                            Rectangle bounds = requestHouseInfoPanel.getComponent(i).getBounds();
                             preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
                             preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
                         }
-                        Insets insets = oneHousePanel2.getInsets();
+                        Insets insets = requestHouseInfoPanel.getInsets();
                         preferredSize.width += insets.right;
                         preferredSize.height += insets.bottom;
-                        oneHousePanel2.setMinimumSize(preferredSize);
-                        oneHousePanel2.setPreferredSize(preferredSize);
+                        requestHouseInfoPanel.setMinimumSize(preferredSize);
+                        requestHouseInfoPanel.setPreferredSize(preferredSize);
                     }
                 }
-                requestsPanel.add(oneHousePanel2, "card2");
+                requestsPanel.add(requestHouseInfoPanel, "card2");
             }
             mainPanel.addTab("REQUESTS", requestsPanel);
 
@@ -1935,7 +2221,7 @@ public class AdminPage extends JFrame {
             mainPanel.addTab("OWNERS", ownersPanel);
         }
         contentPane.add(mainPanel);
-        mainPanel.setBounds(0, 0, 995, 510);
+        mainPanel.setBounds(0, 0, 990, 510);
 
         {
             // compute preferred size
@@ -2019,16 +2305,17 @@ public class AdminPage extends JFrame {
     private JTextField ownerName;
     private JTextField ownerPhone;
     private JSeparator separator4;
-    private JButton bookButton;
+    private JButton editHouseInfo;
     private JLabel oneHouseMessageLabel;
     private JLabel closeOneHouse;
-    private JButton bookButton2;
+    private JButton saveHouseInfo;
+    private JButton deleteHouseButton;
     private JPanel reservationsPanel;
     private JPanel houseReservationPanel;
     private JScrollPane scrollPane3;
     private JTable reservationsTable;
-    private JButton button1;
-    private JButton button2;
+    private JButton acceptReservationButton;
+    private JButton rejectReservationButton;
     private JButton reservationDetailsButton;
     private JTextField textField8;
     private JLabel label10;
@@ -2110,40 +2397,40 @@ public class AdminPage extends JFrame {
     private JLabel label6;
     private JScrollPane scrollPane6;
     private JTable requestsTable;
-    private JButton showHouse2;
-    private JPanel oneHousePanel2;
+    private JButton requestHouseDetails;
+    private JPanel requestHouseInfoPanel;
     private JLabel label25;
     private JLabel label26;
     private JLabel label27;
     private JLabel label58;
-    private JTextField houseId2;
-    private JTextField houseName2;
-    private JTextField houseLocation2;
-    private JTextField houseRent2;
-    private JLabel housePicture2;
+    private JTextField requestHouseId;
+    private JTextField requestHouseName;
+    private JTextField requestHouseLocation;
+    private JTextField requestHouseRent;
+    private JLabel requestHousePicture;
     private JLabel label59;
     private JLabel label60;
-    private JRadioButton waterYes2;
-    private JRadioButton waterNo2;
-    private JRadioButton electricityYes2;
-    private JRadioButton electricityNo2;
+    private JRadioButton requestWaterYes;
+    private JRadioButton requestWaterNo;
+    private JRadioButton requestElecYes;
+    private JRadioButton requestElecNo;
     private JLabel label61;
     private JScrollPane scrollPane7;
-    private JTextArea houseServices2;
+    private JTextArea requestHouseServices;
     private JSeparator separator10;
     private JLabel label62;
     private JLabel label63;
-    private JTextField floorsNumber2;
-    private JTextField apartPerFloor2;
+    private JTextField requestHouseFloor;
+    private JTextField requestHouseApart;
     private JLabel label64;
     private JLabel label65;
-    private JTextField ownerName2;
-    private JTextField ownerPhone2;
+    private JTextField requestOwnerName;
+    private JTextField requestOwnerPhone;
     private JSeparator separator13;
-    private JButton bookButton3;
+    private JButton acceptRequestButton;
     private JLabel houseRequestMessageLabel;
     private JLabel closeOneHouse2;
-    private JButton bookButton4;
+    private JButton rejectRequestButton;
     private JPanel tenantsPanel;
     private JPanel ownersPanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on

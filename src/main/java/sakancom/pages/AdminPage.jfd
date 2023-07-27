@@ -150,6 +150,7 @@ new FormModel {
 							name: "changePassowrdButton"
 							"text": "Change your password"
 							"font": new java.awt.Font( "Segoe UI Historic", 0, 16 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "changePassowrd", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 205
 							"height": 30
@@ -609,7 +610,7 @@ new FormModel {
 							"y": 315
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "bookButton"
+							name: "editHouseInfo"
 							"text": "EDIT"
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 495
@@ -641,12 +642,22 @@ new FormModel {
 							"height": 35
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "bookButton2"
+							name: "saveHouseInfo"
 							"text": "SAVE"
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 117
 							"height": 35
-							"x": 700
+							"x": 665
+							"y": 370
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "deleteHouseButton"
+							"text": "DELETE"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteHouse", false ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 117
+							"height": 35
+							"x": 820
 							"y": 370
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
@@ -729,8 +740,10 @@ new FormModel {
 							"height": 310
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "button1"
+							name: "acceptReservationButton"
 							"text": "Accept"
+							"toolTipText": "accept selected request"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "acceptReservation", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 880
 							"y": 200
@@ -738,8 +751,10 @@ new FormModel {
 							"height": 30
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "button2"
+							name: "rejectReservationButton"
 							"text": "Reject"
+							"toolTipText": "reject selected request"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "rejectReservation", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 92
 							"height": 30
@@ -1622,9 +1637,10 @@ new FormModel {
 							"y": 105
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "showHouse2"
+							name: "requestHouseDetails"
 							"text": "House Details"
 							"toolTipText": "view selected house"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "requestHouseDetails", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 125
 							"height": 40
@@ -1635,7 +1651,7 @@ new FormModel {
 						"value": "card1"
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
-						name: "oneHousePanel2"
+						name: "requestHouseInfoPanel"
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label25"
 							"text": "ID:"
@@ -1677,7 +1693,7 @@ new FormModel {
 							"y": 160
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "houseId2"
+							name: "requestHouseId"
 							"font": #Font5
 							"background": #Color0
 							"disabledTextColor": #Color1
@@ -1689,7 +1705,7 @@ new FormModel {
 							"height": 30
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "houseName2"
+							name: "requestHouseName"
 							"font": #Font5
 							"enabled": false
 							"disabledTextColor": #Color2
@@ -1700,7 +1716,7 @@ new FormModel {
 							"y": 70
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "houseLocation2"
+							name: "requestHouseLocation"
 							"font": #Font5
 							"enabled": false
 							"background": #Color3
@@ -1711,7 +1727,7 @@ new FormModel {
 							"y": 115
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "houseRent2"
+							name: "requestHouseRent"
 							"font": #Font5
 							"enabled": false
 							"background": #Color5
@@ -1722,7 +1738,7 @@ new FormModel {
 							"y": 160
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "housePicture2"
+							name: "requestHousePicture"
 							"background": #Color7
 							"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -1752,7 +1768,7 @@ new FormModel {
 							"y": 245
 						} )
 						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "waterYes2"
+							name: "requestWaterYes"
 							"text": "YES"
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -1761,7 +1777,7 @@ new FormModel {
 							"width": 50
 						} )
 						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "waterNo2"
+							name: "requestWaterNo"
 							"text": "NO"
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -1771,7 +1787,7 @@ new FormModel {
 							"y": 210
 						} )
 						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "electricityYes2"
+							name: "requestElecYes"
 							"text": "YES"
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -1781,7 +1797,7 @@ new FormModel {
 							"y": 250
 						} )
 						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "electricityNo2"
+							name: "requestElecNo"
 							"text": "NO"
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
@@ -1803,7 +1819,7 @@ new FormModel {
 						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 							name: "scrollPane7"
 							add( new FormComponent( "javax.swing.JTextArea" ) {
-								name: "houseServices2"
+								name: "requestHouseServices"
 								"enabled": false
 								"disabledTextColor": #Color8
 								"font": #Font6
@@ -1847,7 +1863,7 @@ new FormModel {
 							"y": 110
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "floorsNumber2"
+							name: "requestHouseFloor"
 							"font": #Font5
 							"background": #Color10
 							"disabledTextColor": #Color1
@@ -1860,7 +1876,7 @@ new FormModel {
 							"y": 65
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "apartPerFloor2"
+							name: "requestHouseApart"
 							"font": #Font5
 							"background": #Color12
 							"disabledTextColor": #Color1
@@ -1893,7 +1909,7 @@ new FormModel {
 							"y": 225
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "ownerName2"
+							name: "requestOwnerName"
 							"font": #Font5
 							"background": #Color13
 							"disabledTextColor": #Color1
@@ -1906,7 +1922,7 @@ new FormModel {
 							"y": 170
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "ownerPhone2"
+							name: "requestOwnerPhone"
 							"font": #Font5
 							"background": #Color14
 							"disabledTextColor": #Color1
@@ -1928,8 +1944,9 @@ new FormModel {
 							"y": 315
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "bookButton3"
+							name: "acceptRequestButton"
 							"text": "ACCEPT"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "acceptRequest", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 495
 							"y": 370
@@ -1952,6 +1969,7 @@ new FormModel {
 							"text": "X"
 							"horizontalAlignment": 0
 							"font": #Font8
+							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeOneHouse2MouseClicked", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 910
 							"y": 10
@@ -1959,8 +1977,9 @@ new FormModel {
 							"height": 35
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "bookButton4"
+							name: "rejectRequestButton"
 							"text": "REGECT"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "rejectRequest", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 117
 							"height": 35
@@ -1986,12 +2005,12 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 				"x": 0
 				"y": 0
-				"width": 995
+				"width": 990
 				"height": 510
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 795, 440 )
+			"size": new java.awt.Dimension( 795, 439 )
 		} )
 	}
 }
