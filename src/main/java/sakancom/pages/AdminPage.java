@@ -496,6 +496,36 @@ public class AdminPage extends JFrame {
         return vOwnerId.getText();
     }
 
+    public void setSelectedRequestsRow(int ind) { requestsTable.setRowSelectionInterval(ind, ind);}
+
+    public void pressRequestHouseDetailsButton() { requestHouseDetails.doClick(); }
+
+    public String getRequestHouseId() { return requestHouseId.getText(); }
+
+    public String getRequestHouseServices() { return requestHouseServices.getText(); }
+
+    public String getRequestOwnerName() { return requestOwnerName.getText(); }
+
+    public void pressAcceptAdvertisementButton() { acceptRequestButton.doClick(); }
+
+    public void pressRejectAdvertisementButton() { rejectRequestButton.doClick(); }
+
+    public DefaultTableModel getRequestsTableModel() { return (DefaultTableModel)requestsTable.getModel(); }
+
+    public DefaultTableModel getFurnitureTableModel() { return (DefaultTableModel)furnitureTable.getModel(); }
+
+    public void setSelectedFurnitureRow(int ind) { furnitureTable.setRowSelectionInterval(ind, ind); }
+
+    public String getFurnitureId() { return furnitureId.getText(); }
+
+    public String getFurnitureName() { return furnitureName.getText(); }
+
+    public String getFurnitureDesc() { return furnitureDesc.getText(); }
+
+    public String getFurnitureOwner() { return furnitureOwner.getText(); }
+
+    public String getFurniturePhone() { return furniturePhone.getText(); }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro
