@@ -512,6 +512,20 @@ public class AdminPage extends JFrame {
 
     public DefaultTableModel getRequestsTableModel() { return (DefaultTableModel)requestsTable.getModel(); }
 
+    public DefaultTableModel getFurnitureTableModel() { return (DefaultTableModel)furnitureTable.getModel(); }
+
+    public void setSelectedFurnitureRow(int ind) { furnitureTable.setRowSelectionInterval(ind, ind); }
+
+    public String getFurnitureId() { return furnitureId.getText(); }
+
+    public String getFurnitureName() { return furnitureName.getText(); }
+
+    public String getFurnitureDesc() { return furnitureDesc.getText(); }
+
+    public String getFurnitureOwner() { return furnitureOwner.getText(); }
+
+    public String getFurniturePhone() { return furniturePhone.getText(); }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro
