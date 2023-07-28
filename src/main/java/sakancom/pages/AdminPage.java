@@ -496,6 +496,22 @@ public class AdminPage extends JFrame {
         return vOwnerId.getText();
     }
 
+    public void setSelectedRequestsRow(int ind) { requestsTable.setRowSelectionInterval(ind, ind);}
+
+    public void pressRequestHouseDetailsButton() { requestHouseDetails.doClick(); }
+
+    public String getRequestHouseId() { return requestHouseId.getText(); }
+
+    public String getRequestHouseServices() { return requestHouseServices.getText(); }
+
+    public String getRequestOwnerName() { return requestOwnerName.getText(); }
+
+    public void pressAcceptAdvertisementButton() { acceptRequestButton.doClick(); }
+
+    public void pressRejectAdvertisementButton() { rejectRequestButton.doClick(); }
+
+    public DefaultTableModel getRequestsTableModel() { return (DefaultTableModel)requestsTable.getModel(); }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro
