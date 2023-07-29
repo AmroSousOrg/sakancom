@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/*
+/**
 
     This class is made to manage all database functionality such as implementations
     of all queries required by the system.
@@ -50,8 +50,9 @@ public final class Database {
     public static ResultSet getUser(String name, String password, String role, Connection conn)
             throws SQLException {
 
-        String query = "SELECT * FROM `%s` WHERE `name` = ? and `password` = ?";
-        query = String.format(query, role);
+        String query = role.equals("tenants") ? "SELECT * FROM tenants WHERE name = ? and password = ?" :
+                role.equals("owners") ? "SELECT * FROM owners WHERE name = ? and password = ?" :
+                        "SELECT * FROM admin WHERE name = ? and password = ?";
         PreparedStatement stmt = conn.prepareStatement(query);
 
         stmt.setString(1, name);
@@ -68,8 +69,9 @@ public final class Database {
     */
     private static ResultSet getUser(String username, String role, Connection conn)
             throws SQLException {
-        String query = "SELECT * FROM `%s` WHERE `name` = ?";
-        query = String.format(query, role);
+        String query = role.equals("tenants") ? "SELECT * FROM tenants WHERE name = ?" :
+                role.equals("owners") ? "SELECT * FROM owners WHERE name = ?" :
+                        "SELECT * FROM admin WHERE name = ?";
         PreparedStatement stmt = conn.prepareStatement(query);
 
         stmt.setString(1, username);
@@ -175,20 +177,6 @@ public final class Database {
         }
     }
 
-    /*
-        this method to delete tenant or owner based on role and name
-    */
-    public static void deleteUser(String table, String name) throws SQLException {
-        Connection conn = makeConnection();
-        String query = "delete from `%s` where `name` = ?";
-        query = String.format(query, table);
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setString(1, name);
-        stmt.executeUpdate();
-        conn.close();
-        stmt.close();
-    }
-
     /**
      *  method to execute passed query as string and return the resultSet.
      */
@@ -204,18 +192,19 @@ public final class Database {
     public static void addHouse(Map<String, String> data) throws SQLException {
         Connection conn = makeConnection();
         String query = "insert into `housing` (`name`, `location`, `owner_id`, `rent`, `water_inclusive`, `electricity_inclusive`," +
-                " `services`, `floors`, `apart_per_floor`, `available`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " `services`, `floors`, `apart_per_floor`, `available`, `picture`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setString(1, data.get("name"));
         stmt.setString(2, data.get("location"));
         stmt.setLong(3, Long.parseLong(data.get("owner_id")));
         stmt.setInt(4, Integer.parseInt(data.get("rent")));
-        stmt.setBoolean(5, Boolean.parseBoolean(data.get("water_inclusive")));
-        stmt.setBoolean(6, Boolean.parseBoolean(data.get("electricity_inclusive")));
+        stmt.setInt(5, Integer.parseInt(data.get("water_inclusive")));
+        stmt.setInt(6, Integer.parseInt(data.get("electricity_inclusive")));
         stmt.setString(7, data.get("services"));
         stmt.setInt(8, Integer.parseInt(data.get("floors")));
         stmt.setInt(9, Integer.parseInt(data.get("apart_per_floor")));
         stmt.setBoolean(10, Boolean.parseBoolean(data.get("available")));
+        stmt.setString(11, data.get("picture"));
         stmt.executeUpdate();
         stmt.close();
         conn.close();
@@ -240,5 +229,57 @@ public final class Database {
         stmt.close();
         conn.close();
         return last_id;
+    }
+
+    /**
+     * check if any house with the specified name exist except the house
+     * with some id
+     */
+    public static boolean isHouseExist(String name, long exceptId) throws SQLException {
+        Connection conn = makeConnection();
+        String query = "select `housing_id` from `housing` where `name` = ? and `housing_id` != ?";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, name);
+        stmt.setLong(2, exceptId);
+        ResultSet rs = stmt.executeQuery();
+        boolean res = rs.next();
+        rs.close();
+        stmt.close();
+        conn.close();
+        return res;
+    }
+
+    /**
+     * check if any house with the specified name exist in database
+     */
+    public static boolean isHouseExist(String name) throws SQLException {
+        return isHouseExist(name, 0);
+    }
+
+    public static void updateHouse(Map<String, String> data) throws SQLException {
+        Connection conn = makeConnection();
+        String query = "update `housing` set `name` = ?, `location` = ?, `rent` = ?, `water_inclusive` = ?," +
+                " `electricity_inclusive` = ?, `services` = ?, `floors` = ?, `apart_per_floor` = ? where `housing_id` = ?";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, data.get("name"));
+        stmt.setString(2, data.get("location"));
+        stmt.setInt(3, Integer.parseInt(data.get("rent")));
+        stmt.setInt(4, Integer.parseInt(data.get("water_inclusive")));
+        stmt.setInt(5, Integer.parseInt(data.get("electricity_inclusive")));
+        stmt.setString(6, data.get("services"));
+        stmt.setInt(7, Integer.parseInt(data.get("floors")));
+        stmt.setInt(8, Integer.parseInt(data.get("apart_per_floor")));
+        stmt.setLong(9, Long.parseLong(data.get("housing_id")));
+        stmt.executeUpdate();
+        stmt.close();
+        conn.close();
+    }
+
+    public static ResultSet getHouse(long housing_id) throws SQLException {
+        Connection conn = makeConnection();
+        String query = "select * from housing where housing_id = ?";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setLong(1, housing_id);
+        return stmt.executeQuery();
     }
 }

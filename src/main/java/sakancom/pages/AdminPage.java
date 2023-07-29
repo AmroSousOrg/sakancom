@@ -7,6 +7,8 @@ package sakancom.pages;
 import java.awt.event.*;
 import sakancom.common.Database;
 import sakancom.common.Functions;
+import sakancom.common.Validation;
+import sakancom.exceptions.InputValidationException;
 
 import java.awt.*;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +26,7 @@ public class AdminPage extends JFrame {
 
     private final HashMap<String, Object> adminData;
     public static final int HOME = 0, ACCOUNT = 1, HOUSING = 2, RESERVATIONS = 3, FURNITURE = 4, REQUESTS = 5, TENANTS = 6, OWNERS = 7;
-    
+
     public AdminPage(HashMap<String, Object> adminData) {
         this.adminData = adminData;
         initComponents();
@@ -81,6 +83,7 @@ public class AdminPage extends JFrame {
     }
 
     private void showHouse() {
+        setEditHouseMode(false);
         int selected = housesTable.getSelectedRow();
         if (selected == -1) return;
         String name = (String)housesTable.getValueAt(selected, 1);
@@ -141,7 +144,10 @@ public class AdminPage extends JFrame {
     }
 
     private void closeOneHouseMouseClicked() {
+        oneHouseMessageLabel.setText("");
+        oneHouseMessageLabel.setForeground(Color.red);
         Functions.switchChildPanel(housingPanel, allHousesPanel);
+        fillHousesTable();
     }
 
     private void reservationDetails() {
@@ -401,7 +407,7 @@ public class AdminPage extends JFrame {
             }
             pstmt.close();
             conn.close();
-            if (!error.equals("")) {
+            if (!error.isEmpty()) {
                 oneHouseMessageLabel.setText(error);
             }
             
@@ -526,9 +532,150 @@ public class AdminPage extends JFrame {
 
     public String getFurniturePhone() { return furniturePhone.getText(); }
 
+    private void editHouseInfo() {
+        setEditHouseMode(true);
+    }
+
+    private void setEditHouseMode(boolean enable) {
+        houseName.setEnabled(enable);
+        houseLocation.setEnabled(enable);
+        houseRent.setEnabled(enable);
+        houseServices.setEnabled(enable);
+        electricityYes.setEnabled(enable);
+        electricityNo.setEnabled(enable);
+        waterYes.setEnabled(enable);
+        waterNo.setEnabled(enable);
+        floorsNumber.setEnabled(enable);
+        apartPerFloor.setEnabled(enable);
+    }
+
+    private void saveHouseInfo() {
+        oneHouseMessageLabel.setText("");
+        oneHouseMessageLabel.setForeground(Color.red);
+
+        String name = houseName.getText();
+        String location = houseLocation.getText();
+        String rent = houseRent.getText();
+        String services = houseServices.getText();
+        int electricity = electricityYes.isSelected() ? 1 : 0;
+        int water = waterYes.isSelected() ? 1 : 0;
+        String floors = floorsNumber.getText();
+        String apart = apartPerFloor.getText();
+        String id = houseId.getText();
+
+        try {
+            Validation.checkHouseName(name, Long.parseLong(id));
+            Validation.validateEmpty(location);
+            Validation.checkHouseRent(rent);
+            Validation.validateEmpty(services);
+            Validation.checkHouseFloor(floors);
+            Validation.checkHouseApart(apart);
+        } catch (SQLException | InputValidationException e) {
+            oneHouseMessageLabel.setText(e.getMessage());
+            return;
+        }
+
+        HashMap<String, String> data = new HashMap<>();
+        data.put("name", name);
+        data.put("location", location);
+        data.put("rent", rent);
+        data.put("services", services);
+        data.put("electricity_inclusive", String.valueOf(electricity));
+        data.put("water_inclusive", String.valueOf(water));
+        data.put("floors", floors);
+        data.put("apart_per_floor", apart);
+        data.put("housing_id", id);
+        try {
+            Database.updateHouse(data);
+        } catch (SQLException e) {
+            oneHouseMessageLabel.setText("sorry, database fault.");
+            return;
+        }
+
+        setEditHouseMode(false);
+        oneHouseMessageLabel.setForeground(Color.green);
+        oneHouseMessageLabel.setText("House updated successfully.");
+    }
+
+    public DefaultTableModel getHousesTableModel() {
+        return (DefaultTableModel) housesTable.getModel();
+    }
+
+    public void setSelectedHousesRow(int ind) {
+        housesTable.setRowSelectionInterval(ind, ind);
+    }
+
+    public void pressHouseDetailsButton() {
+        showHouse.doClick();
+    }
+
+    public String getHouseId() {
+        return houseId.getText();
+    }
+
+    public String getHouseName() {
+        return houseName.getText();
+    }
+
+    public String getHouseOwnerName() {
+        return ownerName.getText();
+    }
+
+    public String getHouseLocation() {
+        return houseLocation.getText();
+    }
+
+    public String getHouseServices() {
+        return houseServices.getText();
+    }
+
+    public void pressEditHouseButton() {
+        editHouseInfo.doClick();
+    }
+
+    public void setHouseName(String name) {
+        houseName.setText(name);
+    }
+
+    public void setHouseLocation(String loc) {
+        houseLocation.setText(loc);
+    }
+
+    public void setHouseServices(String services) {
+        houseServices.setText(services);
+    }
+
+    public void setWater(boolean yes) {
+        waterYes.setSelected(yes);
+    }
+
+    public void setElectricity(boolean yes) {
+        electricityYes.setSelected(yes);
+    }
+
+    public void setHouseFloors(String floor) {
+        floorsNumber.setText(floor);
+    }
+
+    public void setHouseApart(String apart) {
+        apartPerFloor.setText(apart);
+    }
+
+    public void setHouseRent(String rent) {
+        houseRent.setText(rent);
+    }
+
+    public void pressSaveHouseEditButton() {
+        saveHouseInfo.doClick();
+    }
+
+    public String getOneHouseMessageLabel() {
+        return oneHouseMessageLabel.getText();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-        // Generated using JFormDesigner Evaluation license - Amro
+        // Generated using JFormDesigner Evaluation license - Amro Sous
         mainPanel = new JTabbedPane();
         homePanel = new JPanel();
         accountPanel = new JPanel();
@@ -729,13 +876,13 @@ public class AdminPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new javax
-                .swing.border.EmptyBorder(0,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax.swing
-                .border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM,new java.awt.
-                Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt.Color.red
-                ),homePanel. getBorder()));homePanel. addPropertyChangeListener(new java.beans.PropertyChangeListener(){@Override
-                public void propertyChange(java.beans.PropertyChangeEvent e){if("\u0062ord\u0065r".equals(e.getPropertyName(
-                )))throw new RuntimeException();}});
+                homePanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new
+                javax.swing.border.EmptyBorder(0,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax
+                .swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM,new java
+                .awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt
+                .Color.red),homePanel. getBorder()));homePanel. addPropertyChangeListener(new java.beans.
+                PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e){if("\u0062ord\u0065r".
+                equals(e.getPropertyName()))throw new RuntimeException();}});
                 homePanel.setLayout(null);
 
                 {
@@ -1041,7 +1188,6 @@ public class AdminPage extends JFrame {
 
                     //---- houseId ----
                     houseId.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseId.setBackground(new Color(0xededed));
                     houseId.setDisabledTextColor(new Color(0x333333));
                     houseId.setEnabled(false);
                     oneHousePanel.add(houseId);
@@ -1051,13 +1197,13 @@ public class AdminPage extends JFrame {
                     houseName.setFont(new Font("SimSun", Font.PLAIN, 18));
                     houseName.setEnabled(false);
                     houseName.setDisabledTextColor(new Color(0x333333));
+                    houseName.setBackground(new Color(0xededed));
                     oneHousePanel.add(houseName);
                     houseName.setBounds(145, 70, 200, 30);
 
                     //---- houseLocation ----
                     houseLocation.setFont(new Font("SimSun", Font.PLAIN, 18));
                     houseLocation.setEnabled(false);
-                    houseLocation.setBackground(new Color(0xededed));
                     houseLocation.setDisabledTextColor(new Color(0x333333));
                     oneHousePanel.add(houseLocation);
                     houseLocation.setBounds(145, 115, 200, houseLocation.getPreferredSize().height);
@@ -1205,6 +1351,7 @@ public class AdminPage extends JFrame {
 
                     //---- editHouseInfo ----
                     editHouseInfo.setText("EDIT");
+                    editHouseInfo.addActionListener(e -> editHouseInfo());
                     oneHousePanel.add(editHouseInfo);
                     editHouseInfo.setBounds(495, 370, 117, 35);
 
@@ -1230,6 +1377,7 @@ public class AdminPage extends JFrame {
 
                     //---- saveHouseInfo ----
                     saveHouseInfo.setText("SAVE");
+                    saveHouseInfo.addActionListener(e -> saveHouseInfo());
                     oneHousePanel.add(saveHouseInfo);
                     saveHouseInfo.setBounds(665, 370, 117, 35);
 
@@ -2318,11 +2466,21 @@ public class AdminPage extends JFrame {
         }
         pack();
         setLocationRelativeTo(getOwner());
+
+        //---- buttonGroup1 ----
+        var buttonGroup1 = new ButtonGroup();
+        buttonGroup1.add(waterYes);
+        buttonGroup1.add(waterNo);
+
+        //---- buttonGroup2 ----
+        var buttonGroup2 = new ButtonGroup();
+        buttonGroup2.add(electricityYes);
+        buttonGroup2.add(electricityNo);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-    // Generated using JFormDesigner Evaluation license - Amro
+    // Generated using JFormDesigner Evaluation license - Amro Sous
     private JTabbedPane mainPanel;
     private JPanel homePanel;
     private JPanel accountPanel;

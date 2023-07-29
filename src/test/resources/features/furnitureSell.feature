@@ -43,8 +43,8 @@ Feature: show and sell Furniture
     Then error message will displayed "<error_msg>"
 
     Examples:
-      | name       | price       | description             | error_msg              |
-      | phone      | -200        | some description here   | Not positive integer.  |
-      | Chair      | 5000        |                         | Empty field.           |
-      |            | 1000        | some description here   | Invalid name.          |
-      | Sofa       | 5nis        | some description here   | Not positive integer.  |
+      | name       | price       | description             | error_msg                           |
+      | phone      | -200        | some description here   | Price must be Non-negative integer.  |
+      | Chair      | 5000        |                         | Empty field.                        |
+      |            | 1000        | some description here   | Invalid name.                       |
+      | Sofa       | 5nis        | some description here   | Price must be Non-negative integer.  |
