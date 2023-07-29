@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.5" encoding: "UTF-8"
+JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -362,8 +362,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "houseId"
 							"font": &Font5 new java.awt.Font( "SimSun", 0, 18 )
-							"background": &Color0 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": &Color1 new java.awt.Color( 51, 51, 51, 255 )
+							"disabledTextColor": &Color0 new java.awt.Color( 51, 51, 51, 255 )
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 145
@@ -375,7 +374,8 @@ new FormModel {
 							name: "houseName"
 							"font": #Font5
 							"enabled": false
-							"disabledTextColor": &Color2 new java.awt.Color( 51, 51, 51, 255 )
+							"disabledTextColor": &Color1 new java.awt.Color( 51, 51, 51, 255 )
+							"background": new java.awt.Color( 237, 237, 237, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"height": 30
@@ -386,8 +386,7 @@ new FormModel {
 							name: "houseLocation"
 							"font": #Font5
 							"enabled": false
-							"background": &Color3 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": &Color4 new java.awt.Color( 51, 51, 51, 255 )
+							"disabledTextColor": &Color2 new java.awt.Color( 51, 51, 51, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"x": 145
@@ -397,8 +396,8 @@ new FormModel {
 							name: "houseRent"
 							"font": #Font5
 							"enabled": false
-							"background": &Color5 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": &Color6 new java.awt.Color( 51, 51, 51, 255 )
+							"background": &Color3 new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": &Color4 new java.awt.Color( 51, 51, 51, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"x": 145
@@ -406,7 +405,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "housePicture"
-							"background": &Color7 new java.awt.Color( 204, 204, 204, 255 )
+							"background": &Color5 new java.awt.Color( 204, 204, 204, 255 )
 							"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 710
@@ -438,6 +437,7 @@ new FormModel {
 							name: "waterYes"
 							"text": "YES"
 							"enabled": false
+							"$buttonGroup": new FormReference( "buttonGroup1" )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 250
 							"y": 210
@@ -447,6 +447,7 @@ new FormModel {
 							name: "waterNo"
 							"text": "NO"
 							"enabled": false
+							"$buttonGroup": new FormReference( "buttonGroup1" )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 50
 							"height": 22
@@ -457,6 +458,7 @@ new FormModel {
 							name: "electricityYes"
 							"text": "YES"
 							"enabled": false
+							"$buttonGroup": new FormReference( "buttonGroup2" )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 50
 							"height": 22
@@ -467,6 +469,7 @@ new FormModel {
 							name: "electricityNo"
 							"text": "NO"
 							"enabled": false
+							"$buttonGroup": new FormReference( "buttonGroup2" )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 50
 							"height": 22
@@ -488,7 +491,7 @@ new FormModel {
 							add( new FormComponent( "javax.swing.JTextArea" ) {
 								name: "houseServices"
 								"enabled": false
-								"disabledTextColor": &Color8 new java.awt.Color( 51, 51, 51, 255 )
+								"disabledTextColor": &Color6 new java.awt.Color( 51, 51, 51, 255 )
 								"font": &Font6 new java.awt.Font( "Monospaced", 0, 18 )
 								"wrapStyleWord": true
 								"lineWrap": true
@@ -502,7 +505,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator3"
 							"orientation": 1
-							"foreground": &Color9 new java.awt.Color( 153, 153, 153, 255 )
+							"foreground": &Color7 new java.awt.Color( 153, 153, 153, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 390
 							"y": 35
@@ -532,10 +535,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "floorsNumber"
 							"font": #Font5
-							"background": &Color10 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": #Color1
+							"background": &Color8 new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": &Color11 new java.awt.Color( 102, 102, 102, 255 )
+							"foreground": &Color9 new java.awt.Color( 102, 102, 102, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 105
 							"height": 30
@@ -545,10 +548,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "apartPerFloor"
 							"font": #Font5
-							"background": &Color12 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": #Color1
+							"background": &Color10 new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 55
 							"height": 30
@@ -578,10 +581,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "ownerName"
 							"font": #Font5
-							"background": &Color13 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": #Color1
+							"background": &Color11 new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 165
 							"height": 30
@@ -591,10 +594,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "ownerPhone"
 							"font": #Font5
-							"background": &Color14 new java.awt.Color( 237, 237, 237, 255 )
-							"disabledTextColor": #Color1
+							"background": &Color12 new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 165
 							"height": 30
@@ -603,7 +606,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator4"
-							"foreground": #Color9
+							"foreground": #Color7
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 565
 							"height": 10
@@ -613,6 +616,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "editHouseInfo"
 							"text": "EDIT"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "editHouseInfo", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 495
 							"y": 370
@@ -645,6 +649,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "saveHouseInfo"
 							"text": "SAVE"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "saveHouseInfo", false ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 117
 							"height": 35
@@ -820,7 +825,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator5"
-							"foreground": &Color15 new java.awt.Color( 153, 153, 153, 255 )
+							"foreground": &Color13 new java.awt.Color( 153, 153, 153, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 205
 							"y": 65
@@ -829,7 +834,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator6"
-							"foreground": #Color15
+							"foreground": #Color13
 							"orientation": 1
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 10
@@ -841,7 +846,7 @@ new FormModel {
 							name: "vBookingId"
 							"font": &Font11 new java.awt.Font( "SimSun", 0, 16 )
 							"enabled": false
-							"disabledTextColor": &Color16 new java.awt.Color( 51, 51, 51, 255 )
+							"disabledTextColor": &Color14 new java.awt.Color( 51, 51, 51, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 80
 							"y": 95
@@ -863,7 +868,7 @@ new FormModel {
 							name: "vBookingDate"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 220
 							"height": 25
@@ -883,7 +888,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator7"
-							"foreground": #Color15
+							"foreground": #Color13
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 265
 							"height": 15
@@ -927,7 +932,7 @@ new FormModel {
 							name: "vHousingId"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 80
 							"height": 25
@@ -938,7 +943,7 @@ new FormModel {
 							name: "vHousingName"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 225
 							"height": 30
@@ -949,7 +954,7 @@ new FormModel {
 							name: "vHousingLocation"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 290
 							"height": 30
@@ -971,7 +976,7 @@ new FormModel {
 							name: "vBookingFloor"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 60
 							"height": 25
@@ -993,7 +998,7 @@ new FormModel {
 							name: "vBookingApart"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 60
 							"height": 25
@@ -1002,7 +1007,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator8"
-							"foreground": #Color15
+							"foreground": #Color13
 							"orientation": 1
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 10
@@ -1034,7 +1039,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator9"
-							"foreground": #Color15
+							"foreground": #Color13
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 265
 							"height": 15
@@ -1045,7 +1050,7 @@ new FormModel {
 							name: "vTenantId"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 80
 							"height": 25
@@ -1067,7 +1072,7 @@ new FormModel {
 							name: "vTenantName"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"height": 25
@@ -1087,7 +1092,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator11"
-							"foreground": #Color15
+							"foreground": #Color13
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 265
 							"height": 15
@@ -1131,7 +1136,7 @@ new FormModel {
 							name: "vOwnerId"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 80
 							"height": 25
@@ -1142,7 +1147,7 @@ new FormModel {
 							name: "vOwnerName"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 230
 							"height": 25
@@ -1153,7 +1158,7 @@ new FormModel {
 							name: "vOwnerPhone"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 245
 							"height": 25
@@ -1175,7 +1180,7 @@ new FormModel {
 							name: "vTenantAge"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 65
 							"height": 25
@@ -1197,7 +1202,7 @@ new FormModel {
 							name: "vTenantPhone"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 210
 							"height": 30
@@ -1206,7 +1211,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator12"
-							"foreground": #Color15
+							"foreground": #Color13
 							"orientation": 1
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 10
@@ -1242,7 +1247,7 @@ new FormModel {
 							name: "vTenantEmail"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 290
 							"height": 25
@@ -1264,7 +1269,7 @@ new FormModel {
 							name: "vTenantMajor"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 235
 							"height": 25
@@ -1286,7 +1291,7 @@ new FormModel {
 							name: "vOwnerEmail"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 245
 							"height": 25
@@ -1308,7 +1313,7 @@ new FormModel {
 							name: "vBookingRent"
 							"font": #Font11
 							"enabled": false
-							"disabledTextColor": #Color16
+							"disabledTextColor": #Color14
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 110
 							"height": 25
@@ -1482,7 +1487,7 @@ new FormModel {
 							name: "furnitureName"
 							"font": &Font13 new java.awt.Font( "Segoe UI Light", 0, 18 )
 							"enabled": false
-							"disabledTextColor": &Color17 new java.awt.Color( 51, 51, 51, 255 )
+							"disabledTextColor": &Color15 new java.awt.Color( 51, 51, 51, 255 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 565
 							"y": 95
@@ -1492,7 +1497,7 @@ new FormModel {
 							name: "furnitureOwner"
 							"font": #Font13
 							"enabled": false
-							"disabledTextColor": #Color17
+							"disabledTextColor": #Color15
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 205
 							"height": 33
@@ -1503,7 +1508,7 @@ new FormModel {
 							name: "furniturePhone"
 							"font": #Font13
 							"enabled": false
-							"disabledTextColor": #Color17
+							"disabledTextColor": #Color15
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 205
 							"height": 33
@@ -1557,7 +1562,7 @@ new FormModel {
 							name: "furnitureId"
 							"font": #Font13
 							"enabled": false
-							"disabledTextColor": #Color17
+							"disabledTextColor": #Color15
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 205
 							"height": 33
@@ -1696,8 +1701,8 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "requestHouseId"
 							"font": #Font5
-							"background": #Color0
-							"disabledTextColor": #Color1
+							"background": new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color0
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 145
@@ -1709,7 +1714,7 @@ new FormModel {
 							name: "requestHouseName"
 							"font": #Font5
 							"enabled": false
-							"disabledTextColor": #Color2
+							"disabledTextColor": #Color1
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"height": 30
@@ -1720,8 +1725,8 @@ new FormModel {
 							name: "requestHouseLocation"
 							"font": #Font5
 							"enabled": false
-							"background": #Color3
-							"disabledTextColor": #Color4
+							"background": new java.awt.Color( 237, 237, 237, 255 )
+							"disabledTextColor": #Color2
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"x": 145
@@ -1731,8 +1736,8 @@ new FormModel {
 							name: "requestHouseRent"
 							"font": #Font5
 							"enabled": false
-							"background": #Color5
-							"disabledTextColor": #Color6
+							"background": #Color3
+							"disabledTextColor": #Color4
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 200
 							"x": 145
@@ -1740,7 +1745,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "requestHousePicture"
-							"background": #Color7
+							"background": #Color5
 							"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 710
@@ -1822,7 +1827,7 @@ new FormModel {
 							add( new FormComponent( "javax.swing.JTextArea" ) {
 								name: "requestHouseServices"
 								"enabled": false
-								"disabledTextColor": #Color8
+								"disabledTextColor": #Color6
 								"font": #Font6
 								"wrapStyleWord": true
 								"lineWrap": true
@@ -1836,7 +1841,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator10"
 							"orientation": 1
-							"foreground": #Color9
+							"foreground": #Color7
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"x": 390
 							"y": 35
@@ -1866,10 +1871,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "requestHouseFloor"
 							"font": #Font5
-							"background": #Color10
-							"disabledTextColor": #Color1
+							"background": #Color8
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 105
 							"height": 30
@@ -1879,10 +1884,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "requestHouseApart"
 							"font": #Font5
-							"background": #Color12
-							"disabledTextColor": #Color1
+							"background": #Color10
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 55
 							"height": 30
@@ -1912,10 +1917,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "requestOwnerName"
 							"font": #Font5
-							"background": #Color13
-							"disabledTextColor": #Color1
+							"background": #Color11
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 165
 							"height": 30
@@ -1925,10 +1930,10 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "requestOwnerPhone"
 							"font": #Font5
-							"background": #Color14
-							"disabledTextColor": #Color1
+							"background": #Color12
+							"disabledTextColor": #Color0
 							"enabled": false
-							"foreground": #Color11
+							"foreground": #Color9
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 165
 							"height": 30
@@ -1937,7 +1942,7 @@ new FormModel {
 						} )
 						add( new FormComponent( "javax.swing.JSeparator" ) {
 							name: "separator13"
-							"foreground": #Color9
+							"foreground": #Color7
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 							"width": 565
 							"height": 10
@@ -2011,7 +2016,17 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 795, 439 )
+			"size": new java.awt.Dimension( 990, 540 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "buttonGroup1"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 556 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "buttonGroup2"
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 617 )
 		} )
 	}
 }
