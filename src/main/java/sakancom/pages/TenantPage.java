@@ -162,6 +162,7 @@ public class TenantPage extends JFrame {
         if (last_id == -1) return;
 
         Functions.switchChildPanel(housesPanel, invoicePanel);
+        Functions.switchChildPanel(invoiceFieldsContainer, invoiceFieldsPanel);
 
         try {
             Connection conn = Database.makeConnection();
@@ -313,6 +314,14 @@ public class TenantPage extends JFrame {
         if (selectedIndex == HOUSING) fillHousesTable();
         else if (selectedIndex == FURNITURE) fillFurnitureTable();
         else if (selectedIndex == ACCOUNT) fillPersonalInfo();
+        else if (selectedIndex == BOOKING) fillBookingTables();
+    }
+
+    private void fillBookingTables() {
+        Functions.fillTable("select reservation_id, housing_name, reservation_date from invoice " +
+                "where accepted = 1 and tenant_id = " + tenantData.get("tenant_id"), bookingsTable);
+        Functions.fillTable("select reservation_id, housing_name, reservation_date from invoice " +
+                "where accepted = 0 and tenant_id = " + tenantData.get("tenant_id"), requestsTable);
     }
 
     public void furnitureTableSelectionChanged() {
@@ -342,7 +351,7 @@ public class TenantPage extends JFrame {
         }
     }
 
-    private void changePassowrd() {
+    private void changePassword() {
         accountPanelMessageLabel.setText("");
         accountPanelMessageLabel.setForeground(Color.red);
         String oldPass = String.valueOf(oldPasswordField.getPassword());
@@ -383,6 +392,28 @@ public class TenantPage extends JFrame {
         }
     }
 
+    private void bookingDetails() {
+        int selectedRow = bookingsTable.getSelectedRow();
+        if (selectedRow == -1) return; 
+        long id = (long) bookingsTable.getValueAt(selectedRow, 1);
+        Functions.switchChildPanel(bookingsPanel, invoicePanel2);
+        Functions.switchChildPanel(invoiceFieldsContainer2, invoiceFieldsPanel);
+        try {
+            Connection conn = Database.makeConnection();
+            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = "+id, conn);
+            rs.next();
+            HashMap<String, Object> invoice_data = Functions.rsToHashMap(rs);
+            conn.close();
+            fillInvoiceInfo(invoice_data);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void closeInvoicePanel2MouseClicked() {
+        Functions.switchChildPanel(bookingsPanel, allBookingsPanel);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Evaluation license - Amro Sous
@@ -406,7 +437,7 @@ public class TenantPage extends JFrame {
         editProfileButton = new JButton();
         saveProfileButton = new JButton();
         accountPanelMessageLabel = new JLabel();
-        changePassowrdButton = new JButton();
+        changePasswordButton = new JButton();
         separator2 = new JSeparator();
         label10 = new JLabel();
         label11 = new JLabel();
@@ -460,6 +491,9 @@ public class TenantPage extends JFrame {
         closeOneHouse = new JLabel();
         invoicePanel = new JPanel();
         label13 = new JLabel();
+        closeInvoicePanel = new JLabel();
+        invoiceFieldsContainer = new JPanel();
+        invoiceFieldsPanel = new JPanel();
         label33 = new JLabel();
         label34 = new JLabel();
         separator5 = new JSeparator();
@@ -499,7 +533,6 @@ public class TenantPage extends JFrame {
         label50 = new JLabel();
         vTenantPhone = new JTextField();
         separator12 = new JSeparator();
-        closeInvoicePanel = new JLabel();
         label52 = new JLabel();
         vTenantEmail = new JTextField();
         label53 = new JLabel();
@@ -549,8 +582,21 @@ public class TenantPage extends JFrame {
         addFurnitureSubmitButton = new JButton();
         addFurnitureButton2 = new JButton();
         bookingsPanel = new JPanel();
+        allBookingsPanel = new JPanel();
         label65 = new JLabel();
-        salesPanel = new JPanel();
+        label66 = new JLabel();
+        scrollPane6 = new JScrollPane();
+        bookingsTable = new JTable();
+        scrollPane7 = new JScrollPane();
+        requestsTable = new JTable();
+        bookingDetailsButton = new JButton();
+        bookingDeleteButton = new JButton();
+        bookingDetailsButton2 = new JButton();
+        bookingDeleteButton2 = new JButton();
+        separator19 = new JSeparator();
+        invoicePanel2 = new JPanel();
+        closeInvoicePanel2 = new JLabel();
+        invoiceFieldsContainer2 = new JPanel();
 
         //======== this ========
         var contentPane = getContentPane();
@@ -562,12 +608,13 @@ public class TenantPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border.
-                EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing. border. TitledBorder. CENTER, javax. swing
-                . border. TitledBorder. BOTTOM, new java .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ),
-                java. awt. Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( )
-                { @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName () ))
-                throw new RuntimeException( ); }} );
+                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new
+                javax. swing. border. EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax
+                . swing. border. TitledBorder. CENTER, javax. swing. border. TitledBorder. BOTTOM, new java
+                .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ), java. awt
+                . Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans.
+                PropertyChangeListener( ){ @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .
+                equals (e .getPropertyName () )) throw new RuntimeException( ); }} );
                 homePanel.setLayout(null);
 
                 {
@@ -696,12 +743,12 @@ public class TenantPage extends JFrame {
                 accountPanel.add(accountPanelMessageLabel);
                 accountPanelMessageLabel.setBounds(415, 400, 540, 30);
 
-                //---- changePassowrdButton ----
-                changePassowrdButton.setText("Change your password");
-                changePassowrdButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
-                changePassowrdButton.addActionListener(e -> changePassowrd());
-                accountPanel.add(changePassowrdButton);
-                changePassowrdButton.setBounds(660, 320, 205, 30);
+                //---- changePasswordButton ----
+                changePasswordButton.setText("Change your password");
+                changePasswordButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
+                changePasswordButton.addActionListener(e -> changePassword());
+                accountPanel.add(changePasswordButton);
+                changePasswordButton.setBounds(660, 320, 205, 30);
 
                 //---- separator2 ----
                 separator2.setOrientation(SwingConstants.VERTICAL);
@@ -1116,268 +1163,6 @@ public class TenantPage extends JFrame {
                     invoicePanel.add(label13);
                     label13.setBounds(10, 5, 545, 35);
 
-                    //---- label33 ----
-                    label33.setText("Booking Details");
-                    label33.setHorizontalAlignment(SwingConstants.CENTER);
-                    label33.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    invoicePanel.add(label33);
-                    label33.setBounds(20, 45, 185, 40);
-
-                    //---- label34 ----
-                    label34.setText("ID:");
-                    label34.setHorizontalAlignment(SwingConstants.CENTER);
-                    label34.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label34);
-                    label34.setBounds(30, 95, 55, 25);
-
-                    //---- separator5 ----
-                    separator5.setForeground(new Color(0x999999));
-                    invoicePanel.add(separator5);
-                    separator5.setBounds(205, 65, 265, 15);
-
-                    //---- separator6 ----
-                    separator6.setForeground(new Color(0x999999));
-                    separator6.setOrientation(SwingConstants.VERTICAL);
-                    invoicePanel.add(separator6);
-                    separator6.setBounds(15, 65, 10, 380);
-
-                    //---- vBookingId ----
-                    vBookingId.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vBookingId.setEnabled(false);
-                    vBookingId.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vBookingId);
-                    vBookingId.setBounds(80, 95, 90, 25);
-
-                    //---- label35 ----
-                    label35.setText("Date:");
-                    label35.setHorizontalAlignment(SwingConstants.CENTER);
-                    label35.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label35);
-                    label35.setBounds(180, 95, 65, 25);
-
-                    //---- vBookingDate ----
-                    vBookingDate.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vBookingDate.setEnabled(false);
-                    vBookingDate.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vBookingDate);
-                    vBookingDate.setBounds(240, 95, 220, 25);
-
-                    //---- label36 ----
-                    label36.setText("Housing Details");
-                    label36.setHorizontalAlignment(SwingConstants.CENTER);
-                    label36.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    invoicePanel.add(label36);
-                    label36.setBounds(20, 290, 185, 40);
-
-                    //---- separator7 ----
-                    separator7.setForeground(new Color(0x999999));
-                    invoicePanel.add(separator7);
-                    separator7.setBounds(205, 310, 265, 15);
-
-                    //---- label37 ----
-                    label37.setText("ID:");
-                    label37.setHorizontalAlignment(SwingConstants.CENTER);
-                    label37.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label37);
-                    label37.setBounds(30, 345, 50, 30);
-
-                    //---- label38 ----
-                    label38.setText("Name:");
-                    label38.setHorizontalAlignment(SwingConstants.CENTER);
-                    label38.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label38);
-                    label38.setBounds(175, 345, 65, 30);
-
-                    //---- label39 ----
-                    label39.setText("Location:");
-                    label39.setHorizontalAlignment(SwingConstants.CENTER);
-                    label39.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label39);
-                    label39.setBounds(45, 395, 105, 30);
-
-                    //---- vHousingId ----
-                    vHousingId.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vHousingId.setEnabled(false);
-                    vHousingId.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vHousingId);
-                    vHousingId.setBounds(80, 350, 80, 25);
-
-                    //---- vHousingName ----
-                    vHousingName.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vHousingName.setEnabled(false);
-                    vHousingName.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vHousingName);
-                    vHousingName.setBounds(235, 345, 225, 30);
-
-                    //---- vHousingLocation ----
-                    vHousingLocation.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vHousingLocation.setEnabled(false);
-                    vHousingLocation.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vHousingLocation);
-                    vHousingLocation.setBounds(150, 395, 290, 30);
-
-                    //---- label40 ----
-                    label40.setText("Floor:");
-                    label40.setHorizontalAlignment(SwingConstants.CENTER);
-                    label40.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label40);
-                    label40.setBounds(35, 135, 80, 30);
-
-                    //---- vBookingFloor ----
-                    vBookingFloor.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vBookingFloor.setEnabled(false);
-                    vBookingFloor.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vBookingFloor);
-                    vBookingFloor.setBounds(115, 140, 60, 25);
-
-                    //---- label41 ----
-                    label41.setText("Apartment:");
-                    label41.setHorizontalAlignment(SwingConstants.CENTER);
-                    label41.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label41);
-                    label41.setBounds(185, 135, 120, 30);
-
-                    //---- vBookingApart ----
-                    vBookingApart.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vBookingApart.setEnabled(false);
-                    vBookingApart.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vBookingApart);
-                    vBookingApart.setBounds(310, 140, 60, 25);
-
-                    //---- separator8 ----
-                    separator8.setForeground(new Color(0x999999));
-                    separator8.setOrientation(SwingConstants.VERTICAL);
-                    invoicePanel.add(separator8);
-                    separator8.setBounds(470, 65, 10, 380);
-
-                    //---- label42 ----
-                    label42.setText("Tenant Details");
-                    label42.setHorizontalAlignment(SwingConstants.CENTER);
-                    label42.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    invoicePanel.add(label42);
-                    label42.setBounds(480, 45, 185, 40);
-
-                    //---- label43 ----
-                    label43.setText("ID:");
-                    label43.setHorizontalAlignment(SwingConstants.CENTER);
-                    label43.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label43);
-                    label43.setBounds(485, 90, 60, 25);
-
-                    //---- separator9 ----
-                    separator9.setForeground(new Color(0x999999));
-                    invoicePanel.add(separator9);
-                    separator9.setBounds(665, 65, 265, 15);
-
-                    //---- vTenantId ----
-                    vTenantId.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantId.setEnabled(false);
-                    vTenantId.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantId);
-                    vTenantId.setBounds(540, 90, 80, 25);
-
-                    //---- label44 ----
-                    label44.setText("Name:");
-                    label44.setHorizontalAlignment(SwingConstants.CENTER);
-                    label44.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label44);
-                    label44.setBounds(640, 90, 75, 25);
-
-                    //---- vTenantName ----
-                    vTenantName.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantName.setEnabled(false);
-                    vTenantName.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantName);
-                    vTenantName.setBounds(715, 90, 200, 25);
-
-                    //---- label45 ----
-                    label45.setText("Owner Details");
-                    label45.setHorizontalAlignment(SwingConstants.CENTER);
-                    label45.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    invoicePanel.add(label45);
-                    label45.setBounds(480, 245, 185, 30);
-
-                    //---- separator11 ----
-                    separator11.setForeground(new Color(0x999999));
-                    invoicePanel.add(separator11);
-                    separator11.setBounds(665, 260, 265, 15);
-
-                    //---- label46 ----
-                    label46.setText("ID:");
-                    label46.setHorizontalAlignment(SwingConstants.CENTER);
-                    label46.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label46);
-                    label46.setBounds(495, 295, 50, 25);
-
-                    //---- label47 ----
-                    label47.setText("Name:");
-                    label47.setHorizontalAlignment(SwingConstants.CENTER);
-                    label47.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label47);
-                    label47.setBounds(630, 295, 70, 25);
-
-                    //---- label48 ----
-                    label48.setText("Phone:");
-                    label48.setHorizontalAlignment(SwingConstants.CENTER);
-                    label48.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label48);
-                    label48.setBounds(495, 330, 75, 30);
-
-                    //---- vOwnerId ----
-                    vOwnerId.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vOwnerId.setEnabled(false);
-                    vOwnerId.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vOwnerId);
-                    vOwnerId.setBounds(540, 295, 80, 25);
-
-                    //---- vOwnerName ----
-                    vOwnerName.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vOwnerName.setEnabled(false);
-                    vOwnerName.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vOwnerName);
-                    vOwnerName.setBounds(690, 295, 230, 25);
-
-                    //---- vOwnerPhone ----
-                    vOwnerPhone.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vOwnerPhone.setEnabled(false);
-                    vOwnerPhone.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vOwnerPhone);
-                    vOwnerPhone.setBounds(565, 335, 245, 25);
-
-                    //---- label49 ----
-                    label49.setText("Age:");
-                    label49.setHorizontalAlignment(SwingConstants.CENTER);
-                    label49.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label49);
-                    label49.setBounds(490, 135, 55, 25);
-
-                    //---- vTenantAge ----
-                    vTenantAge.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantAge.setEnabled(false);
-                    vTenantAge.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantAge);
-                    vTenantAge.setBounds(545, 135, 65, 25);
-
-                    //---- label50 ----
-                    label50.setText("Phone:");
-                    label50.setHorizontalAlignment(SwingConstants.CENTER);
-                    label50.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label50);
-                    label50.setBounds(630, 135, 75, 25);
-
-                    //---- vTenantPhone ----
-                    vTenantPhone.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantPhone.setEnabled(false);
-                    vTenantPhone.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantPhone);
-                    vTenantPhone.setBounds(700, 135, 210, 30);
-
-                    //---- separator12 ----
-                    separator12.setForeground(new Color(0x999999));
-                    separator12.setOrientation(SwingConstants.VERTICAL);
-                    invoicePanel.add(separator12);
-                    separator12.setBounds(930, 65, 10, 380);
-
                     //---- closeInvoicePanel ----
                     closeInvoicePanel.setIcon(null);
                     closeInvoicePanel.setText("X");
@@ -1392,99 +1177,389 @@ public class TenantPage extends JFrame {
                     invoicePanel.add(closeInvoicePanel);
                     closeInvoicePanel.setBounds(925, 5, 40, 35);
 
-                    //---- label52 ----
-                    label52.setText("Email:");
-                    label52.setHorizontalAlignment(SwingConstants.CENTER);
-                    label52.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label52);
-                    label52.setBounds(495, 175, 70, 25);
+                    //======== invoiceFieldsContainer ========
+                    {
+                        invoiceFieldsContainer.setLayout(new CardLayout());
 
-                    //---- vTenantEmail ----
-                    vTenantEmail.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantEmail.setEnabled(false);
-                    vTenantEmail.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantEmail);
-                    vTenantEmail.setBounds(560, 175, 290, 25);
+                        //======== invoiceFieldsPanel ========
+                        {
+                            invoiceFieldsPanel.setLayout(null);
 
-                    //---- label53 ----
-                    label53.setText("Major:");
-                    label53.setHorizontalAlignment(SwingConstants.CENTER);
-                    label53.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label53);
-                    label53.setBounds(495, 210, 70, 25);
+                            //---- label33 ----
+                            label33.setText("Booking Details");
+                            label33.setHorizontalAlignment(SwingConstants.CENTER);
+                            label33.setFont(new Font("SimSun", Font.PLAIN, 20));
+                            invoiceFieldsPanel.add(label33);
+                            label33.setBounds(5, 0, 185, 40);
 
-                    //---- vTenantMajor ----
-                    vTenantMajor.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vTenantMajor.setEnabled(false);
-                    vTenantMajor.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vTenantMajor);
-                    vTenantMajor.setBounds(565, 210, 235, 25);
+                            //---- label34 ----
+                            label34.setText("ID:");
+                            label34.setHorizontalAlignment(SwingConstants.CENTER);
+                            label34.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label34);
+                            label34.setBounds(15, 50, 55, 25);
 
-                    //---- label54 ----
-                    label54.setText("Email:");
-                    label54.setHorizontalAlignment(SwingConstants.CENTER);
-                    label54.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label54);
-                    label54.setBounds(495, 370, 75, 30);
+                            //---- separator5 ----
+                            separator5.setForeground(new Color(0x999999));
+                            invoiceFieldsPanel.add(separator5);
+                            separator5.setBounds(190, 20, 265, 15);
 
-                    //---- vOwnerEmail ----
-                    vOwnerEmail.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vOwnerEmail.setEnabled(false);
-                    vOwnerEmail.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vOwnerEmail);
-                    vOwnerEmail.setBounds(565, 375, 245, 25);
+                            //---- separator6 ----
+                            separator6.setForeground(new Color(0x999999));
+                            separator6.setOrientation(SwingConstants.VERTICAL);
+                            invoiceFieldsPanel.add(separator6);
+                            separator6.setBounds(0, 20, 10, 380);
 
-                    //---- label51 ----
-                    label51.setText("Rent:");
-                    label51.setHorizontalAlignment(SwingConstants.CENTER);
-                    label51.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label51);
-                    label51.setBounds(40, 180, 75, 30);
+                            //---- vBookingId ----
+                            vBookingId.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vBookingId.setEnabled(false);
+                            vBookingId.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vBookingId);
+                            vBookingId.setBounds(65, 50, 90, 25);
 
-                    //---- vBookingRent ----
-                    vBookingRent.setFont(new Font("SimSun", Font.PLAIN, 16));
-                    vBookingRent.setEnabled(false);
-                    vBookingRent.setDisabledTextColor(new Color(0x333333));
-                    invoicePanel.add(vBookingRent);
-                    vBookingRent.setBounds(110, 185, 110, 25);
+                            //---- label35 ----
+                            label35.setText("Date:");
+                            label35.setHorizontalAlignment(SwingConstants.CENTER);
+                            label35.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label35);
+                            label35.setBounds(165, 50, 65, 25);
 
-                    //---- label55 ----
-                    label55.setText("Include Water:");
-                    label55.setHorizontalAlignment(SwingConstants.CENTER);
-                    label55.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label55);
-                    label55.setBounds(80, 220, 160, 30);
+                            //---- vBookingDate ----
+                            vBookingDate.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vBookingDate.setEnabled(false);
+                            vBookingDate.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vBookingDate);
+                            vBookingDate.setBounds(225, 50, 220, 25);
 
-                    //---- vWaterYes ----
-                    vWaterYes.setText("YES");
-                    vWaterYes.setEnabled(false);
-                    invoicePanel.add(vWaterYes);
-                    vWaterYes.setBounds(270, 225, 50, 22);
+                            //---- label36 ----
+                            label36.setText("Housing Details");
+                            label36.setHorizontalAlignment(SwingConstants.CENTER);
+                            label36.setFont(new Font("SimSun", Font.PLAIN, 20));
+                            invoiceFieldsPanel.add(label36);
+                            label36.setBounds(5, 245, 185, 40);
 
-                    //---- vWaterNo ----
-                    vWaterNo.setText("NO");
-                    vWaterNo.setEnabled(false);
-                    invoicePanel.add(vWaterNo);
-                    vWaterNo.setBounds(340, 225, 50, 22);
+                            //---- separator7 ----
+                            separator7.setForeground(new Color(0x999999));
+                            invoiceFieldsPanel.add(separator7);
+                            separator7.setBounds(190, 265, 265, 15);
 
-                    //---- vElectricityYes ----
-                    vElectricityYes.setText("YES");
-                    vElectricityYes.setEnabled(false);
-                    invoicePanel.add(vElectricityYes);
-                    vElectricityYes.setBounds(270, 265, 50, 22);
+                            //---- label37 ----
+                            label37.setText("ID:");
+                            label37.setHorizontalAlignment(SwingConstants.CENTER);
+                            label37.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label37);
+                            label37.setBounds(15, 300, 50, 30);
 
-                    //---- vElectricityNo ----
-                    vElectricityNo.setText("NO");
-                    vElectricityNo.setEnabled(false);
-                    invoicePanel.add(vElectricityNo);
-                    vElectricityNo.setBounds(340, 265, 50, 22);
+                            //---- label38 ----
+                            label38.setText("Name:");
+                            label38.setHorizontalAlignment(SwingConstants.CENTER);
+                            label38.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label38);
+                            label38.setBounds(160, 300, 65, 30);
 
-                    //---- label56 ----
-                    label56.setText("Include Electricity:");
-                    label56.setHorizontalAlignment(SwingConstants.CENTER);
-                    label56.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    invoicePanel.add(label56);
-                    label56.setBounds(25, 255, 220, 30);
+                            //---- label39 ----
+                            label39.setText("Location:");
+                            label39.setHorizontalAlignment(SwingConstants.CENTER);
+                            label39.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label39);
+                            label39.setBounds(30, 350, 105, 30);
+
+                            //---- vHousingId ----
+                            vHousingId.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vHousingId.setEnabled(false);
+                            vHousingId.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vHousingId);
+                            vHousingId.setBounds(65, 305, 80, 25);
+
+                            //---- vHousingName ----
+                            vHousingName.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vHousingName.setEnabled(false);
+                            vHousingName.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vHousingName);
+                            vHousingName.setBounds(220, 300, 225, 30);
+
+                            //---- vHousingLocation ----
+                            vHousingLocation.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vHousingLocation.setEnabled(false);
+                            vHousingLocation.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vHousingLocation);
+                            vHousingLocation.setBounds(135, 350, 290, 30);
+
+                            //---- label40 ----
+                            label40.setText("Floor:");
+                            label40.setHorizontalAlignment(SwingConstants.CENTER);
+                            label40.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label40);
+                            label40.setBounds(20, 90, 80, 30);
+
+                            //---- vBookingFloor ----
+                            vBookingFloor.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vBookingFloor.setEnabled(false);
+                            vBookingFloor.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vBookingFloor);
+                            vBookingFloor.setBounds(100, 95, 60, 25);
+
+                            //---- label41 ----
+                            label41.setText("Apartment:");
+                            label41.setHorizontalAlignment(SwingConstants.CENTER);
+                            label41.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label41);
+                            label41.setBounds(170, 90, 120, 30);
+
+                            //---- vBookingApart ----
+                            vBookingApart.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vBookingApart.setEnabled(false);
+                            vBookingApart.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vBookingApart);
+                            vBookingApart.setBounds(295, 95, 60, 25);
+
+                            //---- separator8 ----
+                            separator8.setForeground(new Color(0x999999));
+                            separator8.setOrientation(SwingConstants.VERTICAL);
+                            invoiceFieldsPanel.add(separator8);
+                            separator8.setBounds(455, 20, 10, 380);
+
+                            //---- label42 ----
+                            label42.setText("Tenant Details");
+                            label42.setHorizontalAlignment(SwingConstants.CENTER);
+                            label42.setFont(new Font("SimSun", Font.PLAIN, 20));
+                            invoiceFieldsPanel.add(label42);
+                            label42.setBounds(465, 0, 185, 40);
+
+                            //---- label43 ----
+                            label43.setText("ID:");
+                            label43.setHorizontalAlignment(SwingConstants.CENTER);
+                            label43.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label43);
+                            label43.setBounds(470, 45, 60, 25);
+
+                            //---- separator9 ----
+                            separator9.setForeground(new Color(0x999999));
+                            invoiceFieldsPanel.add(separator9);
+                            separator9.setBounds(650, 20, 265, 15);
+
+                            //---- vTenantId ----
+                            vTenantId.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantId.setEnabled(false);
+                            vTenantId.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantId);
+                            vTenantId.setBounds(525, 45, 80, 25);
+
+                            //---- label44 ----
+                            label44.setText("Name:");
+                            label44.setHorizontalAlignment(SwingConstants.CENTER);
+                            label44.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label44);
+                            label44.setBounds(625, 45, 75, 25);
+
+                            //---- vTenantName ----
+                            vTenantName.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantName.setEnabled(false);
+                            vTenantName.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantName);
+                            vTenantName.setBounds(700, 45, 200, 25);
+
+                            //---- label45 ----
+                            label45.setText("Owner Details");
+                            label45.setHorizontalAlignment(SwingConstants.CENTER);
+                            label45.setFont(new Font("SimSun", Font.PLAIN, 20));
+                            invoiceFieldsPanel.add(label45);
+                            label45.setBounds(465, 200, 185, 30);
+
+                            //---- separator11 ----
+                            separator11.setForeground(new Color(0x999999));
+                            invoiceFieldsPanel.add(separator11);
+                            separator11.setBounds(650, 215, 265, 15);
+
+                            //---- label46 ----
+                            label46.setText("ID:");
+                            label46.setHorizontalAlignment(SwingConstants.CENTER);
+                            label46.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label46);
+                            label46.setBounds(480, 250, 50, 25);
+
+                            //---- label47 ----
+                            label47.setText("Name:");
+                            label47.setHorizontalAlignment(SwingConstants.CENTER);
+                            label47.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label47);
+                            label47.setBounds(615, 250, 70, 25);
+
+                            //---- label48 ----
+                            label48.setText("Phone:");
+                            label48.setHorizontalAlignment(SwingConstants.CENTER);
+                            label48.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label48);
+                            label48.setBounds(480, 285, 75, 30);
+
+                            //---- vOwnerId ----
+                            vOwnerId.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vOwnerId.setEnabled(false);
+                            vOwnerId.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vOwnerId);
+                            vOwnerId.setBounds(525, 250, 80, 25);
+
+                            //---- vOwnerName ----
+                            vOwnerName.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vOwnerName.setEnabled(false);
+                            vOwnerName.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vOwnerName);
+                            vOwnerName.setBounds(675, 250, 230, 25);
+
+                            //---- vOwnerPhone ----
+                            vOwnerPhone.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vOwnerPhone.setEnabled(false);
+                            vOwnerPhone.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vOwnerPhone);
+                            vOwnerPhone.setBounds(550, 290, 245, 25);
+
+                            //---- label49 ----
+                            label49.setText("Age:");
+                            label49.setHorizontalAlignment(SwingConstants.CENTER);
+                            label49.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label49);
+                            label49.setBounds(475, 90, 55, 25);
+
+                            //---- vTenantAge ----
+                            vTenantAge.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantAge.setEnabled(false);
+                            vTenantAge.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantAge);
+                            vTenantAge.setBounds(530, 90, 65, 25);
+
+                            //---- label50 ----
+                            label50.setText("Phone:");
+                            label50.setHorizontalAlignment(SwingConstants.CENTER);
+                            label50.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label50);
+                            label50.setBounds(615, 90, 75, 25);
+
+                            //---- vTenantPhone ----
+                            vTenantPhone.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantPhone.setEnabled(false);
+                            vTenantPhone.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantPhone);
+                            vTenantPhone.setBounds(685, 90, 210, 30);
+
+                            //---- separator12 ----
+                            separator12.setForeground(new Color(0x999999));
+                            separator12.setOrientation(SwingConstants.VERTICAL);
+                            invoiceFieldsPanel.add(separator12);
+                            separator12.setBounds(915, 20, 10, 380);
+
+                            //---- label52 ----
+                            label52.setText("Email:");
+                            label52.setHorizontalAlignment(SwingConstants.CENTER);
+                            label52.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label52);
+                            label52.setBounds(480, 130, 70, 25);
+
+                            //---- vTenantEmail ----
+                            vTenantEmail.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantEmail.setEnabled(false);
+                            vTenantEmail.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantEmail);
+                            vTenantEmail.setBounds(545, 130, 290, 25);
+
+                            //---- label53 ----
+                            label53.setText("Major:");
+                            label53.setHorizontalAlignment(SwingConstants.CENTER);
+                            label53.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label53);
+                            label53.setBounds(480, 165, 70, 25);
+
+                            //---- vTenantMajor ----
+                            vTenantMajor.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vTenantMajor.setEnabled(false);
+                            vTenantMajor.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vTenantMajor);
+                            vTenantMajor.setBounds(550, 165, 235, 25);
+
+                            //---- label54 ----
+                            label54.setText("Email:");
+                            label54.setHorizontalAlignment(SwingConstants.CENTER);
+                            label54.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label54);
+                            label54.setBounds(480, 325, 75, 30);
+
+                            //---- vOwnerEmail ----
+                            vOwnerEmail.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vOwnerEmail.setEnabled(false);
+                            vOwnerEmail.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vOwnerEmail);
+                            vOwnerEmail.setBounds(550, 330, 245, 25);
+
+                            //---- label51 ----
+                            label51.setText("Rent:");
+                            label51.setHorizontalAlignment(SwingConstants.CENTER);
+                            label51.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label51);
+                            label51.setBounds(25, 135, 75, 30);
+
+                            //---- vBookingRent ----
+                            vBookingRent.setFont(new Font("SimSun", Font.PLAIN, 16));
+                            vBookingRent.setEnabled(false);
+                            vBookingRent.setDisabledTextColor(new Color(0x333333));
+                            invoiceFieldsPanel.add(vBookingRent);
+                            vBookingRent.setBounds(95, 140, 110, 25);
+
+                            //---- label55 ----
+                            label55.setText("Include Water:");
+                            label55.setHorizontalAlignment(SwingConstants.CENTER);
+                            label55.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label55);
+                            label55.setBounds(65, 175, 160, 30);
+
+                            //---- vWaterYes ----
+                            vWaterYes.setText("YES");
+                            vWaterYes.setEnabled(false);
+                            invoiceFieldsPanel.add(vWaterYes);
+                            vWaterYes.setBounds(255, 180, 50, 22);
+
+                            //---- vWaterNo ----
+                            vWaterNo.setText("NO");
+                            vWaterNo.setEnabled(false);
+                            invoiceFieldsPanel.add(vWaterNo);
+                            vWaterNo.setBounds(325, 180, 50, 22);
+
+                            //---- vElectricityYes ----
+                            vElectricityYes.setText("YES");
+                            vElectricityYes.setEnabled(false);
+                            invoiceFieldsPanel.add(vElectricityYes);
+                            vElectricityYes.setBounds(255, 220, 50, 22);
+
+                            //---- vElectricityNo ----
+                            vElectricityNo.setText("NO");
+                            vElectricityNo.setEnabled(false);
+                            invoiceFieldsPanel.add(vElectricityNo);
+                            vElectricityNo.setBounds(325, 220, 50, 22);
+
+                            //---- label56 ----
+                            label56.setText("Include Electricity:");
+                            label56.setHorizontalAlignment(SwingConstants.CENTER);
+                            label56.setFont(new Font("SimSun", Font.PLAIN, 18));
+                            invoiceFieldsPanel.add(label56);
+                            label56.setBounds(10, 210, 220, 30);
+
+                            {
+                                // compute preferred size
+                                Dimension preferredSize = new Dimension();
+                                for(int i = 0; i < invoiceFieldsPanel.getComponentCount(); i++) {
+                                    Rectangle bounds = invoiceFieldsPanel.getComponent(i).getBounds();
+                                    preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                                    preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                                }
+                                Insets insets = invoiceFieldsPanel.getInsets();
+                                preferredSize.width += insets.right;
+                                preferredSize.height += insets.bottom;
+                                invoiceFieldsPanel.setMinimumSize(preferredSize);
+                                invoiceFieldsPanel.setPreferredSize(preferredSize);
+                            }
+                        }
+                        invoiceFieldsContainer.add(invoiceFieldsPanel, "card1");
+                    }
+                    invoicePanel.add(invoiceFieldsContainer);
+                    invoiceFieldsContainer.setBounds(15, 50, 955, 405);
 
                     {
                         // compute preferred size
@@ -1783,52 +1858,197 @@ public class TenantPage extends JFrame {
 
             //======== bookingsPanel ========
             {
-                bookingsPanel.setLayout(null);
+                bookingsPanel.setLayout(new CardLayout());
 
-                //---- label65 ----
-                label65.setText("YOUR BOOKINGS");
-                label65.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20));
-                label65.setForeground(Color.magenta);
-                bookingsPanel.add(label65);
-                label65.setBounds(55, 25, 185, 35);
-
+                //======== allBookingsPanel ========
                 {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < bookingsPanel.getComponentCount(); i++) {
-                        Rectangle bounds = bookingsPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    allBookingsPanel.setLayout(null);
+
+                    //---- label65 ----
+                    label65.setText("YOUR BOOKINGS");
+                    label65.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20));
+                    label65.setForeground(Color.magenta);
+                    allBookingsPanel.add(label65);
+                    label65.setBounds(30, 25, 185, 35);
+
+                    //---- label66 ----
+                    label66.setText("YOUR REQUESTS");
+                    label66.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 20));
+                    label66.setForeground(Color.magenta);
+                    allBookingsPanel.add(label66);
+                    label66.setBounds(30, 235, 185, 35);
+
+                    //======== scrollPane6 ========
+                    {
+
+                        //---- bookingsTable ----
+                        bookingsTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, "", ""},
+                            },
+                            new String[] {
+                                "#", "ID", "Housing", "Date"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = bookingsTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(100);
+                            cm.getColumn(1).setMaxWidth(100);
+                            cm.getColumn(2).setResizable(false);
+                            cm.getColumn(3).setResizable(false);
+                        }
+                        bookingsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane6.setViewportView(bookingsTable);
                     }
-                    Insets insets = bookingsPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    bookingsPanel.setMinimumSize(preferredSize);
-                    bookingsPanel.setPreferredSize(preferredSize);
+                    allBookingsPanel.add(scrollPane6);
+                    scrollPane6.setBounds(55, 70, 555, 162);
+
+                    //======== scrollPane7 ========
+                    {
+
+                        //---- requestsTable ----
+                        requestsTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, "", ""},
+                            },
+                            new String[] {
+                                "#", "ID", "Housing", "Date"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = requestsTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(100);
+                            cm.getColumn(1).setMaxWidth(100);
+                            cm.getColumn(2).setResizable(false);
+                            cm.getColumn(3).setResizable(false);
+                        }
+                        requestsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane7.setViewportView(requestsTable);
+                    }
+                    allBookingsPanel.add(scrollPane7);
+                    scrollPane7.setBounds(50, 280, 560, 162);
+
+                    //---- bookingDetailsButton ----
+                    bookingDetailsButton.setText("Details");
+                    bookingDetailsButton.addActionListener(e -> bookingDetails());
+                    allBookingsPanel.add(bookingDetailsButton);
+                    bookingDetailsButton.setBounds(720, 100, 130, 40);
+
+                    //---- bookingDeleteButton ----
+                    bookingDeleteButton.setText("Delete");
+                    allBookingsPanel.add(bookingDeleteButton);
+                    bookingDeleteButton.setBounds(720, 165, 130, 40);
+
+                    //---- bookingDetailsButton2 ----
+                    bookingDetailsButton2.setText("Details");
+                    allBookingsPanel.add(bookingDetailsButton2);
+                    bookingDetailsButton2.setBounds(720, 300, 130, 40);
+
+                    //---- bookingDeleteButton2 ----
+                    bookingDeleteButton2.setText("Delete");
+                    allBookingsPanel.add(bookingDeleteButton2);
+                    bookingDeleteButton2.setBounds(720, 365, 130, 40);
+                    allBookingsPanel.add(separator19);
+                    separator19.setBounds(635, 250, 320, 10);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < allBookingsPanel.getComponentCount(); i++) {
+                            Rectangle bounds = allBookingsPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = allBookingsPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        allBookingsPanel.setMinimumSize(preferredSize);
+                        allBookingsPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                bookingsPanel.add(allBookingsPanel, "card1");
+
+                //======== invoicePanel2 ========
+                {
+                    invoicePanel2.setLayout(null);
+
+                    //---- closeInvoicePanel2 ----
+                    closeInvoicePanel2.setIcon(null);
+                    closeInvoicePanel2.setText("X");
+                    closeInvoicePanel2.setHorizontalAlignment(SwingConstants.CENTER);
+                    closeInvoicePanel2.setFont(new Font("Snap ITC", Font.PLAIN, 28));
+                    closeInvoicePanel2.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            closeInvoicePanel2MouseClicked();
+                        }
+                    });
+                    invoicePanel2.add(closeInvoicePanel2);
+                    closeInvoicePanel2.setBounds(925, 5, 40, 35);
+
+                    //======== invoiceFieldsContainer2 ========
+                    {
+                        invoiceFieldsContainer2.setLayout(new CardLayout());
+                    }
+                    invoicePanel2.add(invoiceFieldsContainer2);
+                    invoiceFieldsContainer2.setBounds(15, 45, 960, 410);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < invoicePanel2.getComponentCount(); i++) {
+                            Rectangle bounds = invoicePanel2.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = invoicePanel2.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        invoicePanel2.setMinimumSize(preferredSize);
+                        invoicePanel2.setPreferredSize(preferredSize);
+                    }
+                }
+                bookingsPanel.add(invoicePanel2, "card3");
             }
             mainPanel.addTab("BOOKING", bookingsPanel);
-
-            //======== salesPanel ========
-            {
-                salesPanel.setLayout(null);
-
-                {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < salesPanel.getComponentCount(); i++) {
-                        Rectangle bounds = salesPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-                    }
-                    Insets insets = salesPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    salesPanel.setMinimumSize(preferredSize);
-                    salesPanel.setPreferredSize(preferredSize);
-                }
-            }
-            mainPanel.addTab("SALES", salesPanel);
         }
         contentPane.add(mainPanel);
         mainPanel.setBounds(0, 0, 985, 505);
@@ -1978,7 +2198,7 @@ public class TenantPage extends JFrame {
     private JButton editProfileButton;
     private JButton saveProfileButton;
     private JLabel accountPanelMessageLabel;
-    private JButton changePassowrdButton;
+    private JButton changePasswordButton;
     private JSeparator separator2;
     private JLabel label10;
     private JLabel label11;
@@ -2032,6 +2252,9 @@ public class TenantPage extends JFrame {
     private JLabel closeOneHouse;
     private JPanel invoicePanel;
     private JLabel label13;
+    private JLabel closeInvoicePanel;
+    private JPanel invoiceFieldsContainer;
+    private JPanel invoiceFieldsPanel;
     private JLabel label33;
     private JLabel label34;
     private JSeparator separator5;
@@ -2071,7 +2294,6 @@ public class TenantPage extends JFrame {
     private JLabel label50;
     private JTextField vTenantPhone;
     private JSeparator separator12;
-    private JLabel closeInvoicePanel;
     private JLabel label52;
     private JTextField vTenantEmail;
     private JLabel label53;
@@ -2121,7 +2343,20 @@ public class TenantPage extends JFrame {
     private JButton addFurnitureSubmitButton;
     private JButton addFurnitureButton2;
     private JPanel bookingsPanel;
+    private JPanel allBookingsPanel;
     private JLabel label65;
-    private JPanel salesPanel;
+    private JLabel label66;
+    private JScrollPane scrollPane6;
+    private JTable bookingsTable;
+    private JScrollPane scrollPane7;
+    private JTable requestsTable;
+    private JButton bookingDetailsButton;
+    private JButton bookingDeleteButton;
+    private JButton bookingDetailsButton2;
+    private JButton bookingDeleteButton2;
+    private JSeparator separator19;
+    private JPanel invoicePanel2;
+    private JLabel closeInvoicePanel2;
+    private JPanel invoiceFieldsContainer2;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

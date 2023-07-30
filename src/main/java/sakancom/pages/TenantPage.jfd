@@ -188,10 +188,10 @@ new FormModel {
 						"height": 30
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "changePassowrdButton"
+						name: "changePasswordButton"
 						"text": "Change your password"
 						"font": new java.awt.Font( "Segoe UI Historic", 0, 16 )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "changePassowrd", false ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "changePassword", false ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 						"width": 205
 						"height": 30
@@ -751,424 +751,6 @@ new FormModel {
 							"height": 35
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label33"
-							"text": "Booking Details"
-							"horizontalAlignment": 0
-							"font": &Font6 new java.awt.Font( "SimSun", 0, 20 )
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"x": 20
-							"y": 45
-							"width": 185
-							"height": 40
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label34"
-							"text": "ID:"
-							"horizontalAlignment": 0
-							"font": &Font7 new java.awt.Font( "SimSun", 0, 18 )
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 55
-							"height": 25
-							"x": 30
-							"y": 95
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator5"
-							"foreground": &Color3 new java.awt.Color( 153, 153, 153, 255 )
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"x": 205
-							"y": 65
-							"width": 265
-							"height": 15
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator6"
-							"foreground": #Color3
-							"orientation": 1
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 10
-							"height": 380
-							"x": 15
-							"y": 65
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vBookingId"
-							"font": &Font8 new java.awt.Font( "SimSun", 0, 16 )
-							"enabled": false
-							"disabledTextColor": &Color4 new java.awt.Color( 51, 51, 51, 255 )
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"x": 80
-							"y": 95
-							"width": 90
-							"height": 25
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label35"
-							"text": "Date:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 65
-							"height": 25
-							"x": 180
-							"y": 95
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vBookingDate"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 220
-							"height": 25
-							"x": 240
-							"y": 95
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label36"
-							"text": "Housing Details"
-							"horizontalAlignment": 0
-							"font": #Font6
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 185
-							"height": 40
-							"x": 20
-							"y": 290
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator7"
-							"foreground": #Color3
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 265
-							"height": 15
-							"x": 205
-							"y": 310
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label37"
-							"text": "ID:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 30
-							"x": 30
-							"y": 345
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label38"
-							"text": "Name:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 65
-							"height": 30
-							"x": 175
-							"y": 345
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label39"
-							"text": "Location:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 105
-							"height": 30
-							"x": 45
-							"y": 395
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vHousingId"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 80
-							"height": 25
-							"x": 80
-							"y": 350
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vHousingName"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 225
-							"height": 30
-							"x": 235
-							"y": 345
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vHousingLocation"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 290
-							"height": 30
-							"x": 150
-							"y": 395
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label40"
-							"text": "Floor:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 80
-							"height": 30
-							"x": 35
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vBookingFloor"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 60
-							"height": 25
-							"x": 115
-							"y": 140
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label41"
-							"text": "Apartment:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 120
-							"height": 30
-							"x": 185
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vBookingApart"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 60
-							"height": 25
-							"x": 310
-							"y": 140
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator8"
-							"foreground": #Color3
-							"orientation": 1
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 10
-							"height": 380
-							"x": 470
-							"y": 65
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label42"
-							"text": "Tenant Details"
-							"horizontalAlignment": 0
-							"font": #Font6
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 185
-							"height": 40
-							"x": 480
-							"y": 45
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label43"
-							"text": "ID:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 60
-							"height": 25
-							"x": 485
-							"y": 90
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator9"
-							"foreground": #Color3
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 265
-							"height": 15
-							"x": 665
-							"y": 65
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantId"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 80
-							"height": 25
-							"x": 540
-							"y": 90
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label44"
-							"text": "Name:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 75
-							"height": 25
-							"x": 640
-							"y": 90
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantName"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 200
-							"height": 25
-							"x": 715
-							"y": 90
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label45"
-							"text": "Owner Details"
-							"horizontalAlignment": 0
-							"font": #Font6
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 185
-							"height": 30
-							"x": 480
-							"y": 245
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator11"
-							"foreground": #Color3
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 265
-							"height": 15
-							"x": 665
-							"y": 260
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label46"
-							"text": "ID:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 25
-							"x": 495
-							"y": 295
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label47"
-							"text": "Name:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 70
-							"height": 25
-							"x": 630
-							"y": 295
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label48"
-							"text": "Phone:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 75
-							"height": 30
-							"x": 495
-							"y": 330
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vOwnerId"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 80
-							"height": 25
-							"x": 540
-							"y": 295
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vOwnerName"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 230
-							"height": 25
-							"x": 690
-							"y": 295
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vOwnerPhone"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 245
-							"height": 25
-							"x": 565
-							"y": 335
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label49"
-							"text": "Age:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 55
-							"height": 25
-							"x": 490
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantAge"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 65
-							"height": 25
-							"x": 545
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label50"
-							"text": "Phone:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 75
-							"height": 25
-							"x": 630
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantPhone"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 210
-							"height": 30
-							"x": 700
-							"y": 135
-						} )
-						add( new FormComponent( "javax.swing.JSeparator" ) {
-							name: "separator12"
-							"foreground": #Color3
-							"orientation": 1
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 10
-							"height": 380
-							"x": 930
-							"y": 65
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "closeInvoicePanel"
 							"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"text": "X"
@@ -1181,155 +763,586 @@ new FormModel {
 							"x": 925
 							"y": 5
 						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label52"
-							"text": "Email:"
-							"horizontalAlignment": 0
-							"font": #Font7
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+							name: "invoiceFieldsContainer"
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+								name: "invoiceFieldsPanel"
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label33"
+									"text": "Booking Details"
+									"horizontalAlignment": 0
+									"font": &Font6 new java.awt.Font( "SimSun", 0, 20 )
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 185
+									"height": 40
+									"x": 5
+									"y": 0
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label34"
+									"text": "ID:"
+									"horizontalAlignment": 0
+									"font": &Font7 new java.awt.Font( "SimSun", 0, 18 )
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 55
+									"height": 25
+									"x": 15
+									"y": 50
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator5"
+									"foreground": &Color3 new java.awt.Color( 153, 153, 153, 255 )
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 265
+									"height": 15
+									"x": 190
+									"y": 20
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator6"
+									"foreground": #Color3
+									"orientation": 1
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 10
+									"height": 380
+									"x": 0
+									"y": 20
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vBookingId"
+									"font": &Font8 new java.awt.Font( "SimSun", 0, 16 )
+									"enabled": false
+									"disabledTextColor": &Color4 new java.awt.Color( 51, 51, 51, 255 )
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 90
+									"height": 25
+									"x": 65
+									"y": 50
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label35"
+									"text": "Date:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 65
+									"height": 25
+									"x": 165
+									"y": 50
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vBookingDate"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 220
+									"height": 25
+									"x": 225
+									"y": 50
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label36"
+									"text": "Housing Details"
+									"horizontalAlignment": 0
+									"font": #Font6
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 185
+									"height": 40
+									"x": 5
+									"y": 245
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator7"
+									"foreground": #Color3
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 265
+									"height": 15
+									"x": 190
+									"y": 265
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label37"
+									"text": "ID:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 30
+									"x": 15
+									"y": 300
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label38"
+									"text": "Name:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 65
+									"height": 30
+									"x": 160
+									"y": 300
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label39"
+									"text": "Location:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 105
+									"height": 30
+									"x": 30
+									"y": 350
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vHousingId"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 80
+									"height": 25
+									"x": 65
+									"y": 305
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vHousingName"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 225
+									"height": 30
+									"x": 220
+									"y": 300
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vHousingLocation"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 290
+									"height": 30
+									"x": 135
+									"y": 350
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label40"
+									"text": "Floor:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 80
+									"height": 30
+									"x": 20
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vBookingFloor"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 60
+									"height": 25
+									"x": 100
+									"y": 95
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label41"
+									"text": "Apartment:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 120
+									"height": 30
+									"x": 170
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vBookingApart"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 60
+									"height": 25
+									"x": 295
+									"y": 95
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator8"
+									"foreground": #Color3
+									"orientation": 1
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 10
+									"height": 380
+									"x": 455
+									"y": 20
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label42"
+									"text": "Tenant Details"
+									"horizontalAlignment": 0
+									"font": #Font6
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 185
+									"height": 40
+									"x": 465
+									"y": 0
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label43"
+									"text": "ID:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 60
+									"height": 25
+									"x": 470
+									"y": 45
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator9"
+									"foreground": #Color3
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 265
+									"height": 15
+									"x": 650
+									"y": 20
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantId"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 80
+									"height": 25
+									"x": 525
+									"y": 45
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label44"
+									"text": "Name:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 75
+									"height": 25
+									"x": 625
+									"y": 45
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantName"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 200
+									"height": 25
+									"x": 700
+									"y": 45
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label45"
+									"text": "Owner Details"
+									"horizontalAlignment": 0
+									"font": #Font6
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 185
+									"height": 30
+									"x": 465
+									"y": 200
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator11"
+									"foreground": #Color3
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 265
+									"height": 15
+									"x": 650
+									"y": 215
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label46"
+									"text": "ID:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 25
+									"x": 480
+									"y": 250
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label47"
+									"text": "Name:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 70
+									"height": 25
+									"x": 615
+									"y": 250
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label48"
+									"text": "Phone:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 75
+									"height": 30
+									"x": 480
+									"y": 285
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vOwnerId"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 80
+									"height": 25
+									"x": 525
+									"y": 250
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vOwnerName"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 230
+									"height": 25
+									"x": 675
+									"y": 250
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vOwnerPhone"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 245
+									"height": 25
+									"x": 550
+									"y": 290
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label49"
+									"text": "Age:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 55
+									"height": 25
+									"x": 475
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantAge"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 65
+									"height": 25
+									"x": 530
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label50"
+									"text": "Phone:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 75
+									"height": 25
+									"x": 615
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantPhone"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 210
+									"height": 30
+									"x": 685
+									"y": 90
+								} )
+								add( new FormComponent( "javax.swing.JSeparator" ) {
+									name: "separator12"
+									"foreground": #Color3
+									"orientation": 1
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 10
+									"height": 380
+									"x": 915
+									"y": 20
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label52"
+									"text": "Email:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 70
+									"height": 25
+									"x": 480
+									"y": 130
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantEmail"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 290
+									"height": 25
+									"x": 545
+									"y": 130
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label53"
+									"text": "Major:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 70
+									"height": 25
+									"x": 480
+									"y": 165
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vTenantMajor"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 235
+									"height": 25
+									"x": 550
+									"y": 165
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label54"
+									"text": "Email:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 75
+									"height": 30
+									"x": 480
+									"y": 325
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vOwnerEmail"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 245
+									"height": 25
+									"x": 550
+									"y": 330
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label51"
+									"text": "Rent:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 75
+									"height": 30
+									"x": 25
+									"y": 135
+								} )
+								add( new FormComponent( "javax.swing.JTextField" ) {
+									name: "vBookingRent"
+									"font": #Font8
+									"enabled": false
+									"disabledTextColor": #Color4
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 110
+									"height": 25
+									"x": 95
+									"y": 140
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label55"
+									"text": "Include Water:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 160
+									"height": 30
+									"x": 65
+									"y": 175
+								} )
+								add( new FormComponent( "javax.swing.JRadioButton" ) {
+									name: "vWaterYes"
+									"text": "YES"
+									"enabled": false
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 22
+									"x": 255
+									"y": 180
+								} )
+								add( new FormComponent( "javax.swing.JRadioButton" ) {
+									name: "vWaterNo"
+									"text": "NO"
+									"enabled": false
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 22
+									"x": 325
+									"y": 180
+								} )
+								add( new FormComponent( "javax.swing.JRadioButton" ) {
+									name: "vElectricityYes"
+									"text": "YES"
+									"enabled": false
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 22
+									"x": 255
+									"y": 220
+								} )
+								add( new FormComponent( "javax.swing.JRadioButton" ) {
+									name: "vElectricityNo"
+									"text": "NO"
+									"enabled": false
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 50
+									"height": 22
+									"x": 325
+									"y": 220
+								} )
+								add( new FormComponent( "javax.swing.JLabel" ) {
+									name: "label56"
+									"text": "Include Electricity:"
+									"horizontalAlignment": 0
+									"font": #Font7
+								}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+									"width": 220
+									"height": 30
+									"x": 10
+									"y": 210
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "card1"
+							} )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 70
-							"height": 25
-							"x": 495
-							"y": 175
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantEmail"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 290
-							"height": 25
-							"x": 560
-							"y": 175
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label53"
-							"text": "Major:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 70
-							"height": 25
-							"x": 495
-							"y": 210
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vTenantMajor"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 235
-							"height": 25
-							"x": 565
-							"y": 210
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label54"
-							"text": "Email:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 75
-							"height": 30
-							"x": 495
-							"y": 370
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vOwnerEmail"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 245
-							"height": 25
-							"x": 565
-							"y": 375
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label51"
-							"text": "Rent:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 75
-							"height": 30
-							"x": 40
-							"y": 180
-						} )
-						add( new FormComponent( "javax.swing.JTextField" ) {
-							name: "vBookingRent"
-							"font": #Font8
-							"enabled": false
-							"disabledTextColor": #Color4
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 110
-							"height": 25
-							"x": 110
-							"y": 185
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label55"
-							"text": "Include Water:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 160
-							"height": 30
-							"x": 80
-							"y": 220
-						} )
-						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "vWaterYes"
-							"text": "YES"
-							"enabled": false
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 22
-							"x": 270
-							"y": 225
-						} )
-						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "vWaterNo"
-							"text": "NO"
-							"enabled": false
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 22
-							"x": 340
-							"y": 225
-						} )
-						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "vElectricityYes"
-							"text": "YES"
-							"enabled": false
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 22
-							"x": 270
-							"y": 265
-						} )
-						add( new FormComponent( "javax.swing.JRadioButton" ) {
-							name: "vElectricityNo"
-							"text": "NO"
-							"enabled": false
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 50
-							"height": 22
-							"x": 340
-							"y": 265
-						} )
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label56"
-							"text": "Include Electricity:"
-							"horizontalAlignment": 0
-							"font": #Font7
-						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-							"width": 220
-							"height": 30
-							"x": 25
-							"y": 255
+							"x": 15
+							"y": 50
+							"height": 405
+							"width": 955
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "card3"
@@ -1681,26 +1694,161 @@ new FormModel {
 				}, new FormLayoutConstraints( null ) {
 					"title": "FURNITURES"
 				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
 					name: "bookingsPanel"
-					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "label65"
-						"text": "YOUR BOOKINGS"
-						"font": new java.awt.Font( "Segoe UI Semilight", 0, 20 )
-						"foreground": sfield java.awt.Color magenta
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-						"x": 55
-						"y": 25
-						"width": 185
-						"height": 35
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+						name: "allBookingsPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label65"
+							"text": "YOUR BOOKINGS"
+							"font": &Font13 new java.awt.Font( "Segoe UI Semilight", 0, 20 )
+							"foreground": sfield java.awt.Color magenta
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 185
+							"height": 35
+							"x": 30
+							"y": 25
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label66"
+							"text": "YOUR REQUESTS"
+							"font": #Font13
+							"foreground": sfield java.awt.Color magenta
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 185
+							"height": 35
+							"x": 30
+							"y": 235
+						} )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPane6"
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "bookingsTable"
+								"model": &SwingTableModel0 new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+									add( new java.util.Vector {
+										add( null )
+										add( null )
+										add( "" )
+										add( "" )
+									} )
+								}, new java.util.Vector {
+									add( "#" )
+									add( "ID" )
+									add( "Housing" )
+									add( "Date" )
+								}, new java.util.Vector {
+									add( class java.lang.Integer )
+									add( class java.lang.Long )
+									add( class java.lang.String )
+									add( class java.lang.String )
+								}, new java.util.Vector {
+									add( false )
+									add( false )
+									add( false )
+									add( false )
+								}, new java.util.Vector {
+									add( new com.jformdesigner.model.SwingTableColumn( null, 0, 50, 50, false ) )
+									add( new com.jformdesigner.model.SwingTableColumn( null, 0, 100, 100, false ) )
+									add( new com.jformdesigner.model.SwingTableColumn( null, 0, 0, 0, false ) )
+									add( new com.jformdesigner.model.SwingTableColumn( null, 0, 0, 0, false ) )
+								} )
+								"selectionMode": 0
+							} )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"x": 55
+							"y": 70
+							"height": 162
+							"width": 555
+						} )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPane7"
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "requestsTable"
+								"model": #SwingTableModel0
+								"selectionMode": 0
+							} )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 560
+							"height": 162
+							"x": 50
+							"y": 280
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "bookingDetailsButton"
+							"text": "Details"
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "bookingDetails", false ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"x": 720
+							"y": 100
+							"width": 130
+							"height": 40
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "bookingDeleteButton"
+							"text": "Delete"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 130
+							"height": 40
+							"x": 720
+							"y": 165
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "bookingDetailsButton2"
+							"text": "Details"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 130
+							"height": 40
+							"x": 720
+							"y": 300
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "bookingDeleteButton2"
+							"text": "Delete"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 130
+							"height": 40
+							"x": 720
+							"y": 365
+						} )
+						add( new FormComponent( "javax.swing.JSeparator" ) {
+							name: "separator19"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"x": 635
+							"y": 250
+							"height": 10
+							"width": 320
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "card1"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
+						name: "invoicePanel2"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "closeInvoicePanel2"
+							"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
+							"text": "X"
+							"horizontalAlignment": 0
+							"font": #Font5
+							addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "closeInvoicePanel2MouseClicked", false ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"width": 40
+							"height": 35
+							"x": 925
+							"y": 5
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+							name: "invoiceFieldsContainer2"
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
+							"x": 15
+							"y": 45
+							"height": 410
+							"width": 960
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "card3"
 					} )
 				}, new FormLayoutConstraints( null ) {
 					"title": "BOOKING"
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jformdesigner.runtime.NullLayout ) ) {
-					name: "salesPanel"
-				}, new FormLayoutConstraints( null ) {
-					"title": "SALES"
 				} )
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
 				"x": 0
