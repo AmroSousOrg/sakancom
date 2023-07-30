@@ -11,8 +11,8 @@ public class Main {
 
         Application.openLoginPage();
         LoginPage page = (LoginPage) Application.openedPage;
-        page.setCredentials("Admin", "Admin");
-        page.setRoleCombo(LoginPage.ADMIN);
+        page.setCredentials("Amro Sous", "123");
+        page.setRoleCombo(LoginPage.TENANT);
         page.pressSubmitButton();
     }
 }

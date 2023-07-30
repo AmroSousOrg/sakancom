@@ -42,6 +42,8 @@ public class AdminPage extends JFrame {
         fillReservationsTable();
         fillFurnitureTable();
         fillRequestsTable();
+        fillTenantsTable();
+        fillOwnersTable();
 
         housesTable.getTableHeader().setReorderingAllowed(false);
         furnitureTable.getTableHeader().setReorderingAllowed(false);
@@ -49,6 +51,71 @@ public class AdminPage extends JFrame {
         requestsTable.getTableHeader().setReorderingAllowed(false);
 
         furnitureTable.getSelectionModel().addListSelectionListener(e -> furnitureTableSelectionChanged());
+        tenantsTable.getSelectionModel().addListSelectionListener(e -> tenantsTableSelectionChanged());
+        ownersTable.getSelectionModel().addListSelectionListener(e -> ownersTableSelectionChanged());
+    }
+
+    private void fillOwnersTable() {
+        String query = "select owner_id, name from owners";
+        Functions.fillTable(query, ownersTable);
+    }
+
+    private void fillTenantsTable() {
+        String query = "select tenant_id, name from tenants";
+        Functions.fillTable(query, tenantsTable);
+    }
+
+    private void ownersTableSelectionChanged() {
+        int selectedRow = ownersTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        try {
+            long ownerId = (long) ownersTable.getValueAt(selectedRow, 1);
+            Connection conn = Database.makeConnection();
+            String query = "select * from owners where owner_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setLong(1, ownerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                ownerIdField.setText(String.valueOf(rs.getLong("owner_id")));
+                ownerNameField.setText(rs.getString("name"));
+                ownerPhoneField.setText(rs.getString("phone"));
+                ownerEmailField.setText(rs.getString("email"));
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException ignored) {
+        }
+    }
+
+    private void tenantsTableSelectionChanged() {
+        int selectedRow = tenantsTable.getSelectedRow();
+        if (selectedRow == -1) return;
+
+        try {
+            long id = (long) tenantsTable.getValueAt(selectedRow, 1);
+            Connection conn = Database.makeConnection();
+            String query = "select * from tenants where tenant_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                tenantId.setText(String.valueOf(rs.getLong("tenant_id")));
+                tenantName.setText(rs.getString("name"));
+                tenantPhone.setText(rs.getString("phone"));
+                tenantEmail.setText(rs.getString("email"));
+                tenantAge.setText(rs.getString("age"));
+                tenantMajor.setText(rs.getString("university_major"));
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException ignored) {
+        }
     }
 
     public void fillHousesTable() {
@@ -864,7 +931,37 @@ public class AdminPage extends JFrame {
         closeOneHouse2 = new JLabel();
         rejectRequestButton = new JButton();
         tenantsPanel = new JPanel();
+        allTenantsPanel = new JPanel();
+        textField9 = new JTextField();
+        label66 = new JLabel();
+        scrollPane8 = new JScrollPane();
+        tenantsTable = new JTable();
+        label67 = new JLabel();
+        tenantId = new JTextField();
+        label68 = new JLabel();
+        tenantName = new JTextField();
+        label69 = new JLabel();
+        tenantPhone = new JTextField();
+        label70 = new JLabel();
+        tenantEmail = new JTextField();
+        label71 = new JLabel();
+        tenantAge = new JTextField();
+        label72 = new JLabel();
+        tenantMajor = new JTextField();
         ownersPanel = new JPanel();
+        allOwnersPanel = new JPanel();
+        textField10 = new JTextField();
+        label73 = new JLabel();
+        scrollPane9 = new JScrollPane();
+        ownersTable = new JTable();
+        label74 = new JLabel();
+        ownerIdField = new JTextField();
+        label75 = new JLabel();
+        ownerNameField = new JTextField();
+        label76 = new JLabel();
+        ownerPhoneField = new JTextField();
+        label77 = new JLabel();
+        ownerEmailField = new JTextField();
 
         //======== this ========
         var contentPane = getContentPane();
@@ -876,13 +973,11 @@ public class AdminPage extends JFrame {
 
             //======== homePanel ========
             {
-                homePanel.setBorder(new javax.swing.border.CompoundBorder(new javax.swing.border.TitledBorder(new
-                javax.swing.border.EmptyBorder(0,0,0,0), "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn",javax
-                .swing.border.TitledBorder.CENTER,javax.swing.border.TitledBorder.BOTTOM,new java
-                .awt.Font("Dia\u006cog",java.awt.Font.BOLD,12),java.awt
-                .Color.red),homePanel. getBorder()));homePanel. addPropertyChangeListener(new java.beans.
-                PropertyChangeListener(){@Override public void propertyChange(java.beans.PropertyChangeEvent e){if("\u0062ord\u0065r".
-                equals(e.getPropertyName()))throw new RuntimeException();}});
+                homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing. border .EmptyBorder (
+                0, 0 ,0 , 0) ,  "JF\u006frmD\u0065sig\u006eer \u0045val\u0075ati\u006fn" , javax. swing .border . TitledBorder. CENTER ,javax . swing. border .TitledBorder
+                . BOTTOM, new java. awt .Font ( "Dia\u006cog", java .awt . Font. BOLD ,12 ) ,java . awt. Color .
+                red ) ,homePanel. getBorder () ) ); homePanel. addPropertyChangeListener( new java. beans .PropertyChangeListener ( ){ @Override public void propertyChange (java .
+                beans. PropertyChangeEvent e) { if( "\u0062ord\u0065r" .equals ( e. getPropertyName () ) )throw new RuntimeException( ) ;} } );
                 homePanel.setLayout(null);
 
                 {
@@ -2407,43 +2502,293 @@ public class AdminPage extends JFrame {
 
             //======== tenantsPanel ========
             {
-                tenantsPanel.setLayout(null);
+                tenantsPanel.setLayout(new CardLayout());
 
+                //======== allTenantsPanel ========
                 {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < tenantsPanel.getComponentCount(); i++) {
-                        Rectangle bounds = tenantsPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    allTenantsPanel.setLayout(null);
+
+                    //---- textField9 ----
+                    textField9.setToolTipText("search by name");
+                    textField9.setFont(new Font(Font.SERIF, Font.PLAIN, 18));
+                    allTenantsPanel.add(textField9);
+                    textField9.setBounds(40, 25, 280, 33);
+
+                    //---- label66 ----
+                    label66.setIcon(new ImageIcon(getClass().getResource("/images/searchIcon.png")));
+                    allTenantsPanel.add(label66);
+                    label66.setBounds(350, 25, 30, 30);
+
+                    //======== scrollPane8 ========
+                    {
+
+                        //---- tenantsTable ----
+                        tenantsTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, null},
+                            },
+                            new String[] {
+                                "#", "ID", "Name"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = tenantsTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(110);
+                            cm.getColumn(1).setMaxWidth(110);
+                            cm.getColumn(2).setResizable(false);
+                        }
+                        tenantsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane8.setViewportView(tenantsTable);
                     }
-                    Insets insets = tenantsPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    tenantsPanel.setMinimumSize(preferredSize);
-                    tenantsPanel.setPreferredSize(preferredSize);
+                    allTenantsPanel.add(scrollPane8);
+                    scrollPane8.setBounds(35, 100, 415, 320);
+
+                    //---- label67 ----
+                    label67.setText("ID:");
+                    label67.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label67);
+                    label67.setBounds(515, 65, 95, 35);
+
+                    //---- tenantId ----
+                    tenantId.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantId.setEnabled(false);
+                    tenantId.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantId);
+                    tenantId.setBounds(610, 65, 150, 35);
+
+                    //---- label68 ----
+                    label68.setText("Name:");
+                    label68.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label68);
+                    label68.setBounds(515, 120, 95, 35);
+
+                    //---- tenantName ----
+                    tenantName.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantName.setEnabled(false);
+                    tenantName.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantName);
+                    tenantName.setBounds(610, 120, 210, 35);
+
+                    //---- label69 ----
+                    label69.setText("Phone:");
+                    label69.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label69);
+                    label69.setBounds(515, 175, 95, 35);
+
+                    //---- tenantPhone ----
+                    tenantPhone.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantPhone.setEnabled(false);
+                    tenantPhone.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantPhone);
+                    tenantPhone.setBounds(610, 175, 175, 35);
+
+                    //---- label70 ----
+                    label70.setText("Email:");
+                    label70.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label70);
+                    label70.setBounds(515, 230, 95, 35);
+
+                    //---- tenantEmail ----
+                    tenantEmail.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantEmail.setEnabled(false);
+                    tenantEmail.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantEmail);
+                    tenantEmail.setBounds(610, 230, 245, 35);
+
+                    //---- label71 ----
+                    label71.setText("Age:");
+                    label71.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label71);
+                    label71.setBounds(515, 290, 95, 35);
+
+                    //---- tenantAge ----
+                    tenantAge.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantAge.setEnabled(false);
+                    tenantAge.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantAge);
+                    tenantAge.setBounds(610, 290, 85, 35);
+
+                    //---- label72 ----
+                    label72.setText("Major:");
+                    label72.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label72);
+                    label72.setBounds(515, 345, 95, 35);
+
+                    //---- tenantMajor ----
+                    tenantMajor.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantMajor.setEnabled(false);
+                    tenantMajor.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantMajor);
+                    tenantMajor.setBounds(610, 350, 190, 35);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < allTenantsPanel.getComponentCount(); i++) {
+                            Rectangle bounds = allTenantsPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = allTenantsPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        allTenantsPanel.setMinimumSize(preferredSize);
+                        allTenantsPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                tenantsPanel.add(allTenantsPanel, "card1");
             }
             mainPanel.addTab("TENANTS", tenantsPanel);
 
             //======== ownersPanel ========
             {
-                ownersPanel.setLayout(null);
+                ownersPanel.setLayout(new CardLayout());
 
+                //======== allOwnersPanel ========
                 {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < ownersPanel.getComponentCount(); i++) {
-                        Rectangle bounds = ownersPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    allOwnersPanel.setLayout(null);
+
+                    //---- textField10 ----
+                    textField10.setToolTipText("search by name");
+                    textField10.setFont(new Font(Font.SERIF, Font.PLAIN, 18));
+                    allOwnersPanel.add(textField10);
+                    textField10.setBounds(40, 25, 280, 33);
+
+                    //---- label73 ----
+                    label73.setIcon(new ImageIcon(getClass().getResource("/images/searchIcon.png")));
+                    allOwnersPanel.add(label73);
+                    label73.setBounds(350, 25, 30, 30);
+
+                    //======== scrollPane9 ========
+                    {
+
+                        //---- ownersTable ----
+                        ownersTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, null},
+                            },
+                            new String[] {
+                                "#", "ID", "Name"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = ownersTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(110);
+                            cm.getColumn(1).setMaxWidth(110);
+                            cm.getColumn(2).setResizable(false);
+                        }
+                        ownersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane9.setViewportView(ownersTable);
                     }
-                    Insets insets = ownersPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    ownersPanel.setMinimumSize(preferredSize);
-                    ownersPanel.setPreferredSize(preferredSize);
+                    allOwnersPanel.add(scrollPane9);
+                    scrollPane9.setBounds(35, 100, 415, 320);
+
+                    //---- label74 ----
+                    label74.setText("ID:");
+                    label74.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label74);
+                    label74.setBounds(515, 65, 95, 35);
+
+                    //---- ownerIdField ----
+                    ownerIdField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerIdField.setEnabled(false);
+                    ownerIdField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerIdField);
+                    ownerIdField.setBounds(610, 65, 150, 35);
+
+                    //---- label75 ----
+                    label75.setText("Name:");
+                    label75.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label75);
+                    label75.setBounds(515, 120, 95, 35);
+
+                    //---- ownerNameField ----
+                    ownerNameField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerNameField.setEnabled(false);
+                    ownerNameField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerNameField);
+                    ownerNameField.setBounds(610, 120, 210, 35);
+
+                    //---- label76 ----
+                    label76.setText("Phone:");
+                    label76.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label76);
+                    label76.setBounds(515, 175, 95, 35);
+
+                    //---- ownerPhoneField ----
+                    ownerPhoneField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerPhoneField.setEnabled(false);
+                    ownerPhoneField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerPhoneField);
+                    ownerPhoneField.setBounds(610, 175, 175, 35);
+
+                    //---- label77 ----
+                    label77.setText("Email:");
+                    label77.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label77);
+                    label77.setBounds(515, 230, 95, 35);
+
+                    //---- ownerEmailField ----
+                    ownerEmailField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerEmailField.setEnabled(false);
+                    ownerEmailField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerEmailField);
+                    ownerEmailField.setBounds(610, 230, 245, 35);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < allOwnersPanel.getComponentCount(); i++) {
+                            Rectangle bounds = allOwnersPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = allOwnersPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        allOwnersPanel.setMinimumSize(preferredSize);
+                        allOwnersPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                ownersPanel.add(allOwnersPanel, "card1");
             }
             mainPanel.addTab("OWNERS", ownersPanel);
         }
@@ -2669,6 +3014,36 @@ public class AdminPage extends JFrame {
     private JLabel closeOneHouse2;
     private JButton rejectRequestButton;
     private JPanel tenantsPanel;
+    private JPanel allTenantsPanel;
+    private JTextField textField9;
+    private JLabel label66;
+    private JScrollPane scrollPane8;
+    private JTable tenantsTable;
+    private JLabel label67;
+    private JTextField tenantId;
+    private JLabel label68;
+    private JTextField tenantName;
+    private JLabel label69;
+    private JTextField tenantPhone;
+    private JLabel label70;
+    private JTextField tenantEmail;
+    private JLabel label71;
+    private JTextField tenantAge;
+    private JLabel label72;
+    private JTextField tenantMajor;
     private JPanel ownersPanel;
+    private JPanel allOwnersPanel;
+    private JTextField textField10;
+    private JLabel label73;
+    private JScrollPane scrollPane9;
+    private JTable ownersTable;
+    private JLabel label74;
+    private JTextField ownerIdField;
+    private JLabel label75;
+    private JTextField ownerNameField;
+    private JLabel label76;
+    private JTextField ownerPhoneField;
+    private JLabel label77;
+    private JTextField ownerEmailField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
