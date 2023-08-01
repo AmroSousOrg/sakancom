@@ -2,6 +2,13 @@ package sakancom.common;
 
 import sakancom.exceptions.InputValidationException;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Validation {
@@ -25,8 +32,9 @@ public class Validation {
         method to validate email input for user.
     */
     public static void validateEmail(String email) throws InputValidationException {
-        if (!email.matches("^[a-zA-Z]{1,15}[a-zA-Z0-9_.-]{0,15}@[a-zA-Z0-9._-]{1,15}.com$"))
+        if (!email.matches("^[a-zA-Z]{1,15}[a-zA-Z0-9_.-]{0,15}@[a-zA-Z0-9._-]{1,15}.com$")) {
             throw new InputValidationException("Invalid email.");
+        }
     }
 
     /*
@@ -97,5 +105,28 @@ public class Validation {
 
     public static void checkFurniturePrice(String price) throws InputValidationException {
         checkNonNegativeInteger(price, "Price must be Non-negative integer.");
+    }
+
+    public static void checkImage(File file) throws InputValidationException {
+        if (file == null) throw new InputValidationException("No chosen image.");
+        try {
+            Image image = ImageIO.read(file);
+            if (image == null) {
+                throw new InputValidationException("Image cannot be opened.");
+            }
+        } catch(IOException ex) {
+            throw new InputValidationException("Image cannot be opened.");
+        }
+    }
+
+    public static void validateOwnerName(String name, long ownerId) throws SQLException, InputValidationException {
+        Validation.validateEmpty(name);
+        Connection conn = Database.makeConnection();
+        String query = "select * from owners where name = ? and owner_id != ?";
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, name);
+        stmt.setLong(2, ownerId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) throw new InputValidationException("Owner name already exist.");
     }
 }

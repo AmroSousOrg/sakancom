@@ -12,7 +12,7 @@ public class Main {
         Application.openLoginPage();
         LoginPage page = (LoginPage) Application.openedPage;
         page.setCredentials("Amro Sous", "123");
-        page.setRoleCombo(LoginPage.TENANT);
-        page.pressSubmitButton();
+        page.setRoleCombo(LoginPage.OWNER);
+//        page.pressSubmitButton();
     }
 }

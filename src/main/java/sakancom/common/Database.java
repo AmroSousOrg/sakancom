@@ -192,7 +192,7 @@ public final class Database {
     public static void addHouse(Map<String, String> data) throws SQLException {
         Connection conn = makeConnection();
         String query = "insert into `housing` (`name`, `location`, `owner_id`, `rent`, `water_inclusive`, `electricity_inclusive`," +
-                " `services`, `floors`, `apart_per_floor`, `available`, `picture`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " `services`, `floors`, `apart_per_floor`, `picture`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setString(1, data.get("name"));
         stmt.setString(2, data.get("location"));
@@ -203,8 +203,7 @@ public final class Database {
         stmt.setString(7, data.get("services"));
         stmt.setInt(8, Integer.parseInt(data.get("floors")));
         stmt.setInt(9, Integer.parseInt(data.get("apart_per_floor")));
-        stmt.setBoolean(10, Boolean.parseBoolean(data.get("available")));
-        stmt.setString(11, data.get("picture"));
+        stmt.setString(10, data.get("picture"));
         stmt.executeUpdate();
         stmt.close();
         conn.close();
