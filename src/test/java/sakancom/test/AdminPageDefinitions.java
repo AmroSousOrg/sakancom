@@ -27,16 +27,33 @@ public class AdminPageDefinitions {
     @When("an admin go to {string} tab")
     public void an_admin_go_to_tab(String str) {
         AdminPage page = (AdminPage)Application.openedPage;
-        int tab = switch (str) {
-            case "account" -> AdminPage.ACCOUNT;
-            case "housing" -> AdminPage.HOUSING;
-            case "reservations" -> AdminPage.RESERVATIONS;
-            case "furniture" -> AdminPage.FURNITURE;
-            case "requests" -> AdminPage.REQUESTS;
-            case "tenants" -> AdminPage.TENANTS;
-            case "owners" -> AdminPage.OWNERS;
-            default -> 0;
-        };
+        int tab;
+        switch (str) {
+            case "account":
+                tab = AdminPage.ACCOUNT;
+                break;
+            case "housing":
+                tab = AdminPage.HOUSING;
+                break;
+            case "reservations":
+                tab = AdminPage.RESERVATIONS;
+                break;
+            case "furniture":
+                tab = AdminPage.FURNITURE;
+                break;
+            case "requests":
+                tab = AdminPage.REQUESTS;
+                break;
+            case "tenants":
+                tab = AdminPage.TENANTS;
+                break;
+            case "owners":
+                tab = AdminPage.OWNERS;
+                break;
+            default:
+                tab = 0;
+                break;
+        }
         page.setSelectedTab(tab);
         Assert.assertEquals(tab, page.getSelectedTab());
     }
