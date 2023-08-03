@@ -112,14 +112,11 @@ public final class Database {
     public static boolean isUserExist(String role, String name)
             throws SQLException {
         String table;
-        switch (role) {
-            case "tenant" -> table = "tenants";
-            case "owner" -> table = "owners";
-            case "admin" -> table = "admin";
-            default -> {
-                return false;
-            }
-        }
+        if (role.equals("tenant")) table = "tenants";
+        else if (role.equals("owner")) table = "owners";
+        else if (role.equals("admin")) table = "admin";
+        else return false;
+
         Connection conn = Database.makeConnection();
         ResultSet rs = getUser(name, table, conn);
         boolean result = rs.next();
