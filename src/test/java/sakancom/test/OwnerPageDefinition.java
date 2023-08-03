@@ -22,14 +22,27 @@ public class OwnerPageDefinition {
 
     @Given("an owner go to {string} tab")
     public void an_owner_go_to_tab(String tab) {
-        int selectedTab = switch (tab) {
-            case "home" -> OwnerPage.HOME;
-            case "account" -> OwnerPage.ACCOUNT;
-            case "my housing" -> OwnerPage.HOUSING;
-            case "booking requests" -> OwnerPage.REQUESTS;
-            case "add housing" -> OwnerPage.ADD_HOUSING;
-            default -> 0;
-        };
+        int selectedTab;
+        switch (tab) {
+            case "home":
+                selectedTab = OwnerPage.HOME;
+                break;
+            case "account":
+                selectedTab = OwnerPage.ACCOUNT;
+                break;
+            case "my housing":
+                selectedTab = OwnerPage.HOUSING;
+                break;
+            case "booking requests":
+                selectedTab = OwnerPage.REQUESTS;
+                break;
+            case "add housing":
+                selectedTab = OwnerPage.ADD_HOUSING;
+                break;
+            default:
+                selectedTab = 0;
+                break;
+        }
         OwnerPage page = (OwnerPage) Application.openedPage;
         page.setSelectedTab(selectedTab);
     }
