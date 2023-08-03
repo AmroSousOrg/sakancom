@@ -28,7 +28,7 @@ public class LoginPageDefinitions {
 
     @Before
     public void setupTestDB() {
-        Database.switchTestDatabase();
+        Database.setTestDatabase(true);
     }
 
     @After

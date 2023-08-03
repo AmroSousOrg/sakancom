@@ -2,7 +2,9 @@ package sakancom.common;
 
 import javax.swing.*;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
@@ -22,15 +24,18 @@ public final class Database {
      * fields that define properties of the database and load it
      * from the config file using static initializer
      */
-    private static final Properties properties = new Properties();
-    private static final String CONFIG_FILE_NAME = "ourConfig.config";
+    private static final Properties database_name = new Properties();
 
     static {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_NAME)) {
-            properties.load(fis);
+        try {
+            Properties properties = new Properties();
+            InputStream inputStream = new FileInputStream("db.properties");
+            properties.load(inputStream);
+            database_name.setProperty("database_name", properties.getProperty("db.database-name"));
+            database_name.setProperty("test-database", properties.getProperty("db.test-database-name"));
+            database_name.setProperty("database", properties.getProperty("db.database-name"));
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "config file does not found.\nor not written well.",
-                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException(e);
         }
     }
 
@@ -38,9 +43,21 @@ public final class Database {
      method to make a connection to the database
      */
     public static Connection makeConnection() throws SQLException {
-        return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/" + properties.get("DATABASE_NAME"),
-                (String)properties.get("DATABASE_USERNAME"), (String)properties.get("DATABASE_PASSWORD"));
+        Properties properties = new Properties();
+        try {
+            InputStream inputStream = new FileInputStream("db.properties");
+            properties.load(inputStream);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "error in reading" +
+                    " properties file.", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+
+        String url = properties.getProperty("db.url");
+        String username = properties.getProperty("db.username");
+        String password = properties.getProperty("db.password");
+
+        return DriverManager.getConnection(url + database_name.getProperty("database"),
+                username, password);
     }
 
     /*
@@ -102,8 +119,9 @@ public final class Database {
     /*
         method to switch to test database while testing
     */
-    public static void switchTestDatabase() {
-        properties.setProperty("DATABASE_NAME", (String)properties.get("TEST_DATABASE_NAME"));
+    public static void setTestDatabase(boolean ok) {
+        String name = database_name.getProperty(ok ? "test-database" : "database-name");
+        database_name.setProperty("database", name);
     }
 
     /*
