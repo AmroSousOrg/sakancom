@@ -9,6 +9,25 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    services:
+      mysql1:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: 12345
+          MYSQL_DATABASE: sakancom_db
+          MYSQL_USER: sw_team
+          MYSQL_PASSWORD: 12345
+        ports:
+          - 3306:3306
+      mysql2:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: 12345
+          MYSQL_DATABASE: sakancom_test
+          MYSQL_USER: sw_team
+          MYSQL_PASSWORD: 12345
+        ports:
+          - 3306:3306
     steps:
       - uses: actions/checkout@v3
         with:
