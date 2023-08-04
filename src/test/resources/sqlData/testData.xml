@@ -114,4 +114,13 @@
         <apart_num>1</apart_num>
         <accepted>1</accepted>
     </reservations>
+    <reservations>
+        <reservation_id>3</reservation_id>
+        <tenant_id>1</tenant_id>
+        <housing_id>1</housing_id>
+        <reservation_date>2023-07-15 15:12:58</reservation_date>
+        <floor_num>3</floor_num>
+        <apart_num>1</apart_num>
+        <accepted>0</accepted>
+    </reservations>
 </dataset>
