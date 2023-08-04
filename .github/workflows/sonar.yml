@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-host:
-    runs-on: windows-latest
+    runs-on: ubontu-latest
     services:
       mysql:
         image: mysql:5.7
