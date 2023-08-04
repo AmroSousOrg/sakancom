@@ -14,4 +14,8 @@ import org.junit.runner.RunWith;
 )
 
 public class TestRunner {
+    static {
+        System.setProperty("java.awt.headless", "true");
+        System.setProperty("DISPLAY", ":0");
+    }
 }

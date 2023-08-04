@@ -16,6 +16,22 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.awt.headless>true</java.awt.headless>
+                        <!-- Set other properties if needed -->
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
 
         <!-- Cucumber dependency -->
@@ -57,12 +73,12 @@
 
         <!-- DBUnit dependency -->
 
-        <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
-            <version>2.7.3</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.dbunit</groupId>-->
+<!--            <artifactId>dbunit</artifactId>-->
+<!--            <version>2.7.3</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
 
         <!--
