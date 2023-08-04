@@ -2,9 +2,7 @@ package sakancom;
 
 import sakancom.pages.LoginPage;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  *  Main application driver
