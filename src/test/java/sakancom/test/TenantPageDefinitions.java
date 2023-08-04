@@ -88,7 +88,7 @@ public class TenantPageDefinitions {
         try {
             Connection conn = Database.makeConnection();
             ResultSet rs = Database.getQuery("select `reservation_id`, `accepted` from `invoice`", conn);
-            for (int i = 0; i < 3; i++) Assert.assertTrue(rs.next());
+            for (int i = 0; i < 4; i++) Assert.assertTrue(rs.next());
             lastReservationId = rs.getLong("reservation_id");
             Assert.assertEquals(Integer.parseInt(state), rs.getInt("accepted"));
             conn.close();

@@ -25,7 +25,7 @@ import javax.swing.table.*;
 public class AdminPage extends JFrame {
 
     private final HashMap<String, Object> adminData;
-    public static final int HOME = 0, ACCOUNT = 1, HOUSING = 2, RESERVATIONS = 3, FURNITURE = 4, REQUESTS = 5, TENANTS = 6, OWNERS = 7;
+    public static final int HOME = 0, HOUSING = 1, RESERVATIONS = 2, FURNITURE = 3, REQUESTS = 4, TENANTS = 5, OWNERS = 6;
 
     public AdminPage(HashMap<String, Object> adminData) {
         this.adminData = adminData;
@@ -38,7 +38,6 @@ public class AdminPage extends JFrame {
 
     private void customInitComponent() {
         fillHousesTable();
-        fillPersonalInfo();
         fillReservationsTable();
         fillFurnitureTable();
         fillRequestsTable();
@@ -135,18 +134,6 @@ public class AdminPage extends JFrame {
 
     public void fillFurnitureTable() {
         Functions.fillTable("SELECT `furniture_id`, `name`, `price` from `furniture`", furnitureTable);
-    }
-
-    private void fillPersonalInfo() {
-        newPasswordField.setText("");
-        oldPasswordField.setText("");
-        retypeField.setText("");
-        accountPanelMessageLabel.setText("");
-        accountPanelMessageLabel.setForeground(Color.red);
-        idField.setText(String.valueOf((long)adminData.get("admin_id")));
-        nameField.setText((String)adminData.get("name"));
-        emailField.setText((String)adminData.get("email"));
-        phoneField.setText((String)adminData.get("phone"));
     }
 
     private void showHouse() {
@@ -484,51 +471,9 @@ public class AdminPage extends JFrame {
         }
     }
 
-    private void changePassowrd() {
-        accountPanelMessageLabel.setText("");
-        accountPanelMessageLabel.setForeground(Color.red);
-        String oldPass = String.valueOf(oldPasswordField.getPassword());
-        String retype = String.valueOf(retypeField.getPassword());
-        String newPass = String.valueOf(newPasswordField.getPassword());
-        String error = "";
-
-        if (oldPass.isEmpty()) error = "Old password field is empty.";
-        else if (retype.isEmpty()) error = "Retype pass field is empty.";
-        else if (newPass.isEmpty()) error = "New password field is empty.";
-        else if (!newPass.equals(retype)) error = "Mismatch passwords.";
-        else {
-            try {
-                Connection conn = Database.makeConnection();
-                ResultSet rs = Database.getQuery("select `name` from `admin` where `admin_id` = " +
-                        adminData.get("admin_id") + " and `password` = '" + Functions.sha256(oldPass) + "'", conn);
-                if (rs.next()) {
-                    Statement stmt = conn.createStatement();
-                    stmt.executeUpdate("update `admin` set `password` = '" + Functions.sha256(newPass) +
-                            "' where `admin_id` = " + adminData.get("admin_id"));
-                    stmt.close();
-                    accountPanelMessageLabel.setForeground(Color.green);
-                    accountPanelMessageLabel.setText("password updated.");
-                    newPasswordField.setText("");
-                    oldPasswordField.setText("");
-                    retypeField.setText("");
-                }
-                else {
-                    error = "Incorrect password.";
-                }
-                conn.close();
-            } catch (SQLException | NoSuchAlgorithmException e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-        if (!error.isEmpty()) {
-            accountPanelMessageLabel.setText(error);
-        }
-    }
-
     private void mainPanelStateChanged() {
         int tabSelected = mainPanel.getSelectedIndex();
-        if (tabSelected == ACCOUNT) fillPersonalInfo();
-        else if (tabSelected == HOUSING) fillHousesTable();
+        if (tabSelected == HOUSING) fillHousesTable();
         else if (tabSelected == RESERVATIONS) fillReservationsTable();
         else if (tabSelected == FURNITURE) fillFurnitureTable();
         else if (tabSelected == REQUESTS) fillRequestsTable();
@@ -747,29 +692,6 @@ public class AdminPage extends JFrame {
         // Generated using JFormDesigner Evaluation license - Amro Sous
         mainPanel = new JTabbedPane();
         homePanel = new JPanel();
-        accountPanel = new JPanel();
-        adminAccountPanel = new JPanel();
-        label1 = new JLabel();
-        label2 = new JLabel();
-        label3 = new JLabel();
-        label4 = new JLabel();
-        label5 = new JLabel();
-        separator1 = new JSeparator();
-        idField = new JTextField();
-        nameField = new JTextField();
-        emailField = new JTextField();
-        phoneField = new JTextField();
-        editProfileButton = new JButton();
-        saveProfileButton = new JButton();
-        accountPanelMessageLabel = new JLabel();
-        changePassowrdButton = new JButton();
-        separator2 = new JSeparator();
-        label11 = new JLabel();
-        label12 = new JLabel();
-        label13 = new JLabel();
-        oldPasswordField = new JPasswordField();
-        newPasswordField = new JPasswordField();
-        retypeField = new JPasswordField();
         housingPanel = new JPanel();
         allHousesPanel = new JPanel();
         scrollPane1 = new JScrollPane();
@@ -976,10 +898,10 @@ public class AdminPage extends JFrame {
             //======== homePanel ========
             {
                 homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing. border
-                .EmptyBorder ( 0, 0 ,0 , 0) ,  "JF\u006frm\u0044es\u0069gn\u0065r \u0045va\u006cua\u0074io\u006e" , javax. swing .border . TitledBorder. CENTER ,javax
-                . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "D\u0069al\u006fg", java .awt . Font. BOLD ,
+                .EmptyBorder ( 0, 0 ,0 , 0) ,  "JFor\u006dDesi\u0067ner \u0045valu\u0061tion" , javax. swing .border . TitledBorder. CENTER ,javax
+                . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dia\u006cog", java .awt . Font. BOLD ,
                 12 ) ,java . awt. Color .red ) ,homePanel. getBorder () ) ); homePanel. addPropertyChangeListener( new java. beans
-                .PropertyChangeListener ( ){ @Override public void propertyChange (java . beans. PropertyChangeEvent e) { if( "\u0062or\u0064er" .equals ( e.
+                .PropertyChangeListener ( ){ @Override public void propertyChange (java . beans. PropertyChangeEvent e) { if( "bord\u0065r" .equals ( e.
                 getPropertyName () ) )throw new RuntimeException( ) ;} } );
                 homePanel.setLayout(null);
 
@@ -999,164 +921,6 @@ public class AdminPage extends JFrame {
                 }
             }
             mainPanel.addTab("HOME", homePanel);
-
-            //======== accountPanel ========
-            {
-                accountPanel.setLayout(null);
-
-                //======== adminAccountPanel ========
-                {
-                    adminAccountPanel.setLayout(null);
-
-                    //---- label1 ----
-                    label1.setText("Admin Account");
-                    label1.setFont(new Font("Bodoni MT", label1.getFont().getStyle(), label1.getFont().getSize() + 15));
-                    label1.setForeground(Color.blue);
-                    adminAccountPanel.add(label1);
-                    label1.setBounds(25, 20, 220, 50);
-
-                    //---- label2 ----
-                    label2.setText("ID:");
-                    label2.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label2);
-                    label2.setBounds(85, 130, 80, 30);
-
-                    //---- label3 ----
-                    label3.setText("Name:");
-                    label3.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label3);
-                    label3.setBounds(85, 175, 80, 30);
-
-                    //---- label4 ----
-                    label4.setText("Email:");
-                    label4.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label4);
-                    label4.setBounds(85, 220, 80, 30);
-
-                    //---- label5 ----
-                    label5.setText("Phone:");
-                    label5.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label5);
-                    label5.setBounds(85, 265, 80, 30);
-                    adminAccountPanel.add(separator1);
-                    separator1.setBounds(30, 75, 925, 10);
-
-                    //---- idField ----
-                    idField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    idField.setEnabled(false);
-                    idField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(idField);
-                    idField.setBounds(175, 135, 220, idField.getPreferredSize().height);
-
-                    //---- nameField ----
-                    nameField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    nameField.setEnabled(false);
-                    nameField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(nameField);
-                    nameField.setBounds(175, 180, 220, 30);
-
-                    //---- emailField ----
-                    emailField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    emailField.setEnabled(false);
-                    emailField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(emailField);
-                    emailField.setBounds(175, 225, 220, 30);
-
-                    //---- phoneField ----
-                    phoneField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    phoneField.setEnabled(false);
-                    phoneField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(phoneField);
-                    phoneField.setBounds(175, 270, 220, 30);
-
-                    //---- editProfileButton ----
-                    editProfileButton.setText("Edit");
-                    editProfileButton.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
-                    adminAccountPanel.add(editProfileButton);
-                    editProfileButton.setBounds(new Rectangle(new Point(120, 380), editProfileButton.getPreferredSize()));
-
-                    //---- saveProfileButton ----
-                    saveProfileButton.setText("Save");
-                    saveProfileButton.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
-                    adminAccountPanel.add(saveProfileButton);
-                    saveProfileButton.setBounds(255, 380, 100, 30);
-
-                    //---- accountPanelMessageLabel ----
-                    accountPanelMessageLabel.setForeground(Color.red);
-                    accountPanelMessageLabel.setFont(new Font("Segoe UI Light", Font.PLAIN, 16));
-                    adminAccountPanel.add(accountPanelMessageLabel);
-                    accountPanelMessageLabel.setBounds(415, 400, 540, 30);
-
-                    //---- changePassowrdButton ----
-                    changePassowrdButton.setText("Change your password");
-                    changePassowrdButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
-                    changePassowrdButton.addActionListener(e -> changePassowrd());
-                    adminAccountPanel.add(changePassowrdButton);
-                    changePassowrdButton.setBounds(660, 320, 205, 30);
-
-                    //---- separator2 ----
-                    separator2.setOrientation(SwingConstants.VERTICAL);
-                    adminAccountPanel.add(separator2);
-                    separator2.setBounds(505, 110, 15, 240);
-
-                    //---- label11 ----
-                    label11.setText("Old Password:");
-                    label11.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label11);
-                    label11.setBounds(525, 155, 135, 30);
-
-                    //---- label12 ----
-                    label12.setText("New Password:");
-                    label12.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label12);
-                    label12.setBounds(525, 210, 135, 30);
-
-                    //---- label13 ----
-                    label13.setText("Retype:");
-                    label13.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label13);
-                    label13.setBounds(525, 260, 135, 30);
-                    adminAccountPanel.add(oldPasswordField);
-                    oldPasswordField.setBounds(660, 155, 205, 30);
-                    adminAccountPanel.add(newPasswordField);
-                    newPasswordField.setBounds(660, 210, 205, 30);
-                    adminAccountPanel.add(retypeField);
-                    retypeField.setBounds(660, 265, 205, 30);
-
-                    {
-                        // compute preferred size
-                        Dimension preferredSize = new Dimension();
-                        for(int i = 0; i < adminAccountPanel.getComponentCount(); i++) {
-                            Rectangle bounds = adminAccountPanel.getComponent(i).getBounds();
-                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-                        }
-                        Insets insets = adminAccountPanel.getInsets();
-                        preferredSize.width += insets.right;
-                        preferredSize.height += insets.bottom;
-                        adminAccountPanel.setMinimumSize(preferredSize);
-                        adminAccountPanel.setPreferredSize(preferredSize);
-                    }
-                }
-                accountPanel.add(adminAccountPanel);
-                adminAccountPanel.setBounds(0, 0, 990, 470);
-
-                {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < accountPanel.getComponentCount(); i++) {
-                        Rectangle bounds = accountPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-                    }
-                    Insets insets = accountPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    accountPanel.setMinimumSize(preferredSize);
-                    accountPanel.setPreferredSize(preferredSize);
-                }
-            }
-            mainPanel.addTab("ACCOUNT", accountPanel);
 
             //======== housingPanel ========
             {
@@ -2812,8 +2576,6 @@ public class AdminPage extends JFrame {
             contentPane.setMinimumSize(preferredSize);
             contentPane.setPreferredSize(preferredSize);
         }
-        pack();
-        setLocationRelativeTo(getOwner());
 
         //---- buttonGroup1 ----
         var buttonGroup1 = new ButtonGroup();
@@ -2824,6 +2586,9 @@ public class AdminPage extends JFrame {
         var buttonGroup2 = new ButtonGroup();
         buttonGroup2.add(electricityYes);
         buttonGroup2.add(electricityNo);
+
+        pack();
+        setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
@@ -2831,29 +2596,6 @@ public class AdminPage extends JFrame {
     // Generated using JFormDesigner Evaluation license - Amro Sous
     private JTabbedPane mainPanel;
     private JPanel homePanel;
-    private JPanel accountPanel;
-    private JPanel adminAccountPanel;
-    private JLabel label1;
-    private JLabel label2;
-    private JLabel label3;
-    private JLabel label4;
-    private JLabel label5;
-    private JSeparator separator1;
-    private JTextField idField;
-    private JTextField nameField;
-    private JTextField emailField;
-    private JTextField phoneField;
-    private JButton editProfileButton;
-    private JButton saveProfileButton;
-    private JLabel accountPanelMessageLabel;
-    private JButton changePassowrdButton;
-    private JSeparator separator2;
-    private JLabel label11;
-    private JLabel label12;
-    private JLabel label13;
-    private JPasswordField oldPasswordField;
-    private JPasswordField newPasswordField;
-    private JPasswordField retypeField;
     private JPanel housingPanel;
     private JPanel allHousesPanel;
     private JScrollPane scrollPane1;

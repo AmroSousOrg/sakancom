@@ -33,10 +33,6 @@ public class OwnerPage extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.ownerData = data;
         initComponents();
-        customInitComponent();
-    }
-
-    private void customInitComponent() {
     }
 
     private void mainPanelStateChanged() {
@@ -547,6 +543,42 @@ public class OwnerPage extends JFrame {
 
     private void closeInvoicePanelMouseClicked() {
         Functions.switchChildPanel(requestsPanel, allRequestsPanel);
+    }
+
+    public DefaultTableModel getRequestsTableModel() {
+        return (DefaultTableModel) requestsTable.getModel();
+    }
+
+    public void setSelectedRequestRow(Integer int1) {
+        requestsTable.setRowSelectionInterval(int1, int1);
+    }
+
+    public void pressRequestDetailsButton() {
+        reservationDetailsButton.doClick();
+    }
+
+    public void pressRequestAcceptButton() {
+        acceptReservationButton.doClick();
+    }
+
+    public void pressRequestRejectButton() {
+        rejectReservationButton.doClick();
+    }
+
+    public String getRequestId() {
+        return vBookingId.getText();
+    }
+
+    public String getRequestHousingId() {
+        return vHousingId.getText();
+    }
+
+    public String getRequestTenantId() {
+        return vTenantId.getText();
+    }
+
+    public String getRequestOwnerName() {
+        return vOwnerName.getText();
     }
 
     private void initComponents() {

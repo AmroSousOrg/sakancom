@@ -29,9 +29,6 @@ public class AdminPageDefinitions {
         AdminPage page = (AdminPage)Application.openedPage;
         int tab;
         switch (str) {
-            case "account":
-                tab = AdminPage.ACCOUNT;
-                break;
             case "housing":
                 tab = AdminPage.HOUSING;
                 break;
