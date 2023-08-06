@@ -2,7 +2,6 @@ package sakancom.common;
 
 import javax.swing.*;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -130,10 +129,19 @@ public final class Database {
     public static boolean isUserExist(String role, String name)
             throws SQLException {
         String table;
-        if (role.equals("tenant")) table = "tenants";
-        else if (role.equals("owner")) table = "owners";
-        else if (role.equals("admin")) table = "admin";
-        else return false;
+        switch (role) {
+            case "tenant":
+                table = "tenants";
+                break;
+            case "owner":
+                table = "owners";
+                break;
+            case "admin":
+                table = "admin";
+                break;
+            default:
+                return false;
+        }
 
         Connection conn = Database.makeConnection();
         ResultSet rs = getUser(name, table, conn);

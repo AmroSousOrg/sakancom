@@ -11,7 +11,6 @@ import sakancom.common.Validation;
 import sakancom.exceptions.InputValidationException;
 
 import java.awt.*;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Objects;
