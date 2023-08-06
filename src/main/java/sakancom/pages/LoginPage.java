@@ -28,7 +28,6 @@ public class LoginPage extends JFrame {
     private JComboBox<String> roleCombo;
     private JLabel errorLabel;
     private JPanel fieldsPanel;
-    private JPanel buttonsPanel;
     private JComboBox<String> registerCombo;
     private JButton registerSubmit;
     private JButton registerClear;
