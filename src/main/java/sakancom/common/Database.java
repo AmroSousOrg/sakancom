@@ -54,8 +54,7 @@ public final class Database {
         String username = properties.getProperty("db.username");
         String password = properties.getProperty("db.password");
 
-        return DriverManager.getConnection(url + database_name.getProperty("database"),
-                username, password);
+        return DriverManager.getConnection(url + database_name.getProperty("database"), username, password);
     }
 
     /*
@@ -76,6 +75,7 @@ public final class Database {
             stmt.setString(1, name);
             stmt.setString(2, Functions.sha256(password));
             try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
                 return Functions.rsToHashMap(rs);
             }
         } catch (NoSuchAlgorithmException e) {
@@ -98,6 +98,7 @@ public final class Database {
         ) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
                 return Functions.rsToHashMap(rs);
             }
         }

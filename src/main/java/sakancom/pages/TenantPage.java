@@ -90,23 +90,30 @@ public class TenantPage extends JFrame {
     private void showHouse() {
         int selected = housesTable.getSelectedRow();
         String name = (String)housesTable.getValueAt(selected, 1);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT * from `housing` where `name` = '"+name+"'",
-                    conn
-            );
-            rs.next();
-            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT * from `housing` where `name` = ?")
+        ){
+            stmt.setString(1, name);
+            HashMap<String, Object> houseData;
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                houseData = Functions.rsToHashMap(rs);
+            }
+
             long id = (long)houseData.get("owner_id");
-            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
-            if (rs.next())
-            {
-                houseData.put("owner_name", rs.getString("name"));
-                houseData.put("owner_phone", rs.getString("phone"));
+            try (PreparedStatement stmt1 = conn.prepareStatement("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?")) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt1.executeQuery()) {
+                    if (rs.next())
+                    {
+                        houseData.put("owner_name", rs.getString("name"));
+                        houseData.put("owner_phone", rs.getString("phone"));
+                    }
+                }
             }
             showHouseInfoPanel(houseData);
-            conn.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -122,20 +129,25 @@ public class TenantPage extends JFrame {
             chooseApartment.setEnabled(false);
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select `apart_num` from `reservations` where `floor_num` = "+selectedIndex+" and `housing_id` = "+house_id, conn);
-            chooseApartment.addItem("");
-            HashSet<Integer> reserved = new HashSet<>();
-            while (rs.next()) reserved.add(rs.getInt("apart_num"));
-            for (int i = 1; i <= apart_per_floor; i++) {
-                if (!reserved.contains(i)) chooseApartment.addItem(""+i);
+        String query = "select `apart_num` from `reservations` where `floor_num` = ? and `housing_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setInt(1, selectedIndex);
+            stmt.setLong(2, house_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                chooseApartment.addItem("");
+                HashSet<Integer> reserved = new HashSet<>();
+                while (rs.next()) reserved.add(rs.getInt("apart_num"));
+                for (int i = 1; i <= apart_per_floor; i++) {
+                    if (!reserved.contains(i)) chooseApartment.addItem(""+i);
+                }
             }
             chooseApartment.setEnabled(true);
             if (chooseApartment.getItemCount() == 1) {
                 messageLabel.setText("No available departments in this floor.");
             }
-            conn.close();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -164,13 +176,15 @@ public class TenantPage extends JFrame {
         Functions.switchChildPanel(housesPanel, invoicePanel);
         Functions.switchChildPanel(invoiceFieldsContainer, invoiceFieldsPanel);
 
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = "+last_id, conn);
-            rs.next();
-            HashMap<String, Object> invoice_data = Functions.rsToHashMap(rs);
-            conn.close();
-            fillInvoiceInfo(invoice_data);
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement("select * from `invoice` where `reservation_id` = ?")
+        ){
+            stmt.setLong(1, last_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                fillInvoiceInfo(Functions.rsToHashMap(rs));
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -364,25 +378,31 @@ public class TenantPage extends JFrame {
         else if (newPass.isEmpty()) error = "New password field is empty.";
         else if (!newPass.equals(retype)) error = "Mismatch passwords.";
         else {
-            try {
-                Connection conn = Database.makeConnection();
-                ResultSet rs = Database.getQuery("select `name` from `tenants` where `tenant_id` = " +
-                        tenantData.get("tenant_id") + " and `password` = '" + Functions.sha256(oldPass) + "'", conn);
-                if (rs.next()) {
-                    Statement stmt = conn.createStatement();
-                    stmt.executeUpdate("update `tenants` set `password` = '" + Functions.sha256(newPass) +
-                            "' where `tenant_id` = " + tenantData.get("tenant_id"));
-                    stmt.close();
-                    accountPanelMessageLabel.setForeground(Color.green);
-                    accountPanelMessageLabel.setText("password updated.");
-                    newPasswordField.setText("");
-                    oldPasswordField.setText("");
-                    retypeField.setText("");
+            String query = "select name from tenants where tenant_id = ? and password = ?";
+            try (
+                    Connection conn = Database.makeConnection();
+                    PreparedStatement stmt = conn.prepareStatement(query)
+            ){
+                stmt.setLong(1, (long) tenantData.get("tenant_id"));
+                stmt.setString(2, Functions.sha256(oldPass));
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        query = "update `tenants` set `password` = ? where tenant_id = ?";
+                        try (PreparedStatement stmt1 = conn.prepareStatement(query)) {
+                            stmt1.setString(1, Functions.sha256(newPass));
+                            stmt1.setLong(2, (long) tenantData.get("tenant_id"));
+                            stmt1.executeUpdate();
+                        }
+                        accountPanelMessageLabel.setForeground(Color.green);
+                        accountPanelMessageLabel.setText("password updated.");
+                        newPasswordField.setText("");
+                        oldPasswordField.setText("");
+                        retypeField.setText("");
+                    }
+                    else {
+                        error = "Incorrect password.";
+                    }
                 }
-                else {
-                    error = "Incorrect password.";
-                }
-                conn.close();
             } catch (SQLException | NoSuchAlgorithmException e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -398,13 +418,15 @@ public class TenantPage extends JFrame {
         long id = (long) bookingsTable.getValueAt(selectedRow, 1);
         Functions.switchChildPanel(bookingsPanel, invoicePanel2);
         Functions.switchChildPanel(invoiceFieldsContainer2, invoiceFieldsPanel);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = "+id, conn);
-            rs.next();
-            HashMap<String, Object> invoice_data = Functions.rsToHashMap(rs);
-            conn.close();
-            fillInvoiceInfo(invoice_data);
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement("select * from invoice where reservation_id = ?")
+        ){
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                fillInvoiceInfo(Functions.rsToHashMap(rs));
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

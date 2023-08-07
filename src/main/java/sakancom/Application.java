@@ -1,16 +1,14 @@
 package sakancom;
 
 import sakancom.common.Database;
-import sakancom.common.Functions;
 import sakancom.pages.AdminPage;
 import sakancom.pages.LoginPage;
 import sakancom.pages.OwnerPage;
 import sakancom.pages.TenantPage;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 /*
 
@@ -46,15 +44,12 @@ public class Application {
         method to open tenant page
     */
     public static boolean openTenantPage(String name, String password) throws SQLException {
-        Connection conn = Database.makeConnection();
-        ResultSet rs = Database.getTenant(name, password, conn);
-        if (rs.next()) {
-            openPage(new TenantPage(Functions.rsToHashMap(rs)));
+        HashMap<String, Object> hm = Database.getTenant(name, password);
+        if (hm != null) {
+            openPage(new TenantPage(hm));
             status = PAGE.TENANT;
-            conn.close();
             return true;
         }
-        conn.close();
         return false;
     }
 
@@ -62,15 +57,12 @@ public class Application {
         method to open owner page
     */
     public static boolean openOwnerPage(String name, String password) throws SQLException {
-        Connection conn = Database.makeConnection();
-        ResultSet rs = Database.getOwner(name, password, conn);
-        if (rs.next()) {
-            openPage(new OwnerPage(Functions.rsToHashMap(rs)));
+        HashMap<String, Object> hm = Database.getOwner(name, password);
+        if (hm != null) {
+            openPage(new OwnerPage(hm));
             status = PAGE.OWNER;
-            conn.close();
             return true;
         }
-        conn.close();
         return false;
     }
 
@@ -78,15 +70,12 @@ public class Application {
         method to open admin page
     */
     public static boolean openAdminPage(String name, String password) throws SQLException {
-        Connection conn = Database.makeConnection();
-        ResultSet rs = Database.getAdmin(name, password, conn);
-        if (rs.next()) {
-            openPage(new AdminPage(Functions.rsToHashMap(rs)));
+        HashMap<String, Object> hm = Database.getAdmin(name, password);
+        if (hm != null) {
+            openPage(new AdminPage(hm));
             status = PAGE.ADMIN;
-            conn.close();
             return true;
         }
-        conn.close();
         return false;
     }
 
