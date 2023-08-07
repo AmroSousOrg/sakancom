@@ -349,31 +349,29 @@ public class OwnerPage extends JFrame {
     private void deleteHouse() {
         oneHouseMessageLabel.setForeground(Color.red);
         long id = Long.parseLong(houseId.getText());
-        Connection conn;
-        PreparedStatement pstmt;
-        ResultSet rs;
-        String query, error = "";
+        String error = "";
+        String query = "select `reservation_id` from `invoice` where `housing_id` = ?";
 
-        try {
-            query = "select `reservation_id` from `invoice` where `housing_id` = ?";
-            conn = Database.makeConnection();
-            pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            rs = pstmt.executeQuery();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    error = "You can't delete this house, because there are reservations on it.";
+                }
+                else {
+                    query = "delete from `housing` where `housing_id` = ?";
+                    try (PreparedStatement stmt1 = conn.prepareStatement(query)) {
+                        stmt1.setLong(1, id);
+                        stmt1.executeUpdate();
+                    }
+                    Functions.switchChildPanel(myHousingPanel, allHousesPanel);
+                    initHousingPanel();
+                }
+            }
 
-            if (rs.next()) {
-                error = "You can't delete this house, because there are reservations on it.";
-            }
-            else {
-                query = "delete from `housing` where `housing_id` = ?";
-                pstmt = conn.prepareStatement(query);
-                pstmt.setLong(1, id);
-                pstmt.executeUpdate();
-                Functions.switchChildPanel(myHousingPanel, allHousesPanel);
-                initHousingPanel();
-            }
-            pstmt.close();
-            conn.close();
             if (!error.isEmpty()) {
                 oneHouseMessageLabel.setText(error);
             }
@@ -401,8 +399,8 @@ public class OwnerPage extends JFrame {
             long id = (long)houseData.get("owner_id");
             try (PreparedStatement stmt1 = conn.prepareStatement(
                     "SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?")) {
-                stmt.setLong(1, id);
-                try (ResultSet rs = stmt.executeQuery()) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt1.executeQuery()) {
                     if (rs.next())
                     {
                         houseData.put("owner_name", rs.getString("name"));
