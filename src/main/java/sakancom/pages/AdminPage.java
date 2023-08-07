@@ -6,6 +6,8 @@ package sakancom.pages;
 
 import java.awt.event.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sakancom.common.Database;
 import sakancom.common.Functions;
 import sakancom.common.Validation;
@@ -22,6 +24,7 @@ import javax.swing.table.*;
 @SuppressWarnings("FieldCanBeLocal")
 public class AdminPage extends JFrame {
 
+    private static final Logger logger = LogManager.getLogger(AdminPage.class);
     private final HashMap<String, Object> adminData;
     public static final int HOME = 0, HOUSING = 1, RESERVATIONS = 2, FURNITURE = 3, REQUESTS = 4, TENANTS = 5, OWNERS = 6;
 
@@ -82,7 +85,8 @@ public class AdminPage extends JFrame {
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException ex) {
+            logger.error(ex.getMessage());
         }
     }
 
@@ -109,7 +113,8 @@ public class AdminPage extends JFrame {
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException ex) {
+            logger.error(ex.getMessage());
         }
     }
 
@@ -286,7 +291,7 @@ public class AdminPage extends JFrame {
             stmt.executeUpdate();
             reservationsTable.setValueAt(1, selectedRow, 7);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -308,7 +313,7 @@ public class AdminPage extends JFrame {
             stmt.executeUpdate();
             fillReservationsTable();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 

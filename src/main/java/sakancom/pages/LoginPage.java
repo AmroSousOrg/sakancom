@@ -54,8 +54,6 @@ public class LoginPage extends JFrame {
     public static final int TENANT = 1, OWNER = 2, ADMIN = 3;
     public boolean isLoginPanelOpen;
 
-    private void createUIComponents() {
-    }
 
     public LoginPage() {       // Page Constructor
 
