@@ -150,14 +150,16 @@ public class AdminPage extends JFrame {
             HashMap<String, Object> houseData;
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
-                rs.next();
-                houseData = Functions.rsToHashMap(rs);
+                if (rs.next())
+                    houseData = Functions.rsToHashMap(rs);
+                else
+                    houseData = new HashMap<>();
             }
             long id = (long)houseData.get("owner_id");
             String query1 = "SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?";
             try (PreparedStatement stmt1 = conn.prepareStatement(query1)) {
                 stmt1.setLong(1, id);
-                try (ResultSet rs = stmt.executeQuery()) {
+                try (ResultSet rs = stmt1.executeQuery()) {
                     if (rs.next())
                     {
                         houseData.put("owner_name", rs.getString("name"));
@@ -223,8 +225,8 @@ public class AdminPage extends JFrame {
         ) {
             stmt.setLong(1, (Long) reservationsTable.getValueAt(selectedRow, 1));
             try (ResultSet rs = stmt.executeQuery()) {
-                rs.next();
-                fillInvoiceInfo(Functions.rsToHashMap(rs));
+                if (rs.next())
+                    fillInvoiceInfo(Functions.rsToHashMap(rs));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

@@ -45,7 +45,7 @@ public class Application {
     */
     public static boolean openTenantPage(String name, String password) throws SQLException {
         HashMap<String, Object> hm = Database.getTenant(name, password);
-        if (hm != null) {
+        if (!hm.isEmpty()) {
             openPage(new TenantPage(hm));
             status = PAGE.TENANT;
             return true;
@@ -58,7 +58,7 @@ public class Application {
     */
     public static boolean openOwnerPage(String name, String password) throws SQLException {
         HashMap<String, Object> hm = Database.getOwner(name, password);
-        if (hm != null) {
+        if (!hm.isEmpty()) {
             openPage(new OwnerPage(hm));
             status = PAGE.OWNER;
             return true;
@@ -71,7 +71,7 @@ public class Application {
     */
     public static boolean openAdminPage(String name, String password) throws SQLException {
         HashMap<String, Object> hm = Database.getAdmin(name, password);
-        if (hm != null) {
+        if (!hm.isEmpty()) {
             openPage(new AdminPage(hm));
             status = PAGE.ADMIN;
             return true;
