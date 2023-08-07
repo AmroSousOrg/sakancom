@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import javax.swing.*;
 
-/**
- *
- */
 
 @SuppressWarnings("FieldCanBeLocal")
 public class TenantPage extends JFrame {
@@ -304,18 +301,17 @@ public class TenantPage extends JFrame {
             addFurnitureMessageLabel.setText(ex.getMessage());
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "insert into `furniture` (`tenant_id`, `name`, `description`, `price`) values " +
-                    "(?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "insert into `furniture` (`tenant_id`, `name`, `description`, `price`) " +
+                "values (?, ?, ?, ?)";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             stmt.setLong(1, (long)tenantData.get("tenant_id"));
             stmt.setString(2, fName);
             stmt.setString(3, fDesc);
             stmt.setInt(4, Integer.parseInt(fPrice));
             stmt.executeUpdate();
-            stmt.close();
-            conn.close();
             Functions.switchChildPanel(furniturePanel, showFurnituresPanel);
             fillFurnitureTable();
         } catch (SQLException ex) {
@@ -339,26 +335,26 @@ public class TenantPage extends JFrame {
     }
 
     public void furnitureTableSelectionChanged() {
-        Connection conn;
         int selectedRow = furnitureTable.getSelectedRow();
         if (selectedRow == -1) return;
-        try {
-            conn = Database.makeConnection();
-            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
-                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query);
+        ){
             long id = (long) furnitureTable.getValueAt(selectedRow, 1);
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
-            {
-                furnitureId.setText(rs.getString("furniture_id"));
-                furnitureName.setText(rs.getString("furniture_name"));
-                furnitureDesc.setText(rs.getString("description"));
-                furnitureOwner.setText(rs.getString("owner_name"));
-                furniturePhone.setText(rs.getString("phone"));
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                {
+                    furnitureId.setText(rs.getString("furniture_id"));
+                    furnitureName.setText(rs.getString("furniture_name"));
+                    furnitureDesc.setText(rs.getString("description"));
+                    furnitureOwner.setText(rs.getString("owner_name"));
+                    furniturePhone.setText(rs.getString("phone"));
+                }
             }
-            conn.close();
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
