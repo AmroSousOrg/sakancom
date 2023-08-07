@@ -5,21 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6c859f4f-11f7-4675-9263-e7024c99aaff" name="Changes" comment="feature: create new account ready">
-      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/AdminPage.jfd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/OwnerPage.jfd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/TenantPage.jfd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/common/Database.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/common/Database.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/AdminPage.form" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/AdminPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/AdminPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/LoginPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/OwnerPage.form" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/OwnerPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/OwnerPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/TenantPage.form" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/sakancom/pages/TenantPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sakancom/pages/TenantPage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/sakancom/test/LoginPageDefinitions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sakancom/test/LoginPageDefinitions.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,34 +31,33 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="MavenImportPreferences">
-    <option name="importingSettings">
-      <MavenImportingSettings>
-        <option name="workspaceImportEnabled" value="true" />
-      </MavenImportingSettings>
-    </option>
-  </component>
   <component name="ProjectId" id="2S6Jp5ujBK0CQJ4gH1LJvTm0CjF" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH": "159",
-    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.SHOW": "true",
-    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "245",
-    "last_opened_file_path": "D:/Workspaces/java/software_engineering/sakancom/src/test/java/sakancom/test",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH&quot;: &quot;159&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.SHOW&quot;: &quot;true&quot;,
+    &quot;UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH&quot;: &quot;245&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Ahmad/Desktop/Housing-Society-Management-System-master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.Mappings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="sakancom" />
@@ -186,6 +172,10 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1688461280261</updated>
+      <workItem from="1690466621431" duration="1561000" />
+      <workItem from="1690752791857" duration="213000" />
+      <workItem from="1690753031508" duration="19000" />
+      <workItem from="1691441627409" duration="1519000" />
     </task>
     <task id="LOCAL-00001" summary="project created, first commit">
       <created>1688483058938</created>
@@ -231,6 +221,9 @@
     </task>
     <option name="localTasksCounter" value="7" />
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
