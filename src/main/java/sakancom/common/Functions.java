@@ -56,7 +56,7 @@ public class Functions {
     public static HashMap<String, Object> rsToHashMap(ResultSet rs)
             throws SQLException {
 
-        if (rs == null) return null;
+        if (rs == null || rs.isAfterLast()) return new HashMap<>();
         ResultSetMetaData md = rs.getMetaData();
         int columns = md.getColumnCount();
         HashMap<String, Object> ret = new HashMap<>();

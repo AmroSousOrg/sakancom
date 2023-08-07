@@ -216,17 +216,17 @@ public class OwnerPage extends JFrame {
             return;
         }
 
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "update owners set name = ?, phone = ?, email = ? where owner_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "update owners set name = ?, phone = ?, email = ? where owner_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             stmt.setString(1, name);
             stmt.setString(2, phone);
             stmt.setString(3, email);
             stmt.setLong(4, (long) ownerData.get("owner_id"));
             stmt.executeUpdate();
-            stmt.close();
-            conn.close();
+
             ownerData.put("name", name);
             ownerData.put("phone", phone);
             ownerData.put("email", email);
@@ -468,15 +468,15 @@ public class OwnerPage extends JFrame {
         int selectedRow = requestsTable.getSelectedRow();
         if (selectedRow == -1) return;
 
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)requestsTable.getValueAt(selectedRow, 1);
             stmt.setLong(1, rid);
             stmt.executeUpdate();
-            stmt.close();
-            conn.close();
+
         } catch (SQLException e) {
             logger.error(e.getMessage());
         }
@@ -485,15 +485,14 @@ public class OwnerPage extends JFrame {
     private void rejectReservation() {
         int selectedRow = requestsTable.getSelectedRow();
         if (selectedRow == -1) return;
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "delete from `reservations` where reservation_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "delete from `reservations` where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)requestsTable.getValueAt(selectedRow, 1);
             stmt.setLong(1, rid);
             stmt.executeUpdate();
-            stmt.close();
-            conn.close();
             initRequestsPanel();
         } catch (SQLException e) {
             logger.error(e.getMessage());

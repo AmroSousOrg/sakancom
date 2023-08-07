@@ -111,7 +111,7 @@ public class LoginPage extends JFrame {
                 LoginPage.this.dispose(); // destroy login page window
 
             } catch (SQLException ex) {
-                errorLabel.setText("Error in Database query or connection.");
+                errorLabel.setText(ex.getMessage());
             }
         });
 
@@ -231,10 +231,7 @@ public class LoginPage extends JFrame {
             tenantErrorLabel.setForeground(Color.green);
             tenantErrorLabel.setText("Account created successfully.");
 
-        } catch (InputValidationException e) {
-            // display error message.
-            tenantErrorLabel.setText(e.getMessage());
-        } catch (SQLException e) {
+        } catch (InputValidationException | SQLException e) {
             tenantErrorLabel.setText(e.getMessage());
         }
     }
@@ -271,10 +268,7 @@ public class LoginPage extends JFrame {
             ownerErrorLabel.setForeground(Color.green);
             ownerErrorLabel.setText("Account created successfully.");
 
-        } catch (InputValidationException e) {
-            // display error message.
-            ownerErrorLabel.setText(e.getMessage());
-        } catch (SQLException e) {
+        } catch (InputValidationException | SQLException e) {
             ownerErrorLabel.setText(e.getMessage());
         }
     }
