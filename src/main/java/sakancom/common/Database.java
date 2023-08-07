@@ -85,12 +85,15 @@ public final class Database {
             stmt.setString(1, name);
             stmt.setString(2, Functions.sha256(password));
             try (ResultSet rs = stmt.executeQuery()) {
-                rs.next();
-                return Functions.rsToHashMap(rs);
+                if (rs.next())
+                    return Functions.rsToHashMap(rs);
+                else
+                    return new HashMap<>();
             }
         } catch (NoSuchAlgorithmException e) {
-            return null;
+            logger.error(e.getMessage());
         }
+        return new HashMap<>();
     }
 
     /*
@@ -108,8 +111,10 @@ public final class Database {
         ) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
-                rs.next();
-                return Functions.rsToHashMap(rs);
+                if (rs.next())
+                    return Functions.rsToHashMap(rs);
+                else
+                    return new HashMap<>();
             }
         }
     }
@@ -157,7 +162,7 @@ public final class Database {
             }
         }
 
-        return getUser(name, table) != null;
+        return !getUser(name, table).isEmpty();
     }
 
     /*
@@ -312,7 +317,10 @@ public final class Database {
         ) {
             stmt.setLong(1, housing_id);
             try (ResultSet rs = stmt.executeQuery()) {
-                return Functions.rsToHashMap(rs);
+                if (rs.next())
+                    return Functions.rsToHashMap(rs);
+                else
+                    return new HashMap<>();
             }
         }
     }
