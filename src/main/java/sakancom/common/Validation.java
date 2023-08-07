@@ -13,6 +13,8 @@ import java.sql.SQLException;
 
 public class Validation {
 
+    private Validation(){}
+
     /*
         method to validate name input for user.
     */

@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 */
 public class Functions {
 
+    private Functions() {}
+
     /*
         method to encrypt a string using sha256 encryption algorithm
         and return encrypted string as Hex

@@ -7,6 +7,8 @@ package sakancom.pages;
 import java.awt.event.*;
 import javax.swing.table.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sakancom.common.Database;
 import sakancom.common.Functions;
 import sakancom.common.Validation;
@@ -26,6 +28,7 @@ public class OwnerPage extends JFrame {
     private final HashMap<String, Object> ownerData;
     public final static int HOME = 0, ACCOUNT = 1, HOUSING = 2, REQUESTS = 3, ADD_HOUSING = 4;
     private File chosenFile;
+    private static final Logger logger = LogManager.getLogger(OwnerPage.class);
 
     public OwnerPage(HashMap<String, Object> data) {
 
@@ -232,7 +235,7 @@ public class OwnerPage extends JFrame {
             accountPanelMessageLabel.setText("Your profile updated successfully.");
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -475,7 +478,7 @@ public class OwnerPage extends JFrame {
             stmt.close();
             conn.close();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -493,7 +496,7 @@ public class OwnerPage extends JFrame {
             conn.close();
             initRequestsPanel();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 

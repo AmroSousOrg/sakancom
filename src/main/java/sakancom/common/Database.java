@@ -98,9 +98,9 @@ public final class Database {
     */
     private static HashMap<String, Object> getUser(String username, String role)
             throws SQLException {
-        String query = role.equals("tenants") ? "SELECT * FROM tenants WHERE name = ?" :
-                role.equals("owners") ? "SELECT * FROM owners WHERE name = ?" :
-                        "SELECT * FROM admin WHERE name = ?";
+        String query = "SELECT * FROM tenants WHERE name = ?";
+        if (role.equals("owners")) query = "SELECT * FROM owners WHERE name = ?";
+        else if (role.equals("admin")) query = "SELECT * FROM admin WHERE name = ?";
 
         try (
                 Connection conn = makeConnection();
