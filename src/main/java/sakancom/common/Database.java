@@ -9,6 +9,8 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
 
@@ -20,10 +22,18 @@ import java.util.Properties;
 public final class Database {
 
     /**
+     * private constructor to preventing instantiation
+     */
+    private Database() {
+    }
+
+    /**
      * fields that define properties of the database and load it
      * from the config file using static initializer
      */
     private static final Properties database_name = new Properties();
+    private static String databaseName;
+    private static final Logger logger = LogManager.getLogger(Database.class);
 
     static {
         try {
@@ -32,9 +42,9 @@ public final class Database {
             properties.load(inputStream);
             database_name.setProperty("database_name", properties.getProperty("db.database-name"));
             database_name.setProperty("test-database", properties.getProperty("db.test-database-name"));
-            database_name.setProperty("database", properties.getProperty("db.database-name"));
+            databaseName = properties.getProperty("db.database-name");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -54,7 +64,7 @@ public final class Database {
         String username = properties.getProperty("db.username");
         String password = properties.getProperty("db.password");
 
-        return DriverManager.getConnection(url + database_name.getProperty("database"), username, password);
+        return DriverManager.getConnection(url + databaseName, username, password);
     }
 
     /*
@@ -64,9 +74,9 @@ public final class Database {
     public static HashMap<String, Object> getUser(String name, String password, String role)
             throws SQLException {
 
-        String query = role.equals("tenants") ? "SELECT * FROM tenants WHERE name = ? and password = ?" :
-                role.equals("owners") ? "SELECT * FROM owners WHERE name = ? and password = ?" :
-                        "SELECT * FROM admin WHERE name = ? and password = ?";
+        String query = "SELECT * FROM tenants WHERE name = ? and password = ?";
+        if (role.equals("owners")) query = "SELECT * FROM owners WHERE name = ? and password = ?";
+        else if (role.equals("admin")) query = "SELECT * FROM admin WHERE name = ? and password = ?";
 
         try (
                 Connection conn = makeConnection();
@@ -129,8 +139,7 @@ public final class Database {
         method to switch to test database while testing
     */
     public static void setTestDatabase(boolean ok) {
-        String name = database_name.getProperty(ok ? "test-database" : "database-name");
-        database_name.setProperty("database", name);
+        databaseName = database_name.getProperty(ok ? "test-database" : "database-name");
     }
 
     /*
@@ -171,7 +180,7 @@ public final class Database {
             stmt.executeUpdate();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -192,7 +201,7 @@ public final class Database {
             stmt.executeUpdate();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
