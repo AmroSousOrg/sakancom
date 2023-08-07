@@ -10,9 +10,8 @@ import sakancom.pages.AdminPage;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,30 +26,15 @@ public class AdminPageDefinitions {
     @When("an admin go to {string} tab")
     public void an_admin_go_to_tab(String str) {
         AdminPage page = (AdminPage)Application.openedPage;
-        int tab;
-        switch (str) {
-            case "housing":
-                tab = AdminPage.HOUSING;
-                break;
-            case "reservations":
-                tab = AdminPage.RESERVATIONS;
-                break;
-            case "furniture":
-                tab = AdminPage.FURNITURE;
-                break;
-            case "requests":
-                tab = AdminPage.REQUESTS;
-                break;
-            case "tenants":
-                tab = AdminPage.TENANTS;
-                break;
-            case "owners":
-                tab = AdminPage.OWNERS;
-                break;
-            default:
-                tab = 0;
-                break;
-        }
+        int tab = switch (str) {
+            case "housing" -> AdminPage.HOUSING;
+            case "reservations" -> AdminPage.RESERVATIONS;
+            case "furniture" -> AdminPage.FURNITURE;
+            case "requests" -> AdminPage.REQUESTS;
+            case "tenants" -> AdminPage.TENANTS;
+            case "owners" -> AdminPage.OWNERS;
+            default -> 0;
+        };
         page.setSelectedTab(tab);
         Assert.assertEquals(tab, page.getSelectedTab());
     }
@@ -139,13 +123,16 @@ public class AdminPageDefinitions {
         Map<String, String> data = dataTable.asMaps(String.class, String.class).get(0);
         String name = data.get("name");
         String ownerId = data.get("owner_id");
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select `housing_id` from `housing` where name = '" + name + "' and " +
-                    "`owner_id` = " + ownerId, conn);
-            Assert.assertTrue(rs.next());
-            rs.close();
-            conn.close();
+        String query = "select housing_id from housing where name = ? and owner_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setString(1, name);
+            stmt.setLong(2, Long.parseLong(ownerId));
+            try (ResultSet rs = stmt.executeQuery()) {
+                Assert.assertTrue(rs.next());
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -159,12 +146,16 @@ public class AdminPageDefinitions {
 
     @Then("housing advertisement with id {int} will be deleted from database")
     public void housingAdvertisementWithIdWillBeDeletedFromDatabase(int del_id) {
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select `name` from `housing` where `housing_id` = " + del_id, conn);
-            Assert.assertFalse(rs.next());
-            rs.close();
-            conn.close();
+
+        String query = "select `name` from `housing` where `housing_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setLong(1, del_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                Assert.assertFalse(rs.next());
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -273,16 +264,16 @@ public class AdminPageDefinitions {
     public void houseWithTheseInfoExistInDatabase(io.cucumber.datatable.DataTable dataTable) {
         Map<String, String> data = dataTable.asMaps(String.class, String.class).get(0);
         try {
-            ResultSet rs = Database.getHouse(Long.parseLong(data.get("housing_id")));
-            Assert.assertTrue(rs.next());
-            Assert.assertEquals(data.get("name"), rs.getString("name"));
-            Assert.assertEquals(data.get("location"), rs.getString("location"));
-            Assert.assertEquals(data.get("rent"), String.valueOf(rs.getInt("rent")));
-            Assert.assertEquals(data.get("water_inclusive"), String.valueOf(rs.getInt("water_inclusive")));
-            Assert.assertEquals(data.get("electricity_inclusive"), String.valueOf(rs.getString("electricity_inclusive")));
-            Assert.assertEquals(data.get("services"), rs.getString("services"));
-            Assert.assertEquals(data.get("floors"), String.valueOf(rs.getInt("floors")));
-            Assert.assertEquals(data.get("apart_per_floor"), String.valueOf(rs.getInt("apart_per_floor")));
+            HashMap<String, Object> rs = Database.getHouse(Long.parseLong(data.get("housing_id")));
+            Assert.assertNotNull(rs);
+            Assert.assertEquals(data.get("name"), rs.get("name"));
+            Assert.assertEquals(data.get("location"), rs.get("location"));
+            Assert.assertEquals(data.get("rent"), String.valueOf(rs.get("rent")));
+            Assert.assertEquals(data.get("water_inclusive"), String.valueOf(rs.get("water_inclusive")));
+            Assert.assertEquals(data.get("electricity_inclusive"), String.valueOf(rs.get("electricity_inclusive")));
+            Assert.assertEquals(data.get("services"), rs.get("services"));
+            Assert.assertEquals(data.get("floors"), String.valueOf(rs.get("floors")));
+            Assert.assertEquals(data.get("apart_per_floor"), String.valueOf(rs.get("apart_per_floor")));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

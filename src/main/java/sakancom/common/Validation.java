@@ -121,12 +121,16 @@ public class Validation {
 
     public static void validateOwnerName(String name, long ownerId) throws SQLException, InputValidationException {
         Validation.validateEmpty(name);
-        Connection conn = Database.makeConnection();
         String query = "select * from owners where name = ? and owner_id != ?";
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setString(1, name);
-        stmt.setLong(2, ownerId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) throw new InputValidationException("Owner name already exist.");
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, name);
+            stmt.setLong(2, ownerId);
+            try (ResultSet rs = stmt.executeQuery())  {
+                if (rs.next()) throw new InputValidationException("Owner name already exist.");
+            }
+        }
     }
 }

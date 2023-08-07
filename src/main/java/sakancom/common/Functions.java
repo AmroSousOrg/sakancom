@@ -6,10 +6,7 @@ import javax.swing.text.JTextComponent;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.stream.Stream;
@@ -57,6 +54,7 @@ public class Functions {
     public static HashMap<String, Object> rsToHashMap(ResultSet rs)
             throws SQLException {
 
+        if (rs == null) return null;
         ResultSetMetaData md = rs.getMetaData();
         int columns = md.getColumnCount();
         HashMap<String, Object> ret = new HashMap<>();
@@ -116,16 +114,13 @@ public class Functions {
      * fill table using result set from query
      */
     public static void fillTable(String query, JTable table) {
-        Connection conn;
-        try {
-            conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    query,
-                    conn
-            );
-            Functions.buildTableModel(rs, table);
-            conn.close();
 
+        try (
+                Connection conn = Database.makeConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)
+        ) {
+            Functions.buildTableModel(rs, table);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
