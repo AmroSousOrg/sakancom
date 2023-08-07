@@ -11,9 +11,7 @@ import sakancom.pages.TenantPage;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -85,13 +83,15 @@ public class TenantPageDefinitions {
 
     @Then("Then a new reservation should be added to the database with the accepted field set to {string}")
     public void then_a_new_reservation_should_be_added_to_the_database_with_the_accepted_field_set_to(String state) {
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select `reservation_id`, `accepted` from `invoice`", conn);
-            for (int i = 0; i < 3; i++) Assert.assertTrue(rs.next());
+        try (
+                Connection conn = Database.makeConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("select `reservation_id`, `accepted` from `invoice`")
+        ){
+            for (int i = 0; i < 4; i++) Assert.assertTrue(rs.next());
             lastReservationId = rs.getLong("reservation_id");
             Assert.assertEquals(Integer.parseInt(state), rs.getInt("accepted"));
-            conn.close();
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -100,16 +100,18 @@ public class TenantPageDefinitions {
     @Then("the booking details should be displayed on the panel")
     public void the_booking_details_should_be_displayed_on_the_panel() {
         TenantPage page = (TenantPage) Application.openedPage;
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = " +
-                    lastReservationId, conn);
-            Assert.assertTrue(rs.next());
-            Assert.assertEquals(rs.getString("reservation_id"), page.getInvoiceReservationIdField());
-            Assert.assertEquals(rs.getString("tenant_id"), page.getInvoiceTenantIdField());
-            Assert.assertEquals(rs.getString("housing_id"), page.getInvoiceHouseIdField());
-            Assert.assertEquals(rs.getString("owner_id"), page.getInvoiceOwnerIdField());
-            conn.close();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement("select * from `invoice` where `reservation_id` = ?")
+        ){
+            stmt.setLong(1, lastReservationId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                Assert.assertTrue(rs.next());
+                Assert.assertEquals(rs.getString("reservation_id"), page.getInvoiceReservationIdField());
+                Assert.assertEquals(rs.getString("tenant_id"), page.getInvoiceTenantIdField());
+                Assert.assertEquals(rs.getString("housing_id"), page.getInvoiceHouseIdField());
+                Assert.assertEquals(rs.getString("owner_id"), page.getInvoiceOwnerIdField());
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -139,8 +141,8 @@ public class TenantPageDefinitions {
         }
     }
 
-    @When("he click on {int} row index in the table")
-    public void he_click_on_row_index_in_the_table(Integer ind) {
+    @When("he click on {int} row index in the furniture table")
+    public void he_click_on_row_index_in_the_furniture_table(Integer ind) {
         TenantPage page = (TenantPage) Application.openedPage;
         page.selectFurnitureByIndex(ind);
     }

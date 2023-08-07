@@ -1,7 +1,6 @@
 package sakancom.test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.text.ParseException;
@@ -19,10 +18,6 @@ import sakancom.common.Database;
 import sakancom.common.Functions;
 
 public class TestDatabaseSeeder {
-
-    private static final String DB_NAME = "sakancom_test";
-    private static final String USERNAME = "sw_team";
-    private static final String PASSWORD = "12345";
 
     public static void fillDatabase(String file)
             throws ParserConfigurationException, IOException, SAXException,

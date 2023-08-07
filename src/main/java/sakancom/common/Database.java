@@ -3,13 +3,16 @@ package sakancom.common;
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/*
+/**
 
     This class is made to manage all database functionality such as implementations
     of all queries required by the system.
@@ -19,18 +22,29 @@ import java.util.Properties;
 public final class Database {
 
     /**
+     * private constructor to preventing instantiation
+     */
+    private Database() {
+    }
+
+    /**
      * fields that define properties of the database and load it
      * from the config file using static initializer
      */
-    private static final Properties properties = new Properties();
-    private static final String CONFIG_FILE_NAME = "ourConfig.config";
+    private static final Properties database_name = new Properties();
+    private static String databaseName;
+    private static final Logger logger = LogManager.getLogger(Database.class);
 
     static {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_NAME)) {
-            properties.load(fis);
+        try {
+            Properties properties = new Properties();
+            InputStream inputStream = new FileInputStream("db.properties");
+            properties.load(inputStream);
+            database_name.setProperty("database_name", properties.getProperty("db.database-name"));
+            database_name.setProperty("test-database", properties.getProperty("db.test-database-name"));
+            databaseName = properties.getProperty("db.database-name");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "config file does not found.\nor not written well.",
-                    "ERROR", JOptionPane.ERROR_MESSAGE);
+            logger.error(e.getMessage());
         }
     }
 
@@ -38,70 +52,94 @@ public final class Database {
      method to make a connection to the database
      */
     public static Connection makeConnection() throws SQLException {
-        return DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/" + properties.get("DATABASE_NAME"),
-                (String)properties.get("DATABASE_USERNAME"), (String)properties.get("DATABASE_PASSWORD"));
+        Properties properties = new Properties();
+        try (InputStream inputStream = new FileInputStream("db.properties")) {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "error in reading" +
+                    " properties file.", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+
+        String url = properties.getProperty("db.url");
+        String username = properties.getProperty("db.username");
+        String password = properties.getProperty("db.password");
+
+        return DriverManager.getConnection(url + databaseName, username, password);
     }
 
     /*
         Method to query a specified user based on name and password
         and role (tenant / owner / admin).
     */
-    public static ResultSet getUser(String name, String password, String role, Connection conn)
+    public static HashMap<String, Object> getUser(String name, String password, String role)
             throws SQLException {
 
-        String query = "SELECT * FROM `%s` WHERE `name` = ? and `password` = ?";
-        query = String.format(query, role);
-        PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "SELECT * FROM tenants WHERE name = ? and password = ?";
+        if (role.equals("owners")) query = "SELECT * FROM owners WHERE name = ? and password = ?";
+        else if (role.equals("admin")) query = "SELECT * FROM admin WHERE name = ? and password = ?";
 
-        stmt.setString(1, name);
-        try {
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, name);
             stmt.setString(2, Functions.sha256(password));
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                return Functions.rsToHashMap(rs);
+            }
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
-        return stmt.executeQuery();
     }
 
     /*
         this method to get user from database depending on name.
     */
-    private static ResultSet getUser(String username, String role, Connection conn)
+    private static HashMap<String, Object> getUser(String username, String role)
             throws SQLException {
-        String query = "SELECT * FROM `%s` WHERE `name` = ?";
-        query = String.format(query, role);
-        PreparedStatement stmt = conn.prepareStatement(query);
+        String query = "SELECT * FROM tenants WHERE name = ?";
+        if (role.equals("owners")) query = "SELECT * FROM owners WHERE name = ?";
+        else if (role.equals("admin")) query = "SELECT * FROM admin WHERE name = ?";
 
-        stmt.setString(1, username);
-        return stmt.executeQuery();
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                return Functions.rsToHashMap(rs);
+            }
+        }
     }
 
     /*
      query a specified tenant based on username and password
     */
-    public static ResultSet getTenant(String name, String password, Connection conn) throws SQLException {
-        return getUser(name, password, "tenants", conn);
+    public static HashMap<String, Object> getTenant(String name, String password) throws SQLException {
+        return getUser(name, password, "tenants");
     }
 
     /***
      query a specified owner based on username and password
      ***/
-    public static ResultSet getOwner(String name, String password, Connection conn) throws SQLException {
-        return getUser(name, password, "owners", conn);
+    public static HashMap<String, Object> getOwner(String name, String password) throws SQLException {
+        return getUser(name, password, "owners");
     }
 
     /*
      query the admin based on name and password
     */
-    public static ResultSet getAdmin(String name, String password, Connection conn) throws SQLException {
-        return getUser(name, password, "admin", conn);
+    public static HashMap<String, Object> getAdmin(String name, String password) throws SQLException {
+        return getUser(name, password, "admin");
     }
 
     /*
         method to switch to test database while testing
     */
-    public static void switchTestDatabase() {
-        properties.setProperty("DATABASE_NAME", (String)properties.get("TEST_DATABASE_NAME"));
+    public static void setTestDatabase(boolean ok) {
+        databaseName = database_name.getProperty(ok ? "test-database" : "database-name");
     }
 
     /*
@@ -118,24 +156,21 @@ public final class Database {
                 return false;
             }
         }
-        Connection conn = Database.makeConnection();
-        ResultSet rs = getUser(name, table, conn);
-        boolean result = rs.next();
-        conn.close();
-        return result;
+
+        return getUser(name, table) != null;
     }
 
     /*
         method to add new tenant
     */
     public static void addTenant(HashMap<String, Object> data) throws SQLException {
-        PreparedStatement stmt = null;
-        Connection conn = null;
-        try {
-            conn = makeConnection();
-            String query = "insert into `tenants` (`name`, `password`, `email`, `phone`," +
-                    " `age`, `university_major`) values (?, ?, ?, ?, ?, ?)";
-            stmt = conn.prepareStatement(query);
+        String query = "insert into `tenants` (`name`, `password`, `email`, `phone`," +
+                " `age`, `university_major`) values (?, ?, ?, ?, ?, ?)";
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+
             stmt.setString(1, (String)data.get("name"));
             stmt.setString(2, Functions.sha256((String)data.get("password")));
             stmt.setString(3, (String)data.get("email"));
@@ -143,11 +178,9 @@ public final class Database {
             stmt.setInt(5, Integer.parseInt((String)data.get("age")));
             stmt.setString(6, (String)data.get("university_major"));
             stmt.executeUpdate();
+
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) conn.close();
-            if (stmt != null) stmt.close();
+            logger.error(e.getMessage());
         }
     }
 
@@ -155,46 +188,21 @@ public final class Database {
         method to add new owner
     */
     public static void addOwner(HashMap<String, Object> data) throws SQLException {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        try {
-            conn = makeConnection();
-            String query = "insert into `owners` (`name`, `password`, `email`, `phone`) " +
-                    "values (?, ?, ?, ?)";
-            stmt = conn.prepareStatement(query);
+        String query = "insert into `owners` (`name`, `password`, `email`, `phone`) " +
+                "values (?, ?, ?, ?)";
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             stmt.setString(1, (String)data.get("name"));
             stmt.setString(2, Functions.sha256((String)data.get("password")));
             stmt.setString(3, (String)data.get("email"));
             stmt.setString(4, (String)data.get("phone"));
             stmt.executeUpdate();
+
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) conn.close();
-            if (stmt != null) stmt.close();
+            logger.error(e.getMessage());
         }
-    }
-
-    /*
-        this method to delete tenant or owner based on role and name
-    */
-    public static void deleteUser(String table, String name) throws SQLException {
-        Connection conn = makeConnection();
-        String query = "delete from `%s` where `name` = ?";
-        query = String.format(query, table);
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setString(1, name);
-        stmt.executeUpdate();
-        conn.close();
-        stmt.close();
-    }
-
-    /**
-     *  method to execute passed query as string and return the resultSet.
-     */
-    public static ResultSet getQuery(String query, Connection conn) throws SQLException {
-        Statement stmt = conn.createStatement();
-        return stmt.executeQuery(query);
     }
 
     /**
@@ -202,43 +210,110 @@ public final class Database {
      *  pass inputs as Map<Key, Value>
      */
     public static void addHouse(Map<String, String> data) throws SQLException {
-        Connection conn = makeConnection();
+
         String query = "insert into `housing` (`name`, `location`, `owner_id`, `rent`, `water_inclusive`, `electricity_inclusive`," +
-                " `services`, `floors`, `apart_per_floor`, `available`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(query);
-        stmt.setString(1, data.get("name"));
-        stmt.setString(2, data.get("location"));
-        stmt.setLong(3, Long.parseLong(data.get("owner_id")));
-        stmt.setInt(4, Integer.parseInt(data.get("rent")));
-        stmt.setBoolean(5, Boolean.parseBoolean(data.get("water_inclusive")));
-        stmt.setBoolean(6, Boolean.parseBoolean(data.get("electricity_inclusive")));
-        stmt.setString(7, data.get("services"));
-        stmt.setInt(8, Integer.parseInt(data.get("floors")));
-        stmt.setInt(9, Integer.parseInt(data.get("apart_per_floor")));
-        stmt.setBoolean(10, Boolean.parseBoolean(data.get("available")));
-        stmt.executeUpdate();
-        stmt.close();
-        conn.close();
+                " `services`, `floors`, `apart_per_floor`, `picture`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, data.get("name"));
+            stmt.setString(2, data.get("location"));
+            stmt.setLong(3, Long.parseLong(data.get("owner_id")));
+            stmt.setInt(4, Integer.parseInt(data.get("rent")));
+            stmt.setInt(5, Integer.parseInt(data.get("water_inclusive")));
+            stmt.setInt(6, Integer.parseInt(data.get("electricity_inclusive")));
+            stmt.setString(7, data.get("services"));
+            stmt.setInt(8, Integer.parseInt(data.get("floors")));
+            stmt.setInt(9, Integer.parseInt(data.get("apart_per_floor")));
+            stmt.setString(10, data.get("picture"));
+            stmt.executeUpdate();
+        }
     }
 
     public static long addReservation(HashMap<String, String> data) throws SQLException {
-        Connection conn = makeConnection();
+
         String query = "insert into `reservations` (`tenant_id`, `housing_id`, `floor_num`, `apart_num`) values (?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        stmt.setLong(1, Long.parseLong(data.get("tenant_id")));
-        stmt.setLong(2, Long.parseLong(data.get("housing_id")));
-        stmt.setInt(3, Integer.parseInt(data.get("floor_num")));
-        stmt.setInt(4, Integer.parseInt(data.get("apart_num")));
-        int affectedRows = stmt.executeUpdate();
-        long last_id = -1;
-        if (affectedRows > 0) {
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                last_id = rs.getLong(1);
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
+        ) {
+            stmt.setLong(1, Long.parseLong(data.get("tenant_id")));
+            stmt.setLong(2, Long.parseLong(data.get("housing_id")));
+            stmt.setInt(3, Integer.parseInt(data.get("floor_num")));
+            stmt.setInt(4, Integer.parseInt(data.get("apart_num")));
+            int affectedRows = stmt.executeUpdate();
+            long last_id = -1;
+            if (affectedRows > 0) {
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        last_id = rs.getLong(1);
+                    }
+                }
+            }
+            return last_id;
+        }
+    }
+
+    /**
+     * check if any house with the specified name exist except the house
+     * with some id
+     */
+    public static boolean isHouseExist(String name, long exceptId) throws SQLException {
+
+        String query = "select `housing_id` from `housing` where `name` = ? and `housing_id` != ?";
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, name);
+            stmt.setLong(2, exceptId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
             }
         }
-        stmt.close();
-        conn.close();
-        return last_id;
+    }
+
+    /**
+     * check if any house with the specified name exist in database
+     */
+    public static boolean isHouseExist(String name) throws SQLException {
+        return isHouseExist(name, 0);
+    }
+
+    public static void updateHouse(Map<String, String> data) throws SQLException {
+
+        String query = "update `housing` set `name` = ?, `location` = ?, `rent` = ?, `water_inclusive` = ?," +
+                " `electricity_inclusive` = ?, `services` = ?, `floors` = ?, `apart_per_floor` = ? where `housing_id` = ?";
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setString(1, data.get("name"));
+            stmt.setString(2, data.get("location"));
+            stmt.setInt(3, Integer.parseInt(data.get("rent")));
+            stmt.setInt(4, Integer.parseInt(data.get("water_inclusive")));
+            stmt.setInt(5, Integer.parseInt(data.get("electricity_inclusive")));
+            stmt.setString(6, data.get("services"));
+            stmt.setInt(7, Integer.parseInt(data.get("floors")));
+            stmt.setInt(8, Integer.parseInt(data.get("apart_per_floor")));
+            stmt.setLong(9, Long.parseLong(data.get("housing_id")));
+            stmt.executeUpdate();
+        }
+    }
+
+    public static HashMap<String, Object> getHouse(long housing_id) throws SQLException {
+
+        String query = "select * from housing where housing_id = ?";
+        try (
+                Connection conn = makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setLong(1, housing_id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return Functions.rsToHashMap(rs);
+            }
+        }
     }
 }

@@ -1,18 +1,15 @@
 package sakancom;
 
-import sakancom.pages.LoginPage;
+
+import java.io.IOException;
 
 /**
  *  Main application driver
  */
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         Application.openLoginPage();
-        LoginPage page = (LoginPage) Application.openedPage;
-        page.setCredentials("Admin", "Admin");
-        page.setRoleCombo(LoginPage.ADMIN);
-        page.pressSubmitButton();
     }
 }

@@ -3,17 +3,10 @@ package sakancom.common;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.stream.Stream;
@@ -26,6 +19,8 @@ import java.util.stream.Stream;
 */
 public class Functions {
 
+    private Functions() {}
+
     /*
         method to encrypt a string using sha256 encryption algorithm
         and return encrypted string as Hex
@@ -37,15 +32,6 @@ public class Functions {
                 str.getBytes(StandardCharsets.UTF_8));
 
         return bytesToHex(encodedHash);
-    }
-
-    /*
-        method to validate String password with the encrypted one
-        if they are equal it returns true otherwise return false
-    */
-    public static boolean validateEncryptionMatch(String password, String encrypted)
-            throws NoSuchAlgorithmException {
-        return encrypted.equals(sha256(password));
     }
 
     /*
@@ -70,6 +56,7 @@ public class Functions {
     public static HashMap<String, Object> rsToHashMap(ResultSet rs)
             throws SQLException {
 
+        if (rs == null) return null;
         ResultSetMetaData md = rs.getMetaData();
         int columns = md.getColumnCount();
         HashMap<String, Object> ret = new HashMap<>();
@@ -87,19 +74,6 @@ public class Functions {
     public static void clearAllChildren(JComponent parent) {
         Stream.of(parent.getComponents()).filter(c -> c instanceof JTextComponent)
                 .forEach(c -> ((JTextComponent) c).setText(""));
-    }
-
-    /*
-        write to log file named logger.text
-    */
-    public static void writeLogFile(String message) {
-        try {
-            FileWriter writer = new FileWriter("target/logger.txt");
-            writer.write(message);
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**
@@ -142,28 +116,15 @@ public class Functions {
      * fill table using result set from query
      */
     public static void fillTable(String query, JTable table) {
-        Connection conn;
-        try {
-            conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    query,
-                    conn
-            );
-            Functions.buildTableModel(rs, table);
-            conn.close();
 
+        try (
+                Connection conn = Database.makeConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query)
+        ) {
+            Functions.buildTableModel(rs, table);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    /**
-     * method to simulate real mouse click
-     */
-    public static void click(int x, int y) throws AWTException{
-        Robot bot = new Robot();
-        bot.mouseMove(x, y);
-        bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 }

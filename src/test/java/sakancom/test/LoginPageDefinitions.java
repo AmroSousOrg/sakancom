@@ -28,7 +28,7 @@ public class LoginPageDefinitions {
 
     @Before
     public void setupTestDB() {
-        Database.switchTestDatabase();
+        Database.setTestDatabase(true);
     }
 
     @After
@@ -44,7 +44,7 @@ public class LoginPageDefinitions {
     public void the_user_is_on_login_page() {
         Application.openLoginPage();
         Assert.assertTrue(Application.openedPage instanceof LoginPage);
-        Assert.assertEquals(Application.status, Application.PAGE.LOGIN);
+        Assert.assertEquals(Application.PAGE.LOGIN, Application.status);
     }
 
     @And("he choose sign in as {string}")
@@ -72,8 +72,8 @@ public class LoginPageDefinitions {
             Assert.assertNotEquals(Application.PAGE.LOGIN, Application.status);
         }
         else {
-            Assert.assertEquals(Application.status, Application.PAGE.LOGIN);
-            Assert.assertEquals(((LoginPage)Application.openedPage).getErrorLabel(), message);
+            Assert.assertEquals(Application.PAGE.LOGIN, Application.status);
+            Assert.assertEquals(message, ((LoginPage)Application.openedPage).getErrorLabel());
         }
     }
 

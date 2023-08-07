@@ -5,24 +5,29 @@
 package sakancom.pages;
 
 import java.awt.event.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sakancom.common.Database;
 import sakancom.common.Functions;
+import sakancom.common.Validation;
+import sakancom.exceptions.InputValidationException;
 
 import java.awt.*;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Objects;
 import javax.swing.*;
 import javax.swing.table.*;
 
-/**
- * @author amroo
- */
+
 @SuppressWarnings("FieldCanBeLocal")
 public class AdminPage extends JFrame {
 
+    private static final Logger logger = LogManager.getLogger(AdminPage.class);
     private final HashMap<String, Object> adminData;
+    public static final int HOME = 0, HOUSING = 1, RESERVATIONS = 2, FURNITURE = 3, REQUESTS = 4, TENANTS = 5, OWNERS = 6;
+
     public AdminPage(HashMap<String, Object> adminData) {
         this.adminData = adminData;
         initComponents();
@@ -34,10 +39,11 @@ public class AdminPage extends JFrame {
 
     private void customInitComponent() {
         fillHousesTable();
-        fillPersonalInfo();
         fillReservationsTable();
         fillFurnitureTable();
         fillRequestsTable();
+        fillTenantsTable();
+        fillOwnersTable();
 
         housesTable.getTableHeader().setReorderingAllowed(false);
         furnitureTable.getTableHeader().setReorderingAllowed(false);
@@ -45,6 +51,71 @@ public class AdminPage extends JFrame {
         requestsTable.getTableHeader().setReorderingAllowed(false);
 
         furnitureTable.getSelectionModel().addListSelectionListener(e -> furnitureTableSelectionChanged());
+        tenantsTable.getSelectionModel().addListSelectionListener(e -> tenantsTableSelectionChanged());
+        ownersTable.getSelectionModel().addListSelectionListener(e -> ownersTableSelectionChanged());
+    }
+
+    private void fillOwnersTable() {
+        String query = "select owner_id, name from owners";
+        Functions.fillTable(query, ownersTable);
+    }
+
+    private void fillTenantsTable() {
+        String query = "select tenant_id, name from tenants";
+        Functions.fillTable(query, tenantsTable);
+    }
+
+    private void ownersTableSelectionChanged() {
+        int selectedRow = ownersTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        String query = "select * from owners where owner_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            long ownerId = (long) ownersTable.getValueAt(selectedRow, 1);
+            stmt.setLong(1, ownerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    ownerIdField.setText(String.valueOf(rs.getLong("owner_id")));
+                    ownerNameField.setText(rs.getString("name"));
+                    ownerPhoneField.setText(rs.getString("phone"));
+                    ownerEmailField.setText(rs.getString("email"));
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException ex) {
+            logger.error(ex.getMessage());
+        }
+    }
+
+    private void tenantsTableSelectionChanged() {
+        int selectedRow = tenantsTable.getSelectedRow();
+        if (selectedRow == -1) return;
+        String query = "select * from tenants where tenant_id = ?";
+
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            long id = (long) tenantsTable.getValueAt(selectedRow, 1);
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tenantId.setText(String.valueOf(rs.getLong("tenant_id")));
+                    tenantName.setText(rs.getString("name"));
+                    tenantPhone.setText(rs.getString("phone"));
+                    tenantEmail.setText(rs.getString("email"));
+                    tenantAge.setText(rs.getString("age"));
+                    tenantMajor.setText(rs.getString("university_major"));
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException ex) {
+            logger.error(ex.getMessage());
+        }
     }
 
     public void fillHousesTable() {
@@ -66,39 +137,35 @@ public class AdminPage extends JFrame {
         Functions.fillTable("SELECT `furniture_id`, `name`, `price` from `furniture`", furnitureTable);
     }
 
-    private void fillPersonalInfo() {
-        newPasswordField.setText("");
-        oldPasswordField.setText("");
-        retypeField.setText("");
-        accountPanelMessageLabel.setText("");
-        accountPanelMessageLabel.setForeground(Color.red);
-        idField.setText(String.valueOf((long)adminData.get("admin_id")));
-        nameField.setText((String)adminData.get("name"));
-        emailField.setText((String)adminData.get("email"));
-        phoneField.setText((String)adminData.get("phone"));
-    }
-
     private void showHouse() {
+        setEditHouseMode(false);
         int selected = housesTable.getSelectedRow();
         if (selected == -1) return;
         String name = (String)housesTable.getValueAt(selected, 1);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT * from `housing` where `name` = '"+name+"'",
-                    conn
-            );
-            rs.next();
-            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
-            long id = (long)houseData.get("owner_id");
-            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
-            if (rs.next())
-            {
-                houseData.put("owner_name", rs.getString("name"));
-                houseData.put("owner_phone", rs.getString("phone"));
+        String query = "SELECT * from `housing` where `name` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            HashMap<String, Object> houseData;
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                houseData = Functions.rsToHashMap(rs);
             }
-            showHouseInfoPanel(houseData);
-            conn.close();
+            long id = (long)houseData.get("owner_id");
+            String query1 = "SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?";
+            try (PreparedStatement stmt1 = conn.prepareStatement(query1)) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next())
+                    {
+                        houseData.put("owner_name", rs.getString("name"));
+                        houseData.put("owner_phone", rs.getString("phone"));
+                    }
+                    showHouseInfoPanel(houseData);
+                }
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -139,21 +206,26 @@ public class AdminPage extends JFrame {
     }
 
     private void closeOneHouseMouseClicked() {
+        oneHouseMessageLabel.setText("");
+        oneHouseMessageLabel.setForeground(Color.red);
         Functions.switchChildPanel(housingPanel, allHousesPanel);
+        fillHousesTable();
     }
 
     private void reservationDetails() {
         int selectedRow = reservationsTable.getSelectedRow();
         if (selectedRow == -1) return;
         Functions.switchChildPanel(reservationsPanel, invoicePanel);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = "+
-                    reservationsTable.getValueAt(selectedRow, 1), conn);
-            rs.next();
-            HashMap<String, Object> invoice_data = Functions.rsToHashMap(rs);
-            conn.close();
-            fillInvoiceInfo(invoice_data);
+        String query = "select * from `invoice` where `reservation_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setLong(1, (Long) reservationsTable.getValueAt(selectedRow, 1));
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                fillInvoiceInfo(Functions.rsToHashMap(rs));
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -209,18 +281,17 @@ public class AdminPage extends JFrame {
                     "WARNING", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
-            pstmt.setLong(1, rid);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+            stmt.setLong(1, rid);
+            stmt.executeUpdate();
             reservationsTable.setValueAt(1, selectedRow, 7);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
@@ -232,43 +303,41 @@ public class AdminPage extends JFrame {
                     "WARNING", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "delete from `reservations` where reservation_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        String query = "delete from `reservations` where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
-            pstmt.setLong(1, rid);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+            stmt.setLong(1, rid);
+            stmt.executeUpdate();
             fillReservationsTable();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            logger.error(e.getMessage());
         }
     }
 
     public void furnitureTableSelectionChanged() {
-        Connection conn;
         int selectedRow = furnitureTable.getSelectedRow();
         if (selectedRow == -1) return;
-        try {
-            conn = Database.makeConnection();
-            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
-                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long id = (long) furnitureTable.getValueAt(selectedRow, 1);
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
-            {
-                furnitureId.setText(rs.getString("furniture_id"));
-                furnitureName.setText(rs.getString("furniture_name"));
-                furnitureDesc.setText(rs.getString("description"));
-                furnitureOwner.setText(rs.getString("owner_name"));
-                furniturePhone.setText(rs.getString("phone"));
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                {
+                    furnitureId.setText(rs.getString("furniture_id"));
+                    furnitureName.setText(rs.getString("furniture_name"));
+                    furnitureDesc.setText(rs.getString("description"));
+                    furnitureOwner.setText(rs.getString("owner_name"));
+                    furniturePhone.setText(rs.getString("phone"));
+                }
             }
-            conn.close();
-
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -278,23 +347,31 @@ public class AdminPage extends JFrame {
         int selected = requestsTable.getSelectedRow();
         if (selected == -1) return;
         String name = (String)requestsTable.getValueAt(selected, 1);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT * from `housing` where `name` = '"+name+"'",
-                    conn
-            );
-            rs.next();
-            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
+        String query = "SELECT * from `housing` where `name` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setString(1, name);
+            HashMap<String, Object> houseData;
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                houseData = Functions.rsToHashMap(rs);
+            }
+
             long id = (long)houseData.get("owner_id");
-            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
-            if (rs.next())
-            {
-                houseData.put("owner_name", rs.getString("name"));
-                houseData.put("owner_phone", rs.getString("phone"));
+            try (PreparedStatement stmt1 = conn.prepareStatement("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?")) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt1.executeQuery()) {
+                    if (rs.next())
+                    {
+                        houseData.put("owner_name", rs.getString("name"));
+                        houseData.put("owner_phone", rs.getString("phone"));
+                    }
+                }
             }
             showRequestHouseInfoPanel(houseData);
-            conn.close();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -341,13 +418,12 @@ public class AdminPage extends JFrame {
     private void acceptRequest() {
         long id = Long.parseLong(requestHouseId.getText());
         String query = "update `housing` set `available` = '1' where `housing_id` = ?";
-        try {
-            Connection conn = Database.makeConnection();
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
             Functions.switchChildPanel(requestsPanel, requestsTablePanel);
             fillRequestsTable();
         } catch (SQLException e) {
@@ -358,13 +434,12 @@ public class AdminPage extends JFrame {
     private void rejectRequest() {
         long id = Long.parseLong(requestHouseId.getText());
         String query = "delete from `housing` where `housing_id` = ?";
-        try {
-            Connection conn = Database.makeConnection();
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
             Functions.switchChildPanel(requestsPanel, requestsTablePanel);
             fillRequestsTable();
         } catch (SQLException e) {
@@ -373,34 +448,31 @@ public class AdminPage extends JFrame {
     }
 
     private void deleteHouse() {
+        oneHouseMessageLabel.setForeground(Color.red);
         long id = Long.parseLong(houseId.getText());
-        Connection conn;
-        PreparedStatement pstmt;
-        ResultSet rs;
-        String query, error = "";
-        
-        try {
-            query = "select `reservation_id` from `invoice` where `housing_id` = ?";
-            conn = Database.makeConnection();
-            pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                error = "You can't delete this house, because there are reservations on it.";
-            }
-            else {
-                query = "delete from `housing` where `housing_id` = ?";
-                pstmt = conn.prepareStatement(query);
-                pstmt.setLong(1, id);
-                pstmt.executeUpdate();
-                Functions.switchChildPanel(housingPanel, allHousesPanel);
-                fillHousesTable();
-            }
-            pstmt.close();
-            conn.close();
-            if (!error.equals("")) {
-                oneHouseMessageLabel.setText(error);
+        String error;
+
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "select `reservation_id` from `invoice` where `housing_id` = ?")
+        ){
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    error = "You can't delete this house, because there are reservations on it.";
+                    oneHouseMessageLabel.setText(error);
+                }
+                else {
+                    try (PreparedStatement stmt1 = conn.prepareStatement(
+                            "delete from `housing` where `housing_id` = ?")
+                    ) {
+                        stmt1.setLong(1, id);
+                        stmt1.executeUpdate();
+                    }
+                    Functions.switchChildPanel(housingPanel, allHousesPanel);
+                    fillHousesTable();
+                }
             }
             
         } catch (SQLException e) {
@@ -408,75 +480,227 @@ public class AdminPage extends JFrame {
         }
     }
 
-    private void changePassowrd() {
-        accountPanelMessageLabel.setText("");
-        accountPanelMessageLabel.setForeground(Color.red);
-        String oldPass = String.valueOf(oldPasswordField.getPassword());
-        String retype = String.valueOf(retypeField.getPassword());
-        String newPass = String.valueOf(newPasswordField.getPassword());
-        String error = "";
+    private void mainPanelStateChanged() {
+        int tabSelected = mainPanel.getSelectedIndex();
+        if (tabSelected == HOUSING) fillHousesTable();
+        else if (tabSelected == RESERVATIONS) fillReservationsTable();
+        else if (tabSelected == FURNITURE) fillFurnitureTable();
+        else if (tabSelected == REQUESTS) fillRequestsTable();
+    }
 
-        if (oldPass.isEmpty()) error = "Old password field is empty.";
-        else if (retype.isEmpty()) error = "Retype pass field is empty.";
-        else if (newPass.isEmpty()) error = "New password field is empty.";
-        else if (!newPass.equals(retype)) error = "Mismatch passwords.";
-        else {
-            try {
-                Connection conn = Database.makeConnection();
-                ResultSet rs = Database.getQuery("select `name` from `admin` where `admin_id` = " +
-                        adminData.get("admin_id") + " and `password` = '" + Functions.sha256(oldPass) + "'", conn);
-                if (rs.next()) {
-                    Statement stmt = conn.createStatement();
-                    stmt.executeUpdate("update `admin` set `password` = '" + Functions.sha256(newPass) +
-                            "' where `admin_id` = " + adminData.get("admin_id"));
-                    stmt.close();
-                    accountPanelMessageLabel.setForeground(Color.green);
-                    accountPanelMessageLabel.setText("password updated.");
-                    newPasswordField.setText("");
-                    oldPasswordField.setText("");
-                    retypeField.setText("");
-                }
-                else {
-                    error = "Incorrect password.";
-                }
-                conn.close();
-            } catch (SQLException | NoSuchAlgorithmException e) {
-                JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+    public int getSelectedTab() {
+        return mainPanel.getSelectedIndex();
+    }
+
+    public void setSelectedTab(int ind) {
+        mainPanel.setSelectedIndex(ind);
+    }
+
+    public DefaultTableModel getReservationsTableModel() {
+        return (DefaultTableModel) reservationsTable.getModel();
+    }
+
+    public void setSelectedReservationRow(Integer ind) {
+        reservationsTable.setRowSelectionInterval(ind, ind);
+    }
+
+    public void pressReservationDetailsButton() {
+        reservationDetailsButton.doClick();
+    }
+
+    public String getVBookingId() {
+        return vBookingId.getText();
+    }
+
+    public String getVHousingId() {
+        return vHousingId.getText();
+    }
+
+    public String getVTenantId() {
+        return vTenantId.getText();
+    }
+
+    public String getVOwnerId() {
+        return vOwnerId.getText();
+    }
+
+    public void setSelectedRequestsRow(int ind) { requestsTable.setRowSelectionInterval(ind, ind);}
+
+    public void pressRequestHouseDetailsButton() { requestHouseDetails.doClick(); }
+
+    public String getRequestHouseId() { return requestHouseId.getText(); }
+
+    public String getRequestHouseServices() { return requestHouseServices.getText(); }
+
+    public String getRequestOwnerName() { return requestOwnerName.getText(); }
+
+    public void pressAcceptAdvertisementButton() { acceptRequestButton.doClick(); }
+
+    public void pressRejectAdvertisementButton() { rejectRequestButton.doClick(); }
+
+    public DefaultTableModel getRequestsTableModel() { return (DefaultTableModel)requestsTable.getModel(); }
+
+    public DefaultTableModel getFurnitureTableModel() { return (DefaultTableModel)furnitureTable.getModel(); }
+
+    public void setSelectedFurnitureRow(int ind) { furnitureTable.setRowSelectionInterval(ind, ind); }
+
+    public String getFurnitureId() { return furnitureId.getText(); }
+
+    public String getFurnitureName() { return furnitureName.getText(); }
+
+    public String getFurnitureDesc() { return furnitureDesc.getText(); }
+
+    public String getFurnitureOwner() { return furnitureOwner.getText(); }
+
+    public String getFurniturePhone() { return furniturePhone.getText(); }
+
+    private void editHouseInfo() {
+        oneHouseMessageLabel.setForeground(Color.red);
+        setEditHouseMode(true);
+    }
+
+    private void setEditHouseMode(boolean enable) {
+        houseName.setEnabled(enable);
+        houseLocation.setEnabled(enable);
+        houseRent.setEnabled(enable);
+        houseServices.setEnabled(enable);
+        electricityYes.setEnabled(enable);
+        electricityNo.setEnabled(enable);
+        waterYes.setEnabled(enable);
+        waterNo.setEnabled(enable);
+        floorsNumber.setEnabled(enable);
+        apartPerFloor.setEnabled(enable);
+    }
+
+    private void saveHouseInfo() {
+        oneHouseMessageLabel.setText("");
+        oneHouseMessageLabel.setForeground(Color.red);
+
+        String name = houseName.getText();
+        String location = houseLocation.getText();
+        String rent = houseRent.getText();
+        String services = houseServices.getText();
+        int electricity = electricityYes.isSelected() ? 1 : 0;
+        int water = waterYes.isSelected() ? 1 : 0;
+        String floors = floorsNumber.getText();
+        String apart = apartPerFloor.getText();
+        String id = houseId.getText();
+
+        try {
+            Validation.checkHouseName(name, Long.parseLong(id));
+            Validation.validateEmpty(location);
+            Validation.checkHouseRent(rent);
+            Validation.validateEmpty(services);
+            Validation.checkHouseFloor(floors);
+            Validation.checkHouseApart(apart);
+        } catch (SQLException | InputValidationException e) {
+            oneHouseMessageLabel.setText(e.getMessage());
+            return;
         }
-        if (!error.isEmpty()) {
-            accountPanelMessageLabel.setText(error);
+
+        HashMap<String, String> data = new HashMap<>();
+        data.put("name", name);
+        data.put("location", location);
+        data.put("rent", rent);
+        data.put("services", services);
+        data.put("electricity_inclusive", String.valueOf(electricity));
+        data.put("water_inclusive", String.valueOf(water));
+        data.put("floors", floors);
+        data.put("apart_per_floor", apart);
+        data.put("housing_id", id);
+        try {
+            Database.updateHouse(data);
+        } catch (SQLException e) {
+            oneHouseMessageLabel.setText("sorry, database fault.");
+            return;
         }
+
+        setEditHouseMode(false);
+        oneHouseMessageLabel.setForeground(Color.green);
+        oneHouseMessageLabel.setText("House updated successfully.");
+    }
+
+    public DefaultTableModel getHousesTableModel() {
+        return (DefaultTableModel) housesTable.getModel();
+    }
+
+    public void setSelectedHousesRow(int ind) {
+        housesTable.setRowSelectionInterval(ind, ind);
+    }
+
+    public void pressHouseDetailsButton() {
+        showHouse.doClick();
+    }
+
+    public String getHouseId() {
+        return houseId.getText();
+    }
+
+    public String getHouseName() {
+        return houseName.getText();
+    }
+
+    public String getHouseOwnerName() {
+        return ownerName.getText();
+    }
+
+    public String getHouseLocation() {
+        return houseLocation.getText();
+    }
+
+    public String getHouseServices() {
+        return houseServices.getText();
+    }
+
+    public void pressEditHouseButton() {
+        editHouseInfo.doClick();
+    }
+
+    public void setHouseName(String name) {
+        houseName.setText(name);
+    }
+
+    public void setHouseLocation(String loc) {
+        houseLocation.setText(loc);
+    }
+
+    public void setHouseServices(String services) {
+        houseServices.setText(services);
+    }
+
+    public void setWater(boolean yes) {
+        waterYes.setSelected(yes);
+    }
+
+    public void setElectricity(boolean yes) {
+        electricityYes.setSelected(yes);
+    }
+
+    public void setHouseFloors(String floor) {
+        floorsNumber.setText(floor);
+    }
+
+    public void setHouseApart(String apart) {
+        apartPerFloor.setText(apart);
+    }
+
+    public void setHouseRent(String rent) {
+        houseRent.setText(rent);
+    }
+
+    public void pressSaveHouseEditButton() {
+        saveHouseInfo.doClick();
+    }
+
+    public String getOneHouseMessageLabel() {
+        return oneHouseMessageLabel.getText();
     }
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-        // Generated using JFormDesigner Evaluation license - Amro
+        // Generated using JFormDesigner Evaluation license - Amro Sous
         mainPanel = new JTabbedPane();
         homePanel = new JPanel();
-        accountPanel = new JPanel();
-        adminAccountPanel = new JPanel();
-        label1 = new JLabel();
-        label2 = new JLabel();
-        label3 = new JLabel();
-        label4 = new JLabel();
-        label5 = new JLabel();
-        separator1 = new JSeparator();
-        idField = new JTextField();
-        nameField = new JTextField();
-        emailField = new JTextField();
-        phoneField = new JTextField();
-        editProfileButton = new JButton();
-        saveProfileButton = new JButton();
-        accountPanelMessageLabel = new JLabel();
-        changePassowrdButton = new JButton();
-        separator2 = new JSeparator();
-        label11 = new JLabel();
-        label12 = new JLabel();
-        label13 = new JLabel();
-        oldPasswordField = new JPasswordField();
-        newPasswordField = new JPasswordField();
-        retypeField = new JPasswordField();
         housingPanel = new JPanel();
         allHousesPanel = new JPanel();
         scrollPane1 = new JScrollPane();
@@ -640,7 +864,37 @@ public class AdminPage extends JFrame {
         closeOneHouse2 = new JLabel();
         rejectRequestButton = new JButton();
         tenantsPanel = new JPanel();
+        allTenantsPanel = new JPanel();
+        textField9 = new JTextField();
+        label66 = new JLabel();
+        scrollPane8 = new JScrollPane();
+        tenantsTable = new JTable();
+        label67 = new JLabel();
+        tenantId = new JTextField();
+        label68 = new JLabel();
+        tenantName = new JTextField();
+        label69 = new JLabel();
+        tenantPhone = new JTextField();
+        label70 = new JLabel();
+        tenantEmail = new JTextField();
+        label71 = new JLabel();
+        tenantAge = new JTextField();
+        label72 = new JLabel();
+        tenantMajor = new JTextField();
         ownersPanel = new JPanel();
+        allOwnersPanel = new JPanel();
+        textField10 = new JTextField();
+        label73 = new JLabel();
+        scrollPane9 = new JScrollPane();
+        ownersTable = new JTable();
+        label74 = new JLabel();
+        ownerIdField = new JTextField();
+        label75 = new JLabel();
+        ownerNameField = new JTextField();
+        label76 = new JLabel();
+        ownerPhoneField = new JTextField();
+        label77 = new JLabel();
+        ownerEmailField = new JTextField();
 
         //======== this ========
         var contentPane = getContentPane();
@@ -648,15 +902,16 @@ public class AdminPage extends JFrame {
 
         //======== mainPanel ========
         {
+            mainPanel.addChangeListener(e -> mainPanelStateChanged());
 
             //======== homePanel ========
             {
-                homePanel.setBorder (new javax. swing. border. CompoundBorder( new javax .swing .border .TitledBorder (new javax. swing. border.
-                EmptyBorder( 0, 0, 0, 0) , "JF\u006frmDesi\u0067ner Ev\u0061luatio\u006e", javax. swing. border. TitledBorder. CENTER, javax. swing
-                . border. TitledBorder. BOTTOM, new java .awt .Font ("Dialo\u0067" ,java .awt .Font .BOLD ,12 ),
-                java. awt. Color. red) ,homePanel. getBorder( )) ); homePanel. addPropertyChangeListener (new java. beans. PropertyChangeListener( )
-                { @Override public void propertyChange (java .beans .PropertyChangeEvent e) {if ("borde\u0072" .equals (e .getPropertyName () ))
-                throw new RuntimeException( ); }} );
+                homePanel.setBorder ( new javax . swing. border .CompoundBorder ( new javax . swing. border .TitledBorder ( new javax . swing. border
+                .EmptyBorder ( 0, 0 ,0 , 0) ,  "JFor\u006dDesi\u0067ner \u0045valu\u0061tion" , javax. swing .border . TitledBorder. CENTER ,javax
+                . swing. border .TitledBorder . BOTTOM, new java. awt .Font ( "Dia\u006cog", java .awt . Font. BOLD ,
+                12 ) ,java . awt. Color .red ) ,homePanel. getBorder () ) ); homePanel. addPropertyChangeListener( new java. beans
+                .PropertyChangeListener ( ){ @Override public void propertyChange (java . beans. PropertyChangeEvent e) { if( "bord\u0065r" .equals ( e.
+                getPropertyName () ) )throw new RuntimeException( ) ;} } );
                 homePanel.setLayout(null);
 
                 {
@@ -675,164 +930,6 @@ public class AdminPage extends JFrame {
                 }
             }
             mainPanel.addTab("HOME", homePanel);
-
-            //======== accountPanel ========
-            {
-                accountPanel.setLayout(null);
-
-                //======== adminAccountPanel ========
-                {
-                    adminAccountPanel.setLayout(null);
-
-                    //---- label1 ----
-                    label1.setText("Admin Account");
-                    label1.setFont(new Font("Bodoni MT", label1.getFont().getStyle(), label1.getFont().getSize() + 15));
-                    label1.setForeground(Color.blue);
-                    adminAccountPanel.add(label1);
-                    label1.setBounds(25, 20, 220, 50);
-
-                    //---- label2 ----
-                    label2.setText("ID:");
-                    label2.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label2);
-                    label2.setBounds(85, 130, 80, 30);
-
-                    //---- label3 ----
-                    label3.setText("Name:");
-                    label3.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label3);
-                    label3.setBounds(85, 175, 80, 30);
-
-                    //---- label4 ----
-                    label4.setText("Email:");
-                    label4.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label4);
-                    label4.setBounds(85, 220, 80, 30);
-
-                    //---- label5 ----
-                    label5.setText("Phone:");
-                    label5.setFont(new Font("SimSun", Font.BOLD, 20));
-                    adminAccountPanel.add(label5);
-                    label5.setBounds(85, 265, 80, 30);
-                    adminAccountPanel.add(separator1);
-                    separator1.setBounds(30, 75, 925, 10);
-
-                    //---- idField ----
-                    idField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    idField.setEnabled(false);
-                    idField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(idField);
-                    idField.setBounds(175, 135, 220, idField.getPreferredSize().height);
-
-                    //---- nameField ----
-                    nameField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    nameField.setEnabled(false);
-                    nameField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(nameField);
-                    nameField.setBounds(175, 180, 220, 30);
-
-                    //---- emailField ----
-                    emailField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    emailField.setEnabled(false);
-                    emailField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(emailField);
-                    emailField.setBounds(175, 225, 220, 30);
-
-                    //---- phoneField ----
-                    phoneField.setFont(new Font("SimSun", Font.PLAIN, 20));
-                    phoneField.setEnabled(false);
-                    phoneField.setDisabledTextColor(new Color(0x666666));
-                    adminAccountPanel.add(phoneField);
-                    phoneField.setBounds(175, 270, 220, 30);
-
-                    //---- editProfileButton ----
-                    editProfileButton.setText("Edit");
-                    editProfileButton.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
-                    adminAccountPanel.add(editProfileButton);
-                    editProfileButton.setBounds(new Rectangle(new Point(120, 380), editProfileButton.getPreferredSize()));
-
-                    //---- saveProfileButton ----
-                    saveProfileButton.setText("Save");
-                    saveProfileButton.setFont(new Font("Trebuchet MS", Font.PLAIN, 16));
-                    adminAccountPanel.add(saveProfileButton);
-                    saveProfileButton.setBounds(255, 380, 100, 30);
-
-                    //---- accountPanelMessageLabel ----
-                    accountPanelMessageLabel.setForeground(Color.red);
-                    accountPanelMessageLabel.setFont(new Font("Segoe UI Light", Font.PLAIN, 16));
-                    adminAccountPanel.add(accountPanelMessageLabel);
-                    accountPanelMessageLabel.setBounds(415, 400, 540, 30);
-
-                    //---- changePassowrdButton ----
-                    changePassowrdButton.setText("Change your password");
-                    changePassowrdButton.setFont(new Font("Segoe UI Historic", Font.PLAIN, 16));
-                    changePassowrdButton.addActionListener(e -> changePassowrd());
-                    adminAccountPanel.add(changePassowrdButton);
-                    changePassowrdButton.setBounds(660, 320, 205, 30);
-
-                    //---- separator2 ----
-                    separator2.setOrientation(SwingConstants.VERTICAL);
-                    adminAccountPanel.add(separator2);
-                    separator2.setBounds(505, 110, 15, 240);
-
-                    //---- label11 ----
-                    label11.setText("Old Password:");
-                    label11.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label11);
-                    label11.setBounds(525, 155, 135, 30);
-
-                    //---- label12 ----
-                    label12.setText("New Password:");
-                    label12.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label12);
-                    label12.setBounds(525, 210, 135, 30);
-
-                    //---- label13 ----
-                    label13.setText("Retype:");
-                    label13.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    adminAccountPanel.add(label13);
-                    label13.setBounds(525, 260, 135, 30);
-                    adminAccountPanel.add(oldPasswordField);
-                    oldPasswordField.setBounds(660, 155, 205, 30);
-                    adminAccountPanel.add(newPasswordField);
-                    newPasswordField.setBounds(660, 210, 205, 30);
-                    adminAccountPanel.add(retypeField);
-                    retypeField.setBounds(660, 265, 205, 30);
-
-                    {
-                        // compute preferred size
-                        Dimension preferredSize = new Dimension();
-                        for(int i = 0; i < adminAccountPanel.getComponentCount(); i++) {
-                            Rectangle bounds = adminAccountPanel.getComponent(i).getBounds();
-                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-                        }
-                        Insets insets = adminAccountPanel.getInsets();
-                        preferredSize.width += insets.right;
-                        preferredSize.height += insets.bottom;
-                        adminAccountPanel.setMinimumSize(preferredSize);
-                        adminAccountPanel.setPreferredSize(preferredSize);
-                    }
-                }
-                accountPanel.add(adminAccountPanel);
-                adminAccountPanel.setBounds(0, 0, 990, 470);
-
-                {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < accountPanel.getComponentCount(); i++) {
-                        Rectangle bounds = accountPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-                    }
-                    Insets insets = accountPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    accountPanel.setMinimumSize(preferredSize);
-                    accountPanel.setPreferredSize(preferredSize);
-                }
-            }
-            mainPanel.addTab("ACCOUNT", accountPanel);
 
             //======== housingPanel ========
             {
@@ -962,7 +1059,6 @@ public class AdminPage extends JFrame {
 
                     //---- houseId ----
                     houseId.setFont(new Font("SimSun", Font.PLAIN, 18));
-                    houseId.setBackground(new Color(0xededed));
                     houseId.setDisabledTextColor(new Color(0x333333));
                     houseId.setEnabled(false);
                     oneHousePanel.add(houseId);
@@ -972,13 +1068,13 @@ public class AdminPage extends JFrame {
                     houseName.setFont(new Font("SimSun", Font.PLAIN, 18));
                     houseName.setEnabled(false);
                     houseName.setDisabledTextColor(new Color(0x333333));
+                    houseName.setBackground(new Color(0xededed));
                     oneHousePanel.add(houseName);
                     houseName.setBounds(145, 70, 200, 30);
 
                     //---- houseLocation ----
                     houseLocation.setFont(new Font("SimSun", Font.PLAIN, 18));
                     houseLocation.setEnabled(false);
-                    houseLocation.setBackground(new Color(0xededed));
                     houseLocation.setDisabledTextColor(new Color(0x333333));
                     oneHousePanel.add(houseLocation);
                     houseLocation.setBounds(145, 115, 200, houseLocation.getPreferredSize().height);
@@ -1126,6 +1222,7 @@ public class AdminPage extends JFrame {
 
                     //---- editHouseInfo ----
                     editHouseInfo.setText("EDIT");
+                    editHouseInfo.addActionListener(e -> editHouseInfo());
                     oneHousePanel.add(editHouseInfo);
                     editHouseInfo.setBounds(495, 370, 117, 35);
 
@@ -1151,6 +1248,7 @@ public class AdminPage extends JFrame {
 
                     //---- saveHouseInfo ----
                     saveHouseInfo.setText("SAVE");
+                    saveHouseInfo.addActionListener(e -> saveHouseInfo());
                     oneHousePanel.add(saveHouseInfo);
                     saveHouseInfo.setBounds(665, 370, 117, 35);
 
@@ -2180,43 +2278,293 @@ public class AdminPage extends JFrame {
 
             //======== tenantsPanel ========
             {
-                tenantsPanel.setLayout(null);
+                tenantsPanel.setLayout(new CardLayout());
 
+                //======== allTenantsPanel ========
                 {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < tenantsPanel.getComponentCount(); i++) {
-                        Rectangle bounds = tenantsPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    allTenantsPanel.setLayout(null);
+
+                    //---- textField9 ----
+                    textField9.setToolTipText("search by name");
+                    textField9.setFont(new Font(Font.SERIF, Font.PLAIN, 18));
+                    allTenantsPanel.add(textField9);
+                    textField9.setBounds(40, 25, 280, 33);
+
+                    //---- label66 ----
+                    label66.setIcon(new ImageIcon(getClass().getResource("/images/searchIcon.png")));
+                    allTenantsPanel.add(label66);
+                    label66.setBounds(350, 25, 30, 30);
+
+                    //======== scrollPane8 ========
+                    {
+
+                        //---- tenantsTable ----
+                        tenantsTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, null},
+                            },
+                            new String[] {
+                                "#", "ID", "Name"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = tenantsTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(110);
+                            cm.getColumn(1).setMaxWidth(110);
+                            cm.getColumn(2).setResizable(false);
+                        }
+                        tenantsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane8.setViewportView(tenantsTable);
                     }
-                    Insets insets = tenantsPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    tenantsPanel.setMinimumSize(preferredSize);
-                    tenantsPanel.setPreferredSize(preferredSize);
+                    allTenantsPanel.add(scrollPane8);
+                    scrollPane8.setBounds(35, 100, 415, 320);
+
+                    //---- label67 ----
+                    label67.setText("ID:");
+                    label67.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label67);
+                    label67.setBounds(515, 65, 95, 35);
+
+                    //---- tenantId ----
+                    tenantId.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantId.setEnabled(false);
+                    tenantId.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantId);
+                    tenantId.setBounds(610, 65, 150, 35);
+
+                    //---- label68 ----
+                    label68.setText("Name:");
+                    label68.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label68);
+                    label68.setBounds(515, 120, 95, 35);
+
+                    //---- tenantName ----
+                    tenantName.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantName.setEnabled(false);
+                    tenantName.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantName);
+                    tenantName.setBounds(610, 120, 210, 35);
+
+                    //---- label69 ----
+                    label69.setText("Phone:");
+                    label69.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label69);
+                    label69.setBounds(515, 175, 95, 35);
+
+                    //---- tenantPhone ----
+                    tenantPhone.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantPhone.setEnabled(false);
+                    tenantPhone.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantPhone);
+                    tenantPhone.setBounds(610, 175, 175, 35);
+
+                    //---- label70 ----
+                    label70.setText("Email:");
+                    label70.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label70);
+                    label70.setBounds(515, 230, 95, 35);
+
+                    //---- tenantEmail ----
+                    tenantEmail.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantEmail.setEnabled(false);
+                    tenantEmail.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantEmail);
+                    tenantEmail.setBounds(610, 230, 245, 35);
+
+                    //---- label71 ----
+                    label71.setText("Age:");
+                    label71.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label71);
+                    label71.setBounds(515, 290, 95, 35);
+
+                    //---- tenantAge ----
+                    tenantAge.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantAge.setEnabled(false);
+                    tenantAge.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantAge);
+                    tenantAge.setBounds(610, 290, 85, 35);
+
+                    //---- label72 ----
+                    label72.setText("Major:");
+                    label72.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allTenantsPanel.add(label72);
+                    label72.setBounds(515, 345, 95, 35);
+
+                    //---- tenantMajor ----
+                    tenantMajor.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    tenantMajor.setEnabled(false);
+                    tenantMajor.setDisabledTextColor(new Color(0x333333));
+                    allTenantsPanel.add(tenantMajor);
+                    tenantMajor.setBounds(610, 350, 190, 35);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < allTenantsPanel.getComponentCount(); i++) {
+                            Rectangle bounds = allTenantsPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = allTenantsPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        allTenantsPanel.setMinimumSize(preferredSize);
+                        allTenantsPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                tenantsPanel.add(allTenantsPanel, "card1");
             }
             mainPanel.addTab("TENANTS", tenantsPanel);
 
             //======== ownersPanel ========
             {
-                ownersPanel.setLayout(null);
+                ownersPanel.setLayout(new CardLayout());
 
+                //======== allOwnersPanel ========
                 {
-                    // compute preferred size
-                    Dimension preferredSize = new Dimension();
-                    for(int i = 0; i < ownersPanel.getComponentCount(); i++) {
-                        Rectangle bounds = ownersPanel.getComponent(i).getBounds();
-                        preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-                        preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                    allOwnersPanel.setLayout(null);
+
+                    //---- textField10 ----
+                    textField10.setToolTipText("search by name");
+                    textField10.setFont(new Font(Font.SERIF, Font.PLAIN, 18));
+                    allOwnersPanel.add(textField10);
+                    textField10.setBounds(40, 25, 280, 33);
+
+                    //---- label73 ----
+                    label73.setIcon(new ImageIcon(getClass().getResource("/images/searchIcon.png")));
+                    allOwnersPanel.add(label73);
+                    label73.setBounds(350, 25, 30, 30);
+
+                    //======== scrollPane9 ========
+                    {
+
+                        //---- ownersTable ----
+                        ownersTable.setModel(new DefaultTableModel(
+                            new Object[][] {
+                                {null, null, null},
+                            },
+                            new String[] {
+                                "#", "ID", "Name"
+                            }
+                        ) {
+                            Class<?>[] columnTypes = new Class<?>[] {
+                                Integer.class, Long.class, String.class
+                            };
+                            boolean[] columnEditable = new boolean[] {
+                                false, false, false
+                            };
+                            @Override
+                            public Class<?> getColumnClass(int columnIndex) {
+                                return columnTypes[columnIndex];
+                            }
+                            @Override
+                            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                                return columnEditable[columnIndex];
+                            }
+                        });
+                        {
+                            TableColumnModel cm = ownersTable.getColumnModel();
+                            cm.getColumn(0).setResizable(false);
+                            cm.getColumn(0).setMinWidth(50);
+                            cm.getColumn(0).setMaxWidth(50);
+                            cm.getColumn(1).setResizable(false);
+                            cm.getColumn(1).setMinWidth(110);
+                            cm.getColumn(1).setMaxWidth(110);
+                            cm.getColumn(2).setResizable(false);
+                        }
+                        ownersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        scrollPane9.setViewportView(ownersTable);
                     }
-                    Insets insets = ownersPanel.getInsets();
-                    preferredSize.width += insets.right;
-                    preferredSize.height += insets.bottom;
-                    ownersPanel.setMinimumSize(preferredSize);
-                    ownersPanel.setPreferredSize(preferredSize);
+                    allOwnersPanel.add(scrollPane9);
+                    scrollPane9.setBounds(35, 100, 415, 320);
+
+                    //---- label74 ----
+                    label74.setText("ID:");
+                    label74.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label74);
+                    label74.setBounds(515, 65, 95, 35);
+
+                    //---- ownerIdField ----
+                    ownerIdField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerIdField.setEnabled(false);
+                    ownerIdField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerIdField);
+                    ownerIdField.setBounds(610, 65, 150, 35);
+
+                    //---- label75 ----
+                    label75.setText("Name:");
+                    label75.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label75);
+                    label75.setBounds(515, 120, 95, 35);
+
+                    //---- ownerNameField ----
+                    ownerNameField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerNameField.setEnabled(false);
+                    ownerNameField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerNameField);
+                    ownerNameField.setBounds(610, 120, 210, 35);
+
+                    //---- label76 ----
+                    label76.setText("Phone:");
+                    label76.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label76);
+                    label76.setBounds(515, 175, 95, 35);
+
+                    //---- ownerPhoneField ----
+                    ownerPhoneField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerPhoneField.setEnabled(false);
+                    ownerPhoneField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerPhoneField);
+                    ownerPhoneField.setBounds(610, 175, 175, 35);
+
+                    //---- label77 ----
+                    label77.setText("Email:");
+                    label77.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+                    allOwnersPanel.add(label77);
+                    label77.setBounds(515, 230, 95, 35);
+
+                    //---- ownerEmailField ----
+                    ownerEmailField.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+                    ownerEmailField.setEnabled(false);
+                    ownerEmailField.setDisabledTextColor(new Color(0x333333));
+                    allOwnersPanel.add(ownerEmailField);
+                    ownerEmailField.setBounds(610, 230, 245, 35);
+
+                    {
+                        // compute preferred size
+                        Dimension preferredSize = new Dimension();
+                        for(int i = 0; i < allOwnersPanel.getComponentCount(); i++) {
+                            Rectangle bounds = allOwnersPanel.getComponent(i).getBounds();
+                            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+                            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+                        }
+                        Insets insets = allOwnersPanel.getInsets();
+                        preferredSize.width += insets.right;
+                        preferredSize.height += insets.bottom;
+                        allOwnersPanel.setMinimumSize(preferredSize);
+                        allOwnersPanel.setPreferredSize(preferredSize);
+                    }
                 }
+                ownersPanel.add(allOwnersPanel, "card1");
             }
             mainPanel.addTab("OWNERS", ownersPanel);
         }
@@ -2237,38 +2585,26 @@ public class AdminPage extends JFrame {
             contentPane.setMinimumSize(preferredSize);
             contentPane.setPreferredSize(preferredSize);
         }
+
+        //---- buttonGroup1 ----
+        var buttonGroup1 = new ButtonGroup();
+        buttonGroup1.add(waterYes);
+        buttonGroup1.add(waterNo);
+
+        //---- buttonGroup2 ----
+        var buttonGroup2 = new ButtonGroup();
+        buttonGroup2.add(electricityYes);
+        buttonGroup2.add(electricityNo);
+
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-    // Generated using JFormDesigner Evaluation license - Amro
+    // Generated using JFormDesigner Evaluation license - Amro Sous
     private JTabbedPane mainPanel;
     private JPanel homePanel;
-    private JPanel accountPanel;
-    private JPanel adminAccountPanel;
-    private JLabel label1;
-    private JLabel label2;
-    private JLabel label3;
-    private JLabel label4;
-    private JLabel label5;
-    private JSeparator separator1;
-    private JTextField idField;
-    private JTextField nameField;
-    private JTextField emailField;
-    private JTextField phoneField;
-    private JButton editProfileButton;
-    private JButton saveProfileButton;
-    private JLabel accountPanelMessageLabel;
-    private JButton changePassowrdButton;
-    private JSeparator separator2;
-    private JLabel label11;
-    private JLabel label12;
-    private JLabel label13;
-    private JPasswordField oldPasswordField;
-    private JPasswordField newPasswordField;
-    private JPasswordField retypeField;
     private JPanel housingPanel;
     private JPanel allHousesPanel;
     private JScrollPane scrollPane1;
@@ -2432,6 +2768,36 @@ public class AdminPage extends JFrame {
     private JLabel closeOneHouse2;
     private JButton rejectRequestButton;
     private JPanel tenantsPanel;
+    private JPanel allTenantsPanel;
+    private JTextField textField9;
+    private JLabel label66;
+    private JScrollPane scrollPane8;
+    private JTable tenantsTable;
+    private JLabel label67;
+    private JTextField tenantId;
+    private JLabel label68;
+    private JTextField tenantName;
+    private JLabel label69;
+    private JTextField tenantPhone;
+    private JLabel label70;
+    private JTextField tenantEmail;
+    private JLabel label71;
+    private JTextField tenantAge;
+    private JLabel label72;
+    private JTextField tenantMajor;
     private JPanel ownersPanel;
+    private JPanel allOwnersPanel;
+    private JTextField textField10;
+    private JLabel label73;
+    private JScrollPane scrollPane9;
+    private JTable ownersTable;
+    private JLabel label74;
+    private JTextField ownerIdField;
+    private JLabel label75;
+    private JTextField ownerNameField;
+    private JLabel label76;
+    private JTextField ownerPhoneField;
+    private JLabel label77;
+    private JTextField ownerEmailField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }
