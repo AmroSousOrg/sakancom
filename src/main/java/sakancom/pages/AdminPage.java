@@ -5,6 +5,7 @@
 package sakancom.pages;
 
 import java.awt.event.*;
+
 import sakancom.common.Database;
 import sakancom.common.Functions;
 import sakancom.common.Validation;
@@ -17,9 +18,7 @@ import java.util.Objects;
 import javax.swing.*;
 import javax.swing.table.*;
 
-/**
- * 
- */
+
 @SuppressWarnings("FieldCanBeLocal")
 public class AdminPage extends JFrame {
 
@@ -66,22 +65,21 @@ public class AdminPage extends JFrame {
     private void ownersTableSelectionChanged() {
         int selectedRow = ownersTable.getSelectedRow();
         if (selectedRow == -1) return;
-        try {
+        String query = "select * from owners where owner_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
             long ownerId = (long) ownersTable.getValueAt(selectedRow, 1);
-            Connection conn = Database.makeConnection();
-            String query = "select * from owners where owner_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setLong(1, ownerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                ownerIdField.setText(String.valueOf(rs.getLong("owner_id")));
-                ownerNameField.setText(rs.getString("name"));
-                ownerPhoneField.setText(rs.getString("phone"));
-                ownerEmailField.setText(rs.getString("email"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    ownerIdField.setText(String.valueOf(rs.getLong("owner_id")));
+                    ownerNameField.setText(rs.getString("name"));
+                    ownerPhoneField.setText(rs.getString("phone"));
+                    ownerEmailField.setText(rs.getString("email"));
+                }
             }
-            rs.close();
-            stmt.close();
-            conn.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException ignored) {
@@ -91,25 +89,24 @@ public class AdminPage extends JFrame {
     private void tenantsTableSelectionChanged() {
         int selectedRow = tenantsTable.getSelectedRow();
         if (selectedRow == -1) return;
+        String query = "select * from tenants where tenant_id = ?";
 
-        try {
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
             long id = (long) tenantsTable.getValueAt(selectedRow, 1);
-            Connection conn = Database.makeConnection();
-            String query = "select * from tenants where tenant_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setLong(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                tenantId.setText(String.valueOf(rs.getLong("tenant_id")));
-                tenantName.setText(rs.getString("name"));
-                tenantPhone.setText(rs.getString("phone"));
-                tenantEmail.setText(rs.getString("email"));
-                tenantAge.setText(rs.getString("age"));
-                tenantMajor.setText(rs.getString("university_major"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tenantId.setText(String.valueOf(rs.getLong("tenant_id")));
+                    tenantName.setText(rs.getString("name"));
+                    tenantPhone.setText(rs.getString("phone"));
+                    tenantEmail.setText(rs.getString("email"));
+                    tenantAge.setText(rs.getString("age"));
+                    tenantMajor.setText(rs.getString("university_major"));
+                }
             }
-            rs.close();
-            stmt.close();
-            conn.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException ignored) {
@@ -140,23 +137,30 @@ public class AdminPage extends JFrame {
         int selected = housesTable.getSelectedRow();
         if (selected == -1) return;
         String name = (String)housesTable.getValueAt(selected, 1);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT * from `housing` where `name` = '"+name+"'",
-                    conn
-            );
-            rs.next();
-            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
-            long id = (long)houseData.get("owner_id");
-            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
-            if (rs.next())
-            {
-                houseData.put("owner_name", rs.getString("name"));
-                houseData.put("owner_phone", rs.getString("phone"));
+        String query = "SELECT * from `housing` where `name` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            HashMap<String, Object> houseData;
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                houseData = Functions.rsToHashMap(rs);
             }
-            showHouseInfoPanel(houseData);
-            conn.close();
+            long id = (long)houseData.get("owner_id");
+            String query1 = "SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?";
+            try (PreparedStatement stmt1 = conn.prepareStatement(query1)) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next())
+                    {
+                        houseData.put("owner_name", rs.getString("name"));
+                        houseData.put("owner_phone", rs.getString("phone"));
+                    }
+                    showHouseInfoPanel(houseData);
+                }
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -207,14 +211,16 @@ public class AdminPage extends JFrame {
         int selectedRow = reservationsTable.getSelectedRow();
         if (selectedRow == -1) return;
         Functions.switchChildPanel(reservationsPanel, invoicePanel);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery("select * from `invoice` where `reservation_id` = "+
-                    reservationsTable.getValueAt(selectedRow, 1), conn);
-            rs.next();
-            HashMap<String, Object> invoice_data = Functions.rsToHashMap(rs);
-            conn.close();
-            fillInvoiceInfo(invoice_data);
+        String query = "select * from `invoice` where `reservation_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ) {
+            stmt.setLong(1, (Long) reservationsTable.getValueAt(selectedRow, 1));
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                fillInvoiceInfo(Functions.rsToHashMap(rs));
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -270,15 +276,14 @@ public class AdminPage extends JFrame {
                     "WARNING", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        String query = "update `reservations` set `accepted` = '1' where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
-            pstmt.setLong(1, rid);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+            stmt.setLong(1, rid);
+            stmt.executeUpdate();
             reservationsTable.setValueAt(1, selectedRow, 7);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -293,15 +298,14 @@ public class AdminPage extends JFrame {
                     "WARNING", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try {
-            Connection conn = Database.makeConnection();
-            String query = "delete from `reservations` where reservation_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+        String query = "delete from `reservations` where reservation_id = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long rid = (long)reservationsTable.getValueAt(selectedRow, 1);
-            pstmt.setLong(1, rid);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+            stmt.setLong(1, rid);
+            stmt.executeUpdate();
             fillReservationsTable();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -309,27 +313,26 @@ public class AdminPage extends JFrame {
     }
 
     public void furnitureTableSelectionChanged() {
-        Connection conn;
         int selectedRow = furnitureTable.getSelectedRow();
         if (selectedRow == -1) return;
-        try {
-            conn = Database.makeConnection();
-            String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
-                    "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        String query = "SELECT `furniture`.`furniture_id` as 'furniture_id', `furniture`.`name` as 'furniture_name', `furniture`.`description` as 'description', `tenants`.`name` as 'owner_name', " +
+                "`tenants`.`phone` as 'phone' from `furniture`, `tenants` where `furniture`.`tenant_id` = `tenants`.`tenant_id` and `furniture`.`furniture_id` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
             long id = (long) furnitureTable.getValueAt(selectedRow, 1);
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
-            {
-                furnitureId.setText(rs.getString("furniture_id"));
-                furnitureName.setText(rs.getString("furniture_name"));
-                furnitureDesc.setText(rs.getString("description"));
-                furnitureOwner.setText(rs.getString("owner_name"));
-                furniturePhone.setText(rs.getString("phone"));
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next())
+                {
+                    furnitureId.setText(rs.getString("furniture_id"));
+                    furnitureName.setText(rs.getString("furniture_name"));
+                    furnitureDesc.setText(rs.getString("description"));
+                    furnitureOwner.setText(rs.getString("owner_name"));
+                    furniturePhone.setText(rs.getString("phone"));
+                }
             }
-            conn.close();
-
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -339,23 +342,31 @@ public class AdminPage extends JFrame {
         int selected = requestsTable.getSelectedRow();
         if (selected == -1) return;
         String name = (String)requestsTable.getValueAt(selected, 1);
-        try {
-            Connection conn = Database.makeConnection();
-            ResultSet rs = Database.getQuery(
-                    "SELECT * from `housing` where `name` = '"+name+"'",
-                    conn
-            );
-            rs.next();
-            HashMap<String, Object> houseData = Functions.rsToHashMap(rs);
+        String query = "SELECT * from `housing` where `name` = ?";
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setString(1, name);
+            HashMap<String, Object> houseData;
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                houseData = Functions.rsToHashMap(rs);
+            }
+
             long id = (long)houseData.get("owner_id");
-            rs = Database.getQuery("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = "+id , conn);
-            if (rs.next())
-            {
-                houseData.put("owner_name", rs.getString("name"));
-                houseData.put("owner_phone", rs.getString("phone"));
+            try (PreparedStatement stmt1 = conn.prepareStatement("SELECT `name`, `phone` FROM `owners` WHERE `owner_id` = ?")) {
+                stmt1.setLong(1, id);
+                try (ResultSet rs = stmt1.executeQuery()) {
+                    if (rs.next())
+                    {
+                        houseData.put("owner_name", rs.getString("name"));
+                        houseData.put("owner_phone", rs.getString("phone"));
+                    }
+                }
             }
             showRequestHouseInfoPanel(houseData);
-            conn.close();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -402,13 +413,12 @@ public class AdminPage extends JFrame {
     private void acceptRequest() {
         long id = Long.parseLong(requestHouseId.getText());
         String query = "update `housing` set `available` = '1' where `housing_id` = ?";
-        try {
-            Connection conn = Database.makeConnection();
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
             Functions.switchChildPanel(requestsPanel, requestsTablePanel);
             fillRequestsTable();
         } catch (SQLException e) {
@@ -419,13 +429,12 @@ public class AdminPage extends JFrame {
     private void rejectRequest() {
         long id = Long.parseLong(requestHouseId.getText());
         String query = "delete from `housing` where `housing_id` = ?";
-        try {
-            Connection conn = Database.makeConnection();
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            pstmt.executeUpdate();
-            pstmt.close();
-            conn.close();
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)
+        ){
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
             Functions.switchChildPanel(requestsPanel, requestsTablePanel);
             fillRequestsTable();
         } catch (SQLException e) {
@@ -436,33 +445,29 @@ public class AdminPage extends JFrame {
     private void deleteHouse() {
         oneHouseMessageLabel.setForeground(Color.red);
         long id = Long.parseLong(houseId.getText());
-        Connection conn;
-        PreparedStatement pstmt;
-        ResultSet rs;
-        String query, error = "";
-        
-        try {
-            query = "select `reservation_id` from `invoice` where `housing_id` = ?";
-            conn = Database.makeConnection();
-            pstmt = conn.prepareStatement(query);
-            pstmt.setLong(1, id);
-            rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                error = "You can't delete this house, because there are reservations on it.";
-            }
-            else {
-                query = "delete from `housing` where `housing_id` = ?";
-                pstmt = conn.prepareStatement(query);
-                pstmt.setLong(1, id);
-                pstmt.executeUpdate();
-                Functions.switchChildPanel(housingPanel, allHousesPanel);
-                fillHousesTable();
-            }
-            pstmt.close();
-            conn.close();
-            if (!error.isEmpty()) {
-                oneHouseMessageLabel.setText(error);
+        String error;
+
+        try (
+                Connection conn = Database.makeConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        "select `reservation_id` from `invoice` where `housing_id` = ?")
+        ){
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    error = "You can't delete this house, because there are reservations on it.";
+                    oneHouseMessageLabel.setText(error);
+                }
+                else {
+                    try (PreparedStatement stmt1 = conn.prepareStatement(
+                            "delete from `housing` where `housing_id` = ?")
+                    ) {
+                        stmt1.setLong(1, id);
+                        stmt1.executeUpdate();
+                    }
+                    Functions.switchChildPanel(housingPanel, allHousesPanel);
+                    fillHousesTable();
+                }
             }
             
         } catch (SQLException e) {
