@@ -71,7 +71,7 @@ public final class Database {
         Method to query a specified user based on name and password
         and role (tenant / owner / admin).
     */
-    public static HashMap<String, Object> getUser(String name, String password, String role)
+    public static Map<String, Object> getUser(String name, String password, String role)
             throws SQLException {
 
         String query = "SELECT * FROM tenants WHERE name = ? and password = ?";
@@ -122,21 +122,21 @@ public final class Database {
     /*
      query a specified tenant based on username and password
     */
-    public static HashMap<String, Object> getTenant(String name, String password) throws SQLException {
+    public static Map<String, Object> getTenant(String name, String password) throws SQLException {
         return getUser(name, password, "tenants");
     }
 
     /***
      query a specified owner based on username and password
      ***/
-    public static HashMap<String, Object> getOwner(String name, String password) throws SQLException {
+    public static Map<String, Object> getOwner(String name, String password) throws SQLException {
         return getUser(name, password, "owners");
     }
 
     /*
      query the admin based on name and password
     */
-    public static HashMap<String, Object> getAdmin(String name, String password) throws SQLException {
+    public static Map<String, Object> getAdmin(String name, String password) throws SQLException {
         return getUser(name, password, "admin");
     }
 
