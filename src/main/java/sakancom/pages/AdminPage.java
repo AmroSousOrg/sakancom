@@ -16,6 +16,7 @@ import sakancom.exceptions.InputValidationException;
 import java.awt.*;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.swing.*;
 import javax.swing.table.*;
@@ -26,10 +27,16 @@ public class AdminPage extends JFrame {
 
     private static final Logger logger = LogManager.getLogger(AdminPage.class);
     private final HashMap<String, Object> adminData;
-    public static final int HOME = 0, HOUSING = 1, RESERVATIONS = 2, FURNITURE = 3, REQUESTS = 4, TENANTS = 5, OWNERS = 6;
+    public static final int HOME = 0;
+    public static final int HOUSING = 1;
+    public static final int RESERVATIONS = 2;
+    public static final int FURNITURE = 3;
+    public static final int REQUESTS = 4;
+    public static final int TENANTS = 5;
+    public static final int OWNERS = 6;
 
-    public AdminPage(HashMap<String, Object> adminData) {
-        this.adminData = adminData;
+    public AdminPage(Map<String, Object> adminData) {
+        this.adminData = (HashMap<String, Object>) adminData;
         initComponents();
         setTitle("Admin Page");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -151,7 +158,7 @@ public class AdminPage extends JFrame {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next())
-                    houseData = Functions.rsToHashMap(rs);
+                    houseData = (HashMap<String, Object>) Functions.rsToHashMap(rs);
                 else
                     houseData = new HashMap<>();
             }
@@ -226,7 +233,7 @@ public class AdminPage extends JFrame {
             stmt.setLong(1, (Long) reservationsTable.getValueAt(selectedRow, 1));
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next())
-                    fillInvoiceInfo(Functions.rsToHashMap(rs));
+                    fillInvoiceInfo((HashMap<String, Object>) Functions.rsToHashMap(rs));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -358,7 +365,7 @@ public class AdminPage extends JFrame {
             HashMap<String, Object> houseData;
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next();
-                houseData = Functions.rsToHashMap(rs);
+                houseData = (HashMap<String, Object>) Functions.rsToHashMap(rs);
             }
 
             long id = (long)houseData.get("owner_id");

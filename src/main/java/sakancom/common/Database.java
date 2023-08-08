@@ -99,7 +99,7 @@ public final class Database {
     /*
         this method to get user from database depending on name.
     */
-    private static HashMap<String, Object> getUser(String username, String role)
+    private static Map<String, Object> getUser(String username, String role)
             throws SQLException {
         String query = "SELECT * FROM tenants WHERE name = ?";
         if (role.equals("owners")) query = "SELECT * FROM owners WHERE name = ?";
@@ -164,11 +164,10 @@ public final class Database {
 
         return !getUser(name, table).isEmpty();
     }
-
     /*
         method to add new tenant
     */
-    public static void addTenant(HashMap<String, Object> data) throws SQLException {
+    public static void addTenant(Map<String, Object> data) throws SQLException {
         String query = "insert into `tenants` (`name`, `password`, `email`, `phone`," +
                 " `age`, `university_major`) values (?, ?, ?, ?, ?, ?)";
         try (
@@ -192,7 +191,7 @@ public final class Database {
     /*
         method to add new owner
     */
-    public static void addOwner(HashMap<String, Object> data) throws SQLException {
+    public static void addOwner(Map<String, Object> data) throws SQLException {
         String query = "insert into `owners` (`name`, `password`, `email`, `phone`) " +
                 "values (?, ?, ?, ?)";
         try (
@@ -237,7 +236,7 @@ public final class Database {
         }
     }
 
-    public static long addReservation(HashMap<String, String> data) throws SQLException {
+    public static long addReservation(Map<String, String> data) throws SQLException {
 
         String query = "insert into `reservations` (`tenant_id`, `housing_id`, `floor_num`, `apart_num`) values (?, ?, ?, ?)";
         try (
@@ -249,15 +248,15 @@ public final class Database {
             stmt.setInt(3, Integer.parseInt(data.get("floor_num")));
             stmt.setInt(4, Integer.parseInt(data.get("apart_num")));
             int affectedRows = stmt.executeUpdate();
-            long last_id = -1;
+            long lastId = -1;
             if (affectedRows > 0) {
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
                     if (rs.next()) {
-                        last_id = rs.getLong(1);
+                        lastId = rs.getLong(1);
                     }
                 }
             }
-            return last_id;
+            return lastId;
         }
     }
 
@@ -308,14 +307,14 @@ public final class Database {
         }
     }
 
-    public static HashMap<String, Object> getHouse(long housing_id) throws SQLException {
+    public static Map<String, Object> getHouse(long housingId) throws SQLException {
 
         String query = "select * from housing where housing_id = ?";
         try (
                 Connection conn = makeConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)
         ) {
-            stmt.setLong(1, housing_id);
+            stmt.setLong(1, housingId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next())
                     return Functions.rsToHashMap(rs);
