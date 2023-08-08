@@ -96,7 +96,7 @@ public class TenantPage extends JFrame {
             HashMap<String, Object> houseData;
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next();
-                houseData = Functions.rsToHashMap(rs);
+                houseData = (HashMap<String, Object>) Functions.rsToHashMap(rs);
             }
 
             long id = (long)houseData.get("owner_id");
@@ -180,7 +180,7 @@ public class TenantPage extends JFrame {
             stmt.setLong(1, last_id);
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next();
-                fillInvoiceInfo(Functions.rsToHashMap(rs));
+                fillInvoiceInfo((HashMap<String, Object>) Functions.rsToHashMap(rs));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -421,7 +421,7 @@ public class TenantPage extends JFrame {
             stmt.setLong(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 rs.next();
-                fillInvoiceInfo(Functions.rsToHashMap(rs));
+                fillInvoiceInfo((HashMap<String, Object>) Functions.rsToHashMap(rs));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
