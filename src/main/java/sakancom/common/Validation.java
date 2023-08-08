@@ -43,7 +43,7 @@ public class Validation {
         method to validate phone input for user.
     */
     public static void validatePhone(String phone) throws InputValidationException {
-        if (!phone.matches("[0-9]{10}"))
+        if (!phone.matches("\\d{10}"))
             throw new InputValidationException("Invalid phone.");
     }
 
@@ -51,7 +51,7 @@ public class Validation {
         method to validate age input for user.
     */
     public static void validateAge(String age) throws InputValidationException {
-        if (!age.matches("[1-9]{1,3}[0-9]{0,3}") ||
+        if (!age.matches("[1-9]{1,3}\\d{0,3}") ||
             Integer.parseInt(age) > 150)
             throw new InputValidationException("Invalid age.");
     }

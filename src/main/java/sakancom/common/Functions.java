@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.stream.Stream;
 
@@ -53,7 +54,7 @@ public class Functions {
         method to convert ResultSet of one row  to HashMap<String, String>
         mapping column name with column value as string
     */
-    public static HashMap<String, Object> rsToHashMap(ResultSet rs)
+    public static Map<String, Object> rsToHashMap(ResultSet rs)
             throws SQLException {
 
         if (rs == null || rs.isAfterLast()) return new HashMap<>();
@@ -72,7 +73,7 @@ public class Functions {
         method to clear all fields in a given parent component
     */
     public static void clearAllChildren(JComponent parent) {
-        Stream.of(parent.getComponents()).filter(c -> c instanceof JTextComponent)
+        Stream.of(parent.getComponents()).filter(JTextComponent.class::isInstance)
                 .forEach(c -> ((JTextComponent) c).setText(""));
     }
 
