@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6c859f4f-11f7-4675-9263-e7024c99aaff" name="Changes" comment="feature: create new account ready">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="6c859f4f-11f7-4675-9263-e7024c99aaff" name="Changes" comment="refactor delete unused import">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -175,7 +174,7 @@
       <workItem from="1690466621431" duration="1561000" />
       <workItem from="1690752791857" duration="213000" />
       <workItem from="1690753031508" duration="19000" />
-      <workItem from="1691441627409" duration="1519000" />
+      <workItem from="1691441627409" duration="3654000" />
     </task>
     <task id="LOCAL-00001" summary="project created, first commit">
       <created>1688483058938</created>
@@ -219,7 +218,23 @@
       <option name="project" value="LOCAL" />
       <updated>1689020032874</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="feature: create new account ready">
+      <option name="closed" value="true" />
+      <created>1691444696386</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1691444696386</updated>
+    </task>
+    <task id="LOCAL-00008" summary="refactor delete unused import">
+      <option name="closed" value="true" />
+      <created>1691445817927</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1691445817927</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -243,7 +258,8 @@
     <MESSAGE value="sql file updated" />
     <MESSAGE value="test database created, login with all roles feature ready" />
     <MESSAGE value="feature: create new account ready" />
-    <option name="LAST_COMMIT_MESSAGE" value="feature: create new account ready" />
+    <MESSAGE value="refactor delete unused import" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor delete unused import" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sakancom$Feature__newAccount.ic" NAME="Feature: newAccount Coverage Results" MODIFIED="1688834186242" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
