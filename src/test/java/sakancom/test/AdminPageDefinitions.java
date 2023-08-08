@@ -264,7 +264,7 @@ public class AdminPageDefinitions {
     public void houseWithTheseInfoExistInDatabase(io.cucumber.datatable.DataTable dataTable) {
         Map<String, String> data = dataTable.asMaps(String.class, String.class).get(0);
         try {
-            HashMap<String, Object> rs = Database.getHouse(Long.parseLong(data.get("housing_id")));
+            HashMap<String, Object> rs = (HashMap<String, Object>) Database.getHouse(Long.parseLong(data.get("housing_id")));
             Assert.assertNotNull(rs);
             Assert.assertEquals(data.get("name"), rs.get("name"));
             Assert.assertEquals(data.get("location"), rs.get("location"));
